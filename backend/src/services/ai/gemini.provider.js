@@ -1,0 +1,310 @@
+import { GoogleGenAI } from '@google/genai';
+import { getAIConfig, isAIConfigured } from '../../config/ai.config.js';
+import {
+  AIConfigurationError,
+  AIAuthenticationError,
+  AIRateLimitError,
+  AIQuotaExceededError,
+  AITimeoutError,
+  AIError,
+} from './ai.interface.js';
+import { parseStructuredJson } from './structuredParser.js';
+
+/**
+ * Sanitizes error messages to ensure no API keys, credentials, or sensitive headers are exposed.
+ */
+function sanitizeErrorMessage(rawMessage) {
+  if (!rawMessage || typeof rawMessage !== 'string') return 'An unexpected AI service error occurred.';
+  return rawMessage
+    .replace(/key=[a-zA-Z0-9_\-]+/gi, 'key=[REDACTED]')
+    .replace(/AIza[0-9A-Za-z-_]{35}/g, '[REDACTED_API_KEY]')
+    .replace(/bearer\s+[a-zA-Z0-9_\-\.]+/gi, 'Bearer [REDACTED]')
+    .replace(/AQ\.[a-zA-Z0-9_\-]+/g, '[REDACTED_TOKEN]');
+}
+
+export class GeminiProvider {
+  constructor() {
+    this.providerName = 'gemini';
+    this.client = null;
+    this.currentApiKey = '';
+    this.initClient();
+  }
+
+  get modelName() {
+    return getAIConfig().model;
+  }
+
+  initClient() {
+    const config = getAIConfig();
+    if (config.apiKey && config.apiKey !== this.currentApiKey) {
+      try {
+        this.client = new GoogleGenAI({ apiKey: config.apiKey });
+        this.currentApiKey = config.apiKey;
+      } catch (err) {
+        console.error('[AI] Failed to initialize GoogleGenAI client:', sanitizeErrorMessage(err.message));
+        this.client = null;
+      }
+    }
+  }
+
+  isConfigured() {
+    return isAIConfigured();
+  }
+
+  ensureClient() {
+    this.initClient();
+    if (!this.client || !this.isConfigured()) {
+      throw new AIConfigurationError('Gemini API key is not configured. Please set GEMINI_API_KEY in backend/.env');
+    }
+    return this.client;
+  }
+
+  parseRetryDelay(err) {
+    // 1. Check err.details for RetryInfo (e.g. { retryDelay: "48s" })
+    if (Array.isArray(err?.details)) {
+      for (const d of err.details) {
+        if (d?.['@type']?.includes('RetryInfo') && d.retryDelay) {
+          const match = String(d.retryDelay).match(/^([\d.]+)s?$/i);
+          if (match) {
+            const val = Math.round(parseFloat(match[1]));
+            if (!isNaN(val) && val > 0) return val;
+          }
+        }
+      }
+    }
+
+    // 2. Check err.message / string for "retry in Xs" or "retry after Xs"
+    const raw = err?.message || String(err || '');
+    const match = raw.match(/retry (?:in|after) ([\d.]+)s/i);
+    if (match) {
+      const val = Math.round(parseFloat(match[1]));
+      if (!isNaN(val) && val > 0) return val;
+    }
+
+    return undefined;
+  }
+
+  mapError(err) {
+    const rawMsg = err?.message || String(err);
+    const sanitized = sanitizeErrorMessage(rawMsg);
+
+    if (
+      sanitized.includes('API_KEY_INVALID') ||
+      sanitized.includes('API key not valid') ||
+      sanitized.includes('UNAUTHENTICATED') ||
+      err?.status === 401 ||
+      err?.status === 403
+    ) {
+      return new AIAuthenticationError('Invalid Gemini API Key or authentication failed.');
+    }
+    const lowerSanitized = sanitized.toLowerCase();
+    const isRateOrQuota =
+      err?.status === 429 ||
+      err?.statusCode === 429 ||
+      lowerSanitized.includes('resource_exhausted') ||
+      lowerSanitized.includes('429') ||
+      lowerSanitized.includes('quota') ||
+      lowerSanitized.includes('rate limit') ||
+      lowerSanitized.includes('too many requests');
+
+    if (isRateOrQuota) {
+      const retryDelay = this.parseRetryDelay(err);
+
+      // Distinguish permanent daily/project quota exhaustion vs temporary/burst throttling
+      const isDailyQuota =
+        lowerSanitized.includes('limit: 500') ||
+        lowerSanitized.includes('perday') ||
+        lowerSanitized.includes('daily') ||
+        lowerSanitized.includes('generaterequestsperday') ||
+        (lowerSanitized.includes('daily quota') && !lowerSanitized.includes('perminute'));
+
+      if (isDailyQuota) {
+        // Daily quota exhausted: do NOT pretend it will recover in 60s
+        return new AIQuotaExceededError(
+          'The AI provider quota has been exhausted. Generation will become available again when the provider quota resets.',
+          retryDelay // undefined unless provider explicitly specified a long reset window
+        );
+      }
+
+      // Temporary / burst throttling (e.g. 15 RPM, "retry in 48s")
+      return new AIRateLimitError(
+        'AI generation is temporarily rate-limited. Please try again shortly.',
+        retryDelay !== undefined ? retryDelay : 60 // Safe fallback: 60s
+      );
+    }
+    if (
+      sanitized.includes('timeout') ||
+      sanitized.includes('aborted') ||
+      err?.name === 'AbortError' ||
+      err?.code === 'ETIMEDOUT'
+    ) {
+      return new AITimeoutError('Gemini API request timed out.');
+    }
+
+    return new AIError(`Gemini request failed: ${sanitized}`, 'AI_PROVIDER_ERROR', err?.status || 500);
+  }
+
+  isTransient(err) {
+    const status = err?.status;
+    if (status === 400 || status === 401 || status === 403 || status === 404 || status === 422) {
+      return false;
+    }
+    const msg = err?.message || String(err);
+    return (
+      msg.includes('503') ||
+      msg.includes('high demand') ||
+      msg.includes('UNAVAILABLE') ||
+      msg.includes('ECONNRESET') ||
+      msg.includes('ETIMEDOUT')
+    );
+  }
+
+  async generateText(prompt, options = {}) {
+    const client = this.ensureClient();
+    const config = getAIConfig();
+    const model = this.modelName;
+    const timeoutMs = options.timeoutMs || config.timeoutMs;
+    const maxRetries = Math.min(2, config.maxRetries);
+    const startTime = Date.now();
+
+    console.log(`[AI] Request started (provider: ${this.providerName}, model: ${model})`);
+
+    let lastError = null;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      if (attempt > 0) {
+        console.log(`[AI] Retrying transient request (attempt ${attempt + 1}/${maxRetries + 1})...`);
+        await new Promise((r) => setTimeout(r, 800 * attempt));
+      }
+
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+      try {
+        const response = await client.models.generateContent({
+          model,
+          contents: prompt,
+          config: {
+            temperature: options.temperature !== undefined ? options.temperature : config.temperature,
+            maxOutputTokens: options.maxOutputTokens,
+            systemInstruction: options.systemInstruction,
+            abortSignal: controller.signal,
+          },
+        });
+
+        clearTimeout(timer);
+        const latencyMs = Date.now() - startTime;
+        const text =
+          (typeof response.text === 'function' ? response.text() : response.text) ||
+          response.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('') ||
+          '';
+
+        console.log(`[AI] Request completed in ${latencyMs}ms (provider: ${this.providerName})`);
+
+        return {
+          text,
+          model,
+          latencyMs,
+        };
+      } catch (err) {
+        clearTimeout(timer);
+        lastError = err;
+        if (!this.isTransient(err) || attempt === maxRetries) {
+          break;
+        }
+      }
+    }
+
+    const latencyMs = Date.now() - startTime;
+    console.error(`[AI] Request failed after ${latencyMs}ms:`, sanitizeErrorMessage(lastError?.message || lastError));
+    throw this.mapError(lastError);
+  }
+
+  async generateStructuredOutput(prompt, options = {}) {
+    const client = this.ensureClient();
+    const config = getAIConfig();
+    const model = this.modelName;
+    const timeoutMs = options.timeoutMs || config.timeoutMs;
+    const maxRetries = Math.min(2, config.maxRetries);
+    const startTime = Date.now();
+
+    console.log(`[AI] Structured request started (provider: ${this.providerName}, model: ${model})`);
+
+    let lastError = null;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      if (attempt > 0) {
+        console.log(`[AI] Retrying structured request (attempt ${attempt + 1}/${maxRetries + 1})...`);
+        await new Promise((r) => setTimeout(r, 800 * attempt));
+      }
+
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+      try {
+        const response = await client.models.generateContent({
+          model,
+          contents: prompt,
+          config: {
+            temperature: options.temperature !== undefined ? options.temperature : config.temperature,
+            maxOutputTokens: options.maxOutputTokens,
+            systemInstruction: options.systemInstruction,
+            responseMimeType: 'application/json',
+            abortSignal: controller.signal,
+          },
+        });
+
+        clearTimeout(timer);
+        const latencyMs = Date.now() - startTime;
+        const rawText =
+          (typeof response.text === 'function' ? response.text() : response.text) ||
+          response.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('') ||
+          '';
+        const data = parseStructuredJson(rawText);
+
+        console.log(`[AI] Structured request completed in ${latencyMs}ms (provider: ${this.providerName})`);
+
+        return {
+          data,
+          rawText,
+          model,
+          latencyMs,
+        };
+      } catch (err) {
+        clearTimeout(timer);
+        lastError = err;
+        if (!this.isTransient(err) || attempt === maxRetries) {
+          break;
+        }
+      }
+    }
+
+    const latencyMs = Date.now() - startTime;
+    console.error(`[AI] Structured request failed after ${latencyMs}ms:`, sanitizeErrorMessage(lastError?.message || lastError));
+    throw this.mapError(lastError);
+  }
+
+  async checkHealth() {
+    const configured = this.isConfigured();
+    const model = this.modelName;
+
+    if (!configured) {
+      return {
+        configured: false,
+        provider: this.providerName,
+        model,
+        status: 'not_configured',
+        details: 'GEMINI_API_KEY is not set in environment variables.',
+      };
+    }
+
+    return {
+      configured: true,
+      provider: this.providerName,
+      model,
+      status: 'ready',
+    };
+  }
+}
+
+export const geminiProvider = new GeminiProvider();

@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Environment and Secret Files
+.env
+.env.*
+*.env
+!*.env.example
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Build and Transpilation Outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Scratch and Temporary Directories
+scratch/
+.system_generated/
+*.tmp
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log
+**/*.log
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

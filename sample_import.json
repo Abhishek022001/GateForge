@@ -1,0 +1,61 @@
+[
+  {
+    "question": "What is the worst-case number of comparisons required to find both the minimum and maximum elements in an array of $n$ elements?",
+    "subject": "Algorithms",
+    "topic": "Divide and Conquer",
+    "subtopic": "Min-Max Finding",
+    "concepts": ["simultaneous min-max", "comparisons count", "divide and conquer"],
+    "year": 2024,
+    "exam": "GATE CS",
+    "paper": "CS",
+    "questionNumber": 40,
+    "questionType": "MCQ",
+    "difficulty": "Medium",
+    "options": [
+      "$\\lceil 3n/2 \\rceil - 2$",
+      "$2n - 2$",
+      "$\\lfloor n/2 \\rfloor$",
+      "$n \\log_2 n$"
+    ],
+    "correctAnswer": "A",
+    "explanation": "By comparing elements in pairs and comparing the larger with max and smaller with min, the total number of comparisons is $\\lceil 3n/2 \\rceil - 2$.",
+    "source": {
+      "type": "PYQ",
+      "exam": "GATE",
+      "year": 2024,
+      "paper": "CS",
+      "questionNumber": 40
+    },
+    "reasoningType": ["calculation", "analytical"]
+  },
+  {
+    "question": "Duplicate copy of Min-Max question to test CLI duplicate detection.",
+    "subject": "Algorithms",
+    "topic": "Divide and Conquer",
+    "concepts": ["simultaneous min-max"],
+    "year": 2024,
+    "exam": "GATE CS",
+    "paper": "CS",
+    "questionNumber": 40,
+    "questionType": "MCQ",
+    "difficulty": "Medium",
+    "options": ["A", "B", "C", "D"],
+    "correctAnswer": "A",
+    "explanation": "Duplicate record test.",
+    "source": {
+      "type": "PYQ",
+      "exam": "GATE",
+      "year": 2024,
+      "paper": "CS",
+      "questionNumber": 40
+    }
+  },
+  {
+    "question": "Malformed question missing correctAnswer.",
+    "subject": "DBMS",
+    "topic": "Transactions",
+    "questionType": "MCQ",
+    "options": ["Option 1", "Option 2"],
+    "explanation": "No answer provided."
+  }
+]

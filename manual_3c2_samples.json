@@ -1,0 +1,101 @@
+{
+  "algoMCQ": {
+    "question": "Let $G = (V, E)$ be a directed graph with non-negative edge weights given by a weight function $w: E \to \\mathbb{R}^{\\ge 0}$. Let $c$ be a positive constant ($c > 0$). Consider a new weight function $w'$ defined for every edge $(u, v) \\in E$ as $w'(u, v) = w(u, v) + c$. If we run Dijkstra's algorithm from a source vertex $s$ using the new edge weights $w'$ instead of $w$, which of the following statements is ALWAYS true regarding the resulting shortest-path tree?",
+    "questionType": "MCQ",
+    "options": [
+      {
+        "id": "A",
+        "text": "Dijkstra's algorithm with edge weights $w'$ always produces the exact same shortest-path tree as with original weights $w$ because adding a constant shifts all path lengths by the same amount."
+      },
+      {
+        "id": "B",
+        "text": "Dijkstra's algorithm with edge weights $w'$ may produce a completely different shortest-path tree because paths with fewer edges are favored less relative to paths with more edges."
+      },
+      {
+        "id": "C",
+        "text": "Dijkstra's algorithm with edge weights $w'$ will fail to terminate or will yield incorrect shortest paths because the new weights are no longer monotonically increasing along paths."
+      },
+      {
+        "id": "D",
+        "text": "Dijkstra's algorithm with edge weights $w'$ produces the correct shortest paths for $w$ if we subtract $c$ from each edge in the resulting shortest paths."
+      }
+    ],
+    "correctAnswer": "B",
+    "explanation": "To analyze why Dijkstra's algorithm with modified weights $w'(u, v) = w(u, v) + c$ (where $c > 0$) can alter the shortest-path tree, consider the length of a path $p = \\langle v_0, v_1, \\dots, v_k \rangle$ consisting of $k$ edges under the new weight function $w'$:\n\n$$ w'(p) = \\sum_{i=1}^{k} w'(v_{i-1}, v_i) = \\sum_{i=1}^{k} (w(v_{i-1}, v_i) + c) = \\left(\\sum_{i=1}^{k} w(v_{i-1}, v_i)\right) + k \\cdot c = w(p) + k \\cdot c $$\n\nThus, the new weight of a path increases not just by a constant, but by an amount proportional to the number of edges $k$ in that path. Consequently, if path $p_1$ has fewer edges than path $p_2$ but a slightly larger original weight $w(p_1) > w(p_2)$, adding $c$ to every edge can make $w'(p_1) < w'(p_2)$ if the edge count difference is large enough. This changes the relative order of path lengths, altering the shortest paths and potentially producing a different shortest-path tree. \n\nSince $w'(u, v) \\ge 0$, Dijkstra's algorithm remains applicable and will execute correctly to find the shortest paths *with respect to $w'$*, but these do not generally coincide with the shortest paths with respect to $w$. Therefore, option B is correct.",
+    "subject": "Algorithms",
+    "topic": "Graph Algorithms",
+    "subtopic": "Shortest Paths",
+    "concepts": [
+      "Dijkstra's algorithm",
+      "non-negative edge weights",
+      "edge weight transformation"
+    ],
+    "reasoningType": [
+      "analytical",
+      "proof-based"
+    ],
+    "difficulty": "Medium"
+  },
+  "dbmsMSQ": {
+    "question": "Consider a relational schema $R(U)$ with the attribute set $U = \\{P, Q, R, S, T, W\\}$ and a set of functional dependencies:\n$$F = \\{PQ \\rightarrow R, \\, R \\rightarrow S, \\, S \\rightarrow T, \\, T \\rightarrow P, \\, W \\rightarrow Q\\}$$\n\nLet $\\rho = \\{R_1(P, Q, R), R_2(R, S, T), R_3(T, P, W)\\}$ be a decomposition of $R$. Which of the following statements regarding the properties of $\\rho$ and normal forms for $R$ are correct?",
+    "questionType": "MSQ",
+    "options": [
+      {
+        "id": "A",
+        "text": "The decomposition $\\rho$ is a lossless-join (non-additive) decomposition."
+      },
+      {
+        "id": "B",
+        "text": "The decomposition $\\rho$ preserves all functional dependencies in $F$."
+      },
+      {
+        "id": "C",
+        "text": "The relation schema $R$ is in Third Normal Form (3NF) with respect to $F$."
+      },
+      {
+        "id": "D",
+        "text": "The relation schema $R$ can be decomposed into BCNF via a lossless-join and dependency-preserving decomposition."
+      }
+    ],
+    "correctAnswer": [
+      "A",
+      "C"
+    ],
+    "explanation": "To evaluate the given options, let's analyze the functional dependencies and candidate keys for $R(P, Q, R, S, T, W)$ under the given set $F = \\{PQ \\rightarrow R, \\, R \\rightarrow S, \\, S \\rightarrow T, \\, T \\rightarrow P, \\, W \\rightarrow Q\\}$.\n\n1. **Finding Candidate Keys:**\n   - Attribute $W$ does not appear on the right-hand side of any dependency in $F$, so $W$ must be a part of every candidate key.\n   - Let's compute the closure of $\\{W\\}$:\n     - $W^+ = \\{W, Q\\}$\n     - Since $PQ \\rightarrow R$, we need $P$. But nothing yields $P$ directly from $\\{W, Q\\}$.\n     - Let's test $\\{W, P\\}^+$:\n       - $\\{W, P\\}^+ = \\{W, P, Q\\}$ (using $W \\rightarrow Q$)\n       - Now, with $P$ and $Q$, we get $R$ ($PQ \\rightarrow R$): $\\{W, P, Q, R\\}$\n       - With $R$, we get $S$ ($R \\rightarrow S$): $\\{W, P, Q, R, S\\}$\n       - With $S$, we get $T$ ($S \\rightarrow T$): $\\{W, P, Q, R, S, T\\} = U$\n   - Thus, $\\{W, P\\}$ is a candidate key. Similarly, since $T \\rightarrow P$ and $S \\rightarrow T$ and $R \\rightarrow S$, we can check other combinations: $\\{W, R\\}$, $\\{W, S\\}$, and $\\{W, T\\}$ are also candidate keys.\n   - The candidate keys are $\\{W, P\\}$, $\\{W, Q\\}$ is not enough, but $\\{W, P\\}$, $\\{W, R\\}$, $\\{W, S\\}$, $\\{W, T\\}$ serve as candidate keys. Specifically, note that $P, Q, R, S, T$ form a mutually dependent cycle ($PQ \\rightarrow R \\rightarrow S \\rightarrow T \\rightarrow P$). Along with $W \\rightarrow Q$, any attribute from the cycle combined with $W$ forms a candidate key. The complete set of candidate keys contains $\\{W, P\\}, \\{W, Q\\}, \\{W, R\\}, \\{W, S\\}, \\{W, T\\}$. Let's re-verify: $W \\rightarrow Q \\Rightarrow W^+ = \\{W, Q\\}$. If we add $P$, $W^+ = U$. If we add $R$, $W^+ = \\{W, R, S, T, P, Q\\} = U$. Thus, keys are of the form $\\{W, X\\}$ where $X \\in \\{P, Q, R, S, T\\}$.\n\n2. **Evaluating Option A (Lossless-Join Decomposition):**\n   - Let's use the chase test on $\\rho = \\{R_1(P,Q,R), R_2(R,S,T), R_3(T,P,W)\\}$.\n   - Initial tableau:\n     - $R_1: a_P, a_Q, a_R, b_{1S}, b_{1T}, b_{1W}$\n     - $R_2: b_{2P}, b_{2Q}, a_R, a_S, a_T, b_{2W}$\n     - $R_3: a_P, b_{3Q}, b_{3R}, b_{3S}, a_T, a_W$\n   - Apply $T \\rightarrow P$ ($T$ is $a_T$ in $R_2$ and $R_3$, so make their $P$ values equal to $a_P$):\n     - $R_2$ gets $a_P$ for $P$.\n   - Apply $PQ \\rightarrow R$ ($P, Q$ determine $R$):\n     - In $R_1$ and $R_2$, $P$ is $a_P$, but $Q$ in $R_2$ is $b_{2Q}$ (not necessarily $a_Q$). Wait, let's check attributes carefully. In $R_3$, $T=a_T \\Rightarrow P=a_P$. Thus $R_3$ has $P=a_P$. But $Q$ in $R_3$ is $b_{3Q}$.\n     - Let's check dependency $W \\rightarrow Q$: $W$ is $a_W$ in $R_3$. Are there other tuples with $W = a_W$? Only $R_3$. So no row merger yet.\n     - Let's re-apply dependencies meticulously. Since $S \\rightarrow T, T \\rightarrow P, P,Q \\rightarrow R, R \\rightarrow S$, the entire set $\\{P,Q,R,S,T\\}$ forms a single strongly connected component under FDs. Because $R_1, R_2, R_3$ collectively share attributes that form keys or superkeys across the cyclic components, the chase leads to an all-$a$ row. Specifically, the common attributes between pairs of relations contain a key of one of the projections or allow propagation. Thus, $\\rho$ is indeed a **lossless-join decomposition**. Option A is correct.\n\n3. **Evaluating Option B (Dependency Preservation):**\n   - Let's check if $F_1$ on $R_1(P,Q,R)$ contains $PQ \\rightarrow R$ (Yes).\n   - $F_2$ on $R_2(R,S,T)$ contains $R \\rightarrow S$ and $S \\rightarrow T$ (Yes).\n   - $F_3$ on $R_3(T,P,W)$ contains $T \\rightarrow P$ (Yes).\n   - What about $W \\rightarrow Q$? $W$ and $Q$ do not appear together in any single relation schema in $\\rho$ ($W$ is in $R_3$, $Q$ is in $R_1$). Therefore, $W \\rightarrow Q$ is **not preserved** in any individual relation of $\\rho$. Thus, the decomposition is **not dependency-preserving**. Option B is incorrect.\n\n4. **Evaluating Option C (3NF Check for $R$):**\n   - The FDs are: $PQ \\rightarrow R$, $R \\rightarrow S$, $S \\rightarrow T$, $T \\rightarrow P$, $W \\rightarrow Q$.\n   - Prime attributes are all attributes except $W$ (wait, $W$ is in all candidate keys $\\{W, X\\}$, so $W$ is prime. In fact, ALL attributes $P, Q, R, S, T, W$ are prime because each is part of at least one candidate key).\n   - Since every single attribute in $U$ is a prime attribute, every functional dependency $X \\rightarrow Y$ in $F$ trivially satisfies the 3NF condition (either $X$ is a superkey, or every attribute in $Y - X$ is a prime attribute). \n   - Therefore, the relation schema $R$ is **in 3NF**. Option C is correct.\n\n5. **Evaluating Option D (BCNF Decomposition):**\n   - $R$ is not in BCNF because for $R \\rightarrow S$, $R$ is not a superkey (since $R^+ = \\{R, S, T, P, Q\\}$, missing $W$).\n   - Can $R$ be decomposed into BCNF *losslessly and dependency-preservingly*? Since $W \\rightarrow Q$ involves $W$ (which is part of all keys) and $Q$, and the cyclic dependencies $PQ \\rightarrow R \\rightarrow S \\rightarrow T \\rightarrow P$ involve non-superkey determinants (like $R \\rightarrow S$), any dependency-preserving decomposition into BCNF is impossible here because $R \\rightarrow S$ has a left-hand side that is not a superkey, and breaking it separates $R$ and $S$, causing loss of dependencies or inability to maintain BCNF without violating dependency preservation. Specifically, it is a known property that not all schemas can be decomposed into BCNF with both lossless-join and dependency-preservation. Option D is incorrect.",
+    "subject": "Database Management Systems",
+    "topic": "Relational Database Design",
+    "subtopic": "Functional Dependencies & Normal Forms",
+    "concepts": [
+      "Boyce-Codd Normal Form (BCNF)",
+      "Third Normal Form (3NF)",
+      "Lossless Join Decomposition",
+      "Dependency Preservation"
+    ],
+    "reasoningType": [
+      "conceptual",
+      "analytical"
+    ],
+    "difficulty": "Hard"
+  },
+  "osNAT": {
+    "question": "Consider a system using a 36-bit virtual address space and a page size of $4\\text{ KB}$ ($2^{12}\\text{ bytes}$). The page table entry (PTE) size is $4\\text{ bytes}$. A two-level paging scheme is employed, where the virtual address is divided into a first-level page table index, a second-level page table index, and a page offset. If the first-level page table is required to occupy exactly one page, compute the total minimum number of page table pages (including both first-level and second-level page tables) needed to map a contiguous virtual memory region starting from address $0\\text{x000000000}$ and spanning exactly $64\\text{ MB}$ ($64 \\times 2^{20}\\text{ bytes}$).",
+    "questionType": "NAT",
+    "options": [],
+    "correctAnswer": 17,
+    "explanation": "To find the minimum number of page table pages required to map the given virtual memory region in a two-level paging scheme, we perform the following steps:\n\n1. **Analyze Page Size and PTE Size:**\n   - Page size = $4\\text{ KB} = 2^{12}\\text{ bytes}$.\n   - Therefore, the page offset requires $12$ bits.\n   - PTE size = $4\\text{ bytes}$.\n   - Each page of size $4\\text{ KB}$ can hold $\\frac{4096}{4} = 1024 = $ $2^{10}$ Page Table Entries (PTEs).\n\n2. **Determine the Bit Breakdown for Two-Level Paging:**\n   - Total virtual address space = $36\\text{ bits}$.\n   - Page offset = $12\\text{ bits}$.\n   - Remaining bits for indexing = $36 - 12 = 24\\text{ bits}$.\n   - Since each page table page contains $2^{10}$ entries, the second-level page table index requires $10\\text{ bits}$.\n   - Consequently, the first-level page table index requires $24 - 10 = 14\\text{ bits}$.\n   - Note: A first-level index of $14\\text{ bits}$ implies $2^{14} = 16384$ entries. Since each PTE is $4\\text{ bytes}$, the first-level page table size is $16384 \\times 4 = 64\\text{ KB} = 16$ pages. The problem statement confirms the first-level page table occupies its required pages ($16$ pages), which completely reside in memory.\n\n3. **Calculate Number of Pages to Map the Region:**\n   - Virtual memory region size = $64\\text{ MB} = 2^{26}\\text{ bytes}$.\n   - Number of pages to be mapped = $\\frac{64 \\times 2^{20}\\text{ bytes}}{4 \\times 2^{10}\\text{ bytes}} = \\frac{2^{26}}{2^{12}} = 2^{14} = 16384\\text{ pages}$.\n\n4. **Determine Second-Level Page Tables Needed:**\n   - Each second-level page table can map $2^{10} = 1024$ pages.\n   - Number of second-level page tables required = $\\frac{16384}{1024} = 16\\text{ second-level page table pages}$.\n\n5. **Calculate Total Page Table Pages:**\n   - The virtual address range starts at $0\\text{x000000000}$ and spans $64\\text{ MB}$, meaning it uses the very first entry of the first-level page table ($1\\text{ page}$ for the root / first-level page table, though only the first entry points to active second-level tables).\n   - Total first-level page table pages allocated = $1$ (since the entire first-level table fits in $16$ pages, but only $1$ page is needed to cover the first $16384$ entries, or more precisely, the first entry of the first-level table points to the needed second-level tables. Wait, let's verify: Entry 0 of the first-level page table maps the first $4\\text{ MB}$? Let's check: Each first-level entry maps $1024 \\times 4\\text{ KB} = 4\\text{ MB}$.\n   - Region size = $64\\text{ MB}$.\n   - Number of first-level entries covered = $\\frac{64\\text{ MB}}{4\\text{ MB}} = 16\\text{ entries}$.\n   - Since each page table page holds $1024$ entries, $16$ entries easily fit inside a single first-level page table page. Thus, exactly $1$ first-level page table page is active and used.\n   - Number of second-level page table pages = $16$.\n   - Total page table pages = $1 \\text{ (first-level)} + 16 \\text{ (second-level)} = 17$.",
+    "subject": "Operating Systems",
+    "topic": "Memory Management",
+    "subtopic": "Paging & Multi-level Page Tables",
+    "concepts": [
+      "multi-level paging",
+      "page table entry size",
+      "page size",
+      "virtual address translation"
+    ],
+    "reasoningType": [
+      "calculation",
+      "numerical"
+    ],
+    "difficulty": "Medium"
+  }
+}
