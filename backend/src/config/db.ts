@@ -17,7 +17,8 @@ export async function connectToDatabase(uri?: string): Promise<boolean> {
     });
 
     isConnected = conn.connection.readyState === 1;
-    console.log(`[Database] Successfully connected to MongoDB at ${mongoUri}`);
+    const sanitizedUri = mongoUri.replace(/\/\/[^:]+:[^@]+@/, '//***:***@');
+    console.log(`[Database] Successfully connected to MongoDB (${sanitizedUri})`);
     return true;
   } catch (error) {
     isConnected = false;
