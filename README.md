@@ -82,17 +82,18 @@ flowchart TD
 
 ### 1. Clone & Configure Environment
 ```bash
-git clone https://github.com/example/AI-quiz-generator.git
-cd AI-quiz-generator
+git clone https://github.com/Abhishek022001/GateForge.git
+cd GateForge
 
 # Copy environment template
-cp .env.example .env
+cp .env.example backend/.env
 ```
 
-Edit `.env` to supply your configuration:
+Edit `backend/.env` to supply your configuration:
 ```env
 PORT=5000
 NODE_ENV=development
+MONGODB_URI=mongodb://127.0.0.1:27017/gateforge # Optional: falls back to in-memory store if omitted
 GEMINI_API_KEY=your_gemini_api_key_here
 AI_MODEL=gemini-flash-lite-latest
 ```
@@ -129,18 +130,20 @@ Open **`http://localhost:5173`** in your browser.
 
 ## 6. Verification & Test Suite
 
-GATEForge includes a 16-suite automated regression test suite covering all architecture checkpoints:
+GATEForge includes an automated regression test suite covering all architecture checkpoints:
 
 ```bash
-# Run full regression suite
-node scratch/run_all_regressions.js
+# Run Checkpoint 5 hardening tests (Retry-After, Provider Quota, Official Grounding)
+node test_checkpoint5_hardening.js
 
-# Run Checkpoint 5A hardening tests
+# Run API & Rate Limiting tests
 node test_checkpoint5a.js
+
+# Run Multi-Question Session & Anti-Leakage tests
+node test_checkpoint4b.js
 ```
 
 ### Verified Test Suite Results
-- **Total Test Suites:** 16 / 16 passed (100% success rate).
 - **Dual-Stage Verification:** 100% structural and semantic assertion coverage.
 - **Zero Leakage:** Confirmed across single-question and multi-question practice endpoints.
 - **Body Bounding:** 12 / 12 boundary assertions verified (Fast rejection + chunked stream termination).
@@ -148,12 +151,9 @@ node test_checkpoint5a.js
 
 ---
 
-## 7. Documentation Index
+## 7. Documentation
 
-- [Architecture Specification (`docs/ARCHITECTURE.md`)](docs/ARCHITECTURE.md): Deep-dive into all 9 pipeline layers and security controls.
-- [Interview Demo Guide (`docs/DEMO.md`)](docs/DEMO.md): 60–90 second interview presentation script.
-- [Resume Bullets (`docs/RESUME.md`)](docs/RESUME.md): 3 verified resume bullets for engineering profiles.
-- [Technical Interview Q&A (`docs/INTERVIEW.md`)](docs/INTERVIEW.md): Comprehensive answers to architectural and design trade-off questions.
+- [Architecture Specification (`docs/ARCHITECTURE.md`)](docs/ARCHITECTURE.md): Deep-dive into all 9 pipeline layers, data models, schema validators, controlled concurrency worker pools, and security controls.
 
 ---
 
