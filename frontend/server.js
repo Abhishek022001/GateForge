@@ -53,16 +53,18 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Serve static frontend files
+  // Serve static frontend files (prefer dist/ if production build exists)
   if (pathname === '/') {
     pathname = '/index.html';
   }
 
-  let filePath = path.join(__dirname, pathname);
+  const distDir = path.join(__dirname, 'dist');
+  const baseDir = fs.existsSync(distDir) ? distDir : __dirname;
+  let filePath = path.join(baseDir, pathname);
 
   fs.stat(filePath, (err, stats) => {
     if (err || !stats.isFile()) {
-      filePath = path.join(__dirname, 'index.html');
+      filePath = path.join(baseDir, 'index.html');
     }
 
     const ext = path.extname(filePath).toLowerCase();

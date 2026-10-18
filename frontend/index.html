@@ -100,7 +100,7 @@
 
   <script type="text/babel">
     const { useState, useEffect, useMemo, useRef } = React;
-    const API_BASE = 'http://localhost:5000';
+    const API_BASE = window.__API_BASE__ || (typeof window !== 'undefined' && window.location.protocol === 'file:' ? 'http://localhost:5000' : '');
 
     // SVG Icons
     const Icons = {

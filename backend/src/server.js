@@ -478,18 +478,6 @@ const server = http.createServer(async (req, res) => {
 
   // POST /api/ai/generate-question - Checkpoint 3C.3 Question Generation with Official PYQ Context
   if (req.method === 'POST' && pathname === '/api/ai/generate-question') {
-    if (process.env.NODE_ENV === 'production') {
-      res.writeHead(403, { 'Content-Type': 'application/json' });
-      res.end(
-        JSON.stringify({
-          success: false,
-          error: 'The /api/ai/generate-question endpoint is disabled in production mode.',
-          code: 'ENDPOINT_DISABLED_IN_PRODUCTION',
-        })
-      );
-      return;
-    }
-
     if (!aiService.isConfigured()) {
       res.writeHead(503, { 'Content-Type': 'application/json' });
       res.end(
@@ -598,18 +586,6 @@ const server = http.createServer(async (req, res) => {
 
   // POST /api/ai/practice/session - Checkpoint 4B Multi-Question Session Generation (Controlled Concurrency & Anti-Leak)
   if (req.method === 'POST' && pathname === '/api/ai/practice/session') {
-    if (process.env.NODE_ENV === 'production') {
-      res.writeHead(403, { 'Content-Type': 'application/json' });
-      res.end(
-        JSON.stringify({
-          success: false,
-          error: 'The /api/ai/practice/session endpoint is disabled in production mode.',
-          code: 'ENDPOINT_DISABLED_IN_PRODUCTION',
-        })
-      );
-      return;
-    }
-
     if (!aiService.isConfigured()) {
       res.writeHead(503, { 'Content-Type': 'application/json' });
       res.end(
@@ -883,18 +859,6 @@ const server = http.createServer(async (req, res) => {
 
   // POST /api/ai/practice/generate - Checkpoint 4A Safe Practice Question Generation (No Answer Leakage)
   if (req.method === 'POST' && pathname === '/api/ai/practice/generate') {
-    if (process.env.NODE_ENV === 'production') {
-      res.writeHead(403, { 'Content-Type': 'application/json' });
-      res.end(
-        JSON.stringify({
-          success: false,
-          error: 'The /api/ai/practice/generate endpoint is disabled in production mode.',
-          code: 'ENDPOINT_DISABLED_IN_PRODUCTION',
-        })
-      );
-      return;
-    }
-
     if (!aiService.isConfigured()) {
       res.writeHead(503, { 'Content-Type': 'application/json' });
       res.end(

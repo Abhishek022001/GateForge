@@ -123,15 +123,6 @@ export class AIController {
   }
 
   static async generateQuestion(req, res, db) {
-    if (process.env.NODE_ENV === 'production') {
-      res.status(403).json({
-        success: false,
-        error: 'The /api/ai/generate-question endpoint is disabled in production mode.',
-        code: 'ENDPOINT_DISABLED_IN_PRODUCTION',
-      });
-      return;
-    }
-
     if (!aiService.isConfigured()) {
       res.status(503).json({
         success: false,
@@ -168,15 +159,6 @@ export class AIController {
   }
 
   static async generatePracticeQuestion(req, res, db) {
-    if (process.env.NODE_ENV === 'production') {
-      res.status(403).json({
-        success: false,
-        error: 'The /api/ai/practice/generate endpoint is disabled in production mode.',
-        code: 'ENDPOINT_DISABLED_IN_PRODUCTION',
-      });
-      return;
-    }
-
     if (!aiService.isConfigured()) {
       res.status(503).json({
         success: false,
@@ -357,15 +339,6 @@ export class AIController {
   }
 
   static async createPracticeSession(req, res, db) {
-    if (process.env.NODE_ENV === 'production') {
-      res.status(403).json({
-        success: false,
-        error: 'The /api/ai/practice/session endpoint is disabled in production mode.',
-        code: 'ENDPOINT_DISABLED_IN_PRODUCTION',
-      });
-      return;
-    }
-
     if (!aiService.isConfigured()) {
       res.status(503).json({
         success: false,
