@@ -1749,7 +1749,58 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Root Info
+  // Static Frontend Serving (Unified Deployment & SPA Client Routing Fallback)
+  const distCandidates = [
+    path.resolve(__dirname, '../../frontend/dist'),
+    path.resolve(process.cwd(), 'frontend/dist'),
+    path.resolve(process.cwd(), 'dist'),
+  ];
+  const frontendDistDir = distCandidates.find((dir) => fs.existsSync(dir));
+
+  if (req.method === 'GET' && !pathname.startsWith('/api')) {
+    if (frontendDistDir) {
+      const sanitized = path.normalize(pathname).replace(/^(\.\.[\/\\])+/, '');
+      let filePath = path.join(frontendDistDir, sanitized);
+
+      if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
+        filePath = path.join(filePath, 'index.html');
+      }
+
+      if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+        const ext = path.extname(filePath).toLowerCase();
+        const mimeTypes = {
+          '.html': 'text/html; charset=utf-8',
+          '.js': 'application/javascript; charset=utf-8',
+          '.mjs': 'application/javascript; charset=utf-8',
+          '.css': 'text/css; charset=utf-8',
+          '.json': 'application/json; charset=utf-8',
+          '.png': 'image/png',
+          '.jpg': 'image/jpeg',
+          '.jpeg': 'image/jpeg',
+          '.gif': 'image/gif',
+          '.svg': 'image/svg+xml',
+          '.ico': 'image/x-icon',
+          '.woff': 'font/woff',
+          '.woff2': 'font/woff2',
+          '.ttf': 'font/ttf',
+          '.txt': 'text/plain; charset=utf-8',
+        };
+        res.writeHead(200, { 'Content-Type': mimeTypes[ext] || 'application/octet-stream' });
+        fs.createReadStream(filePath).pipe(res);
+        return;
+      }
+
+      // SPA Fallback for client routes like /practice, /ai-practice
+      const indexFile = path.join(frontendDistDir, 'index.html');
+      if (fs.existsSync(indexFile)) {
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        fs.createReadStream(indexFile).pipe(res);
+        return;
+      }
+    }
+  }
+
+  // Root Info (Standalone API Fallback)
   if (req.method === 'GET' && pathname === '/') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(

@@ -99,8 +99,29 @@
   <div id="root" class="flex-grow flex flex-col"></div>
 
   <script type="text/babel">
-    const { useState, useEffect, useMemo, useRef } = React;
-    const API_BASE = window.__API_BASE__ || (typeof window !== 'undefined' && window.location.protocol === 'file:' ? 'http://localhost:5000' : '');
+    function resolveApiBase() {
+      if (typeof window !== 'undefined') {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const override = params.get('api') || params.get('backend');
+          if (override) {
+            const clean = override.replace(/\/+$/, '');
+            localStorage.setItem('GATEFORGE_API_URL', clean);
+            return clean;
+          }
+        } catch (_) {}
+
+        try {
+          const stored = localStorage.getItem('GATEFORGE_API_URL');
+          if (stored) return stored.replace(/\/+$/, '');
+        } catch (_) {}
+
+        if (window.__API_BASE__) return window.__API_BASE__.replace(/\/+$/, '');
+        if (window.location.protocol === 'file:') return 'http://localhost:5000';
+      }
+      return '';
+    }
+    const API_BASE = resolveApiBase();
 
     // SVG Icons
     const Icons = {
@@ -2138,7 +2159,25 @@
             <div className="p-6 rounded-2xl bg-rose-950/30 border border-rose-800/80 shadow-2xl">
               <h3 className="text-lg font-bold text-white mb-2">Practice Session Unavailable</h3>
               <p className="text-xs text-rose-300/80 mb-6">{error || 'No questions loaded.'}</p>
-              <button onClick={loadQuestions} className="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-500 text-white">Retry Connection</button>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button onClick={loadQuestions} className="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-500 hover:bg-brand-400 text-white cursor-pointer transition">
+                  Retry Connection
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const current = localStorage.getItem('GATEFORGE_API_URL') || API_BASE || '';
+                    const next = window.prompt('Enter your backend URL (e.g. https://gateforge-backend.onrender.com):', current);
+                    if (next !== null && next.trim()) {
+                      localStorage.setItem('GATEFORGE_API_URL', next.trim().replace(/\/+$/, ''));
+                      window.location.reload();
+                    }
+                  }}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 cursor-pointer transition"
+                >
+                  Configure Backend URL
+                </button>
+              </div>
             </div>
           </div>
         );

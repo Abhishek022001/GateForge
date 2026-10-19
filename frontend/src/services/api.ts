@@ -9,7 +9,32 @@ import {
   IAIPracticeSessionSubmitResponse,
 } from '../types/question';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+export const getApiBaseUrl = (): string => {
+  if (typeof window !== 'undefined') {
+    // 1. Query parameter override (?api=https://my-backend.onrender.com)
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const apiParam = urlParams.get('api') || urlParams.get('backend');
+      if (apiParam) {
+        const clean = apiParam.replace(/\/+$/, '');
+        localStorage.setItem('GATEFORGE_API_URL', clean);
+        return clean;
+      }
+    } catch (_) {}
+
+    // 2. LocalStorage persisted custom API URL
+    try {
+      const stored = localStorage.getItem('GATEFORGE_API_URL');
+      if (stored) return stored.replace(/\/+$/, '');
+    } catch (_) {}
+
+    // 3. Global window override
+    if ((window as any).__API_BASE__) {
+      return ((window as any).__API_BASE__ as string).replace(/\/+$/, '');
+    }
+  }
+  return import.meta.env.VITE_API_URL || '';
+};
 
 export interface IQuestionFilter {
   subject?: string;
@@ -48,14 +73,12 @@ export interface IImportSummary {
 }
 
 class ApiService {
-  private baseUrl: string;
-
-  constructor() {
-    this.baseUrl = API_BASE_URL;
+  private getBaseUrl(): string {
+    return getApiBaseUrl();
   }
 
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
+    const url = `${this.getBaseUrl()}${endpoint}`;
     try {
       const response = await fetch(url, {
         headers: {
