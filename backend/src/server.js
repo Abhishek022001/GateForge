@@ -729,7 +729,7 @@ const server = http.createServer(async (req, res) => {
                   generationError = new AIError(
                     `Failed to generate unique verified question for type ${targetType}.`,
                     'SESSION_GENERATION_FAILED',
-                    502
+                    422
                   );
                   return;
                 }
@@ -744,7 +744,7 @@ const server = http.createServer(async (req, res) => {
               const message = result.status === 'GENERATION_ATTEMPTS_EXHAUSTED'
                 ? "We couldn't generate a question that passed all quality checks. Try again."
                 : `Failed to generate verified question for type ${targetType}. Status: ${result.status}`;
-              generationError = new AIError(message, code, 502);
+              generationError = new AIError(message, code, 422);
               return;
             }
           } catch (err) {
@@ -766,7 +766,7 @@ const server = http.createServer(async (req, res) => {
       if (generationError || acceptedQuestions.length !== targetTypes.length) {
         let errCode = 'SESSION_GENERATION_FAILED';
         let errMsg = "We couldn't generate a complete reliable set. Try again.";
-        let errStatus = 502;
+        let errStatus = 422;
 
         if (generationError) {
           if (generationError.code === 'AI_QUOTA_EXCEEDED') {
@@ -788,7 +788,7 @@ const server = http.createServer(async (req, res) => {
           } else if (generationError.code === 'GENERATION_ATTEMPTS_EXHAUSTED') {
             errCode = 'GENERATION_ATTEMPTS_EXHAUSTED';
             errMsg = "We couldn't generate a question that passed all quality checks. Try again.";
-            errStatus = 502;
+            errStatus = 422;
           }
         }
 
@@ -834,16 +834,17 @@ const server = http.createServer(async (req, res) => {
     } catch (err) {
       if (res.headersSent) return;
       const status = err.statusCode || err.status || (err instanceof AIError ? err.status : 500);
+      const safeStatus = (status === 502) ? 422 : status;
       const code = err.code || (err instanceof AIError ? err.code : 'SESSION_GENERATION_FAILED');
 
       const catchHeaders = { 'Content-Type': 'application/json' };
-      if (status === 429) {
+      if (safeStatus === 429) {
         const retryVal = err.retryAfter ?? (code === 'AI_RATE_LIMITED' ? 60 : undefined);
         if (retryVal !== undefined) {
           catchHeaders['Retry-After'] = String(retryVal);
         }
       }
-      res.writeHead(status, catchHeaders);
+      res.writeHead(safeStatus, catchHeaders);
       res.end(
         JSON.stringify({
           success: false,

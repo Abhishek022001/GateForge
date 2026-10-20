@@ -151,9 +151,11 @@ export class GeminiProvider {
     }
     const msg = err?.message || String(err);
     return (
+      msg.includes('500') ||
       msg.includes('503') ||
       msg.includes('high demand') ||
       msg.includes('UNAVAILABLE') ||
+      msg.includes('INTERNAL') ||
       msg.includes('ECONNRESET') ||
       msg.includes('ETIMEDOUT')
     );

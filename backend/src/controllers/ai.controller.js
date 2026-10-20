@@ -436,7 +436,7 @@ export class AIController {
               generationError = new AIError(
                 `Failed to generate verified question for type ${targetType}. Status: ${result.status}`,
                 'SESSION_GENERATION_FAILED',
-                502
+                422
               );
               return;
             }
@@ -455,7 +455,7 @@ export class AIController {
       await Promise.all(workers);
 
       if (generationError || acceptedQuestions.length !== targetTypes.length) {
-        res.status(502).json({
+        res.status(422).json({
           success: false,
           error: "We couldn't generate a complete reliable set. Try again.",
           code: 'SESSION_GENERATION_FAILED',

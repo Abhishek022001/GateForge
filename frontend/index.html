@@ -155,6 +155,35 @@
     }
     const API_BASE = resolveApiBase();
 
+    // Safe JSON fetch wrapper with robust error detection
+    async function safeFetchJson(url, options = {}) {
+      const res = await fetch(url, options);
+      const text = await res.text();
+      let data = null;
+      try {
+        data = text ? JSON.parse(text) : null;
+      } catch (_) {}
+
+      if (!data) {
+        if (res.status === 404 || res.status === 405) {
+          const currentApi = localStorage.getItem('GATEFORGE_API_URL') || API_BASE || '';
+          throw new Error(
+            `Backend endpoint not found (HTTP ${res.status}). Verify your backend URL${currentApi ? ` (${currentApi})` : ''}.`
+          );
+        }
+        if (res.status === 502 || res.status === 503 || res.status === 504) {
+          throw new Error(
+            'The AI service is temporarily busy or spinning up on Render. Please wait a moment and try again.'
+          );
+        }
+        if (!res.ok) {
+          throw new Error(`Server returned HTTP ${res.status}: ${res.statusText || 'Request failed'}`);
+        }
+        throw new Error('Received an empty response from the server. Please try again.');
+      }
+      return { ok: res.ok, status: res.status, data };
+    }
+
     // SVG Icons
     const Icons = {
       Cpu: () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="2" strokeWidth="2"/><rect x="9" y="9" width="6" height="6" strokeWidth="2"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" strokeWidth="2"/></svg>,
@@ -2734,12 +2763,11 @@
         };
 
         try {
-          const res = await fetch(`${API_BASE}/api/ai/practice/session`, {
+          const { data } = await safeFetchJson(`${API_BASE}/api/ai/practice/session`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
           });
-          const data = await res.json();
 
           if (data.success && data.sessionId && Array.isArray(data.questions) && data.questions.length > 0) {
             setSessionId(data.sessionId);
@@ -2809,12 +2837,11 @@
         setSubmissionError(null);
 
         try {
-          const res = await fetch(`${API_BASE}/api/ai/practice/session/${encodeURIComponent(sessionId)}/submit`, {
+          const { data } = await safeFetchJson(`${API_BASE}/api/ai/practice/session/${encodeURIComponent(sessionId)}/submit`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ answers }),
           });
-          const data = await res.json();
           if (data.success && data.data) {
             setSubmissionResult(data.data);
           } else {
