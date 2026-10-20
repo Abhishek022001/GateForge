@@ -96,9 +96,41 @@
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen selection:bg-brand-500/30 selection:text-brand-200 flex flex-col">
-  <div id="root" class="flex-grow flex flex-col"></div>
+  <div id="root" class="flex-grow flex flex-col">
+    <div id="initial-loader" class="flex-grow flex items-center justify-center p-8">
+      <div class="text-center">
+        <div class="inline-block w-8 h-8 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin mb-3"></div>
+        <p class="text-xs font-mono text-slate-400">Initializing GATEForge Preparation Engine...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Fail-safe error reporter if React or Babel encounters an initialization error
+    window.addEventListener('error', function(event) {
+      const loader = document.getElementById('initial-loader');
+      if (loader) {
+        loader.innerHTML = `
+          <div class="max-w-md w-full bg-slate-900 border border-rose-800/80 rounded-2xl p-6 shadow-2xl text-center mx-4">
+            <h3 class="text-base font-bold text-white mb-2">Application Initialization Error</h3>
+            <p class="text-xs text-rose-300 font-mono mb-4 break-words">${event.message || 'Error executing application script.'}</p>
+            <div class="flex items-center justify-center gap-3">
+              <button onclick="window.location.reload()" class="px-4 py-2 bg-brand-500 hover:bg-brand-400 text-white rounded-xl text-xs font-semibold cursor-pointer transition">
+                Reload Application
+              </button>
+              <button onclick="localStorage.clear(); window.location.reload();" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold border border-slate-700 cursor-pointer transition">
+                Clear Storage & Reload
+              </button>
+            </div>
+          </div>
+        `;
+      }
+    });
+  </script>
 
   <script type="text/babel">
+    const { useState, useEffect, useMemo, useRef } = React;
+
     function resolveApiBase() {
       if (typeof window !== 'undefined') {
         try {
