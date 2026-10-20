@@ -1753,7 +1753,9 @@ const server = http.createServer(async (req, res) => {
   // Static Frontend Serving (Unified Deployment & SPA Client Routing Fallback)
   const distCandidates = [
     path.resolve(__dirname, '../../frontend/dist'),
+    path.resolve(__dirname, '../frontend/dist'),
     path.resolve(process.cwd(), 'frontend/dist'),
+    path.resolve(process.cwd(), '../frontend/dist'),
     path.resolve(process.cwd(), 'dist'),
   ];
   const frontendDistDir = distCandidates.find((dir) => fs.existsSync(dir));

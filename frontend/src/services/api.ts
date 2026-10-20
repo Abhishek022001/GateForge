@@ -16,19 +16,11 @@ export const getApiBaseUrl = (): string => {
       const urlParams = new URLSearchParams(window.location.search);
       const apiParam = urlParams.get('api') || urlParams.get('backend');
       if (apiParam) {
-        const clean = apiParam.replace(/\/+$/, '');
-        localStorage.setItem('GATEFORGE_API_URL', clean);
-        return clean;
+        return apiParam.replace(/\/+$/, '');
       }
     } catch (_) {}
 
-    // 2. LocalStorage persisted custom API URL
-    try {
-      const stored = localStorage.getItem('GATEFORGE_API_URL');
-      if (stored) return stored.replace(/\/+$/, '');
-    } catch (_) {}
-
-    // 3. Global window override
+    // 2. Global window override
     if ((window as any).__API_BASE__) {
       return ((window as any).__API_BASE__ as string).replace(/\/+$/, '');
     }

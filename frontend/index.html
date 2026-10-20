@@ -136,16 +136,7 @@
         try {
           const params = new URLSearchParams(window.location.search);
           const override = params.get('api') || params.get('backend');
-          if (override) {
-            const clean = override.replace(/\/+$/, '');
-            localStorage.setItem('GATEFORGE_API_URL', clean);
-            return clean;
-          }
-        } catch (_) {}
-
-        try {
-          const stored = localStorage.getItem('GATEFORGE_API_URL');
-          if (stored) return stored.replace(/\/+$/, '');
+          if (override) return override.replace(/\/+$/, '');
         } catch (_) {}
 
         if (window.__API_BASE__) return window.__API_BASE__.replace(/\/+$/, '');
@@ -166,9 +157,8 @@
 
       if (!data) {
         if (res.status === 404 || res.status === 405) {
-          const currentApi = localStorage.getItem('GATEFORGE_API_URL') || API_BASE || '';
           throw new Error(
-            `Backend endpoint not found (HTTP ${res.status}). Verify your backend URL${currentApi ? ` (${currentApi})` : ''}.`
+            `Service endpoint unavailable (HTTP ${res.status}). Please wait a few moments while the server initializes and try again.`
           );
         }
         if (res.status === 502 || res.status === 503 || res.status === 504) {
@@ -351,25 +341,6 @@
             </div>
 
             <div className="flex items-center space-x-2 sm:space-x-3">
-              {!apiConnected && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const current = localStorage.getItem('GATEFORGE_API_URL') || API_BASE || '';
-                    const next = window.prompt('Enter your backend URL (e.g. https://gateforge-backend.onrender.com):', current);
-                    if (next !== null && next.trim()) {
-                      localStorage.setItem('GATEFORGE_API_URL', next.trim().replace(/\/+$/, ''));
-                      window.location.reload();
-                    }
-                  }}
-                  className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono bg-rose-950/80 text-rose-300 border border-rose-800 hover:bg-rose-900 transition cursor-pointer"
-                  title="Click to configure backend URL"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
-                  <span>Backend Offline • Set URL</span>
-                </button>
-              )}
-
               {aiHealth && (
                 <div
                   className={`hidden md:inline-flex items-center space-x-1 px-2 py-1 rounded-md text-[10px] font-mono border ${
@@ -2243,20 +2214,6 @@
                 <button onClick={loadQuestions} className="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-500 hover:bg-brand-400 text-white cursor-pointer transition">
                   Retry Connection
                 </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const current = localStorage.getItem('GATEFORGE_API_URL') || API_BASE || '';
-                    const next = window.prompt('Enter your backend URL (e.g. https://gateforge-backend.onrender.com):', current);
-                    if (next !== null && next.trim()) {
-                      localStorage.setItem('GATEFORGE_API_URL', next.trim().replace(/\/+$/, ''));
-                      window.location.reload();
-                    }
-                  }}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 cursor-pointer transition"
-                >
-                  Configure Backend URL
-                </button>
               </div>
             </div>
           </div>
@@ -3062,29 +3019,13 @@
                   <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
                     {generationError}
                   </p>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={handleGenerateSession}
-                      className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-semibold bg-rose-900/50 hover:bg-rose-900/80 text-rose-200 border border-rose-700 transition cursor-pointer"
-                    >
-                      <span>🔄 Try Again</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const current = localStorage.getItem('GATEFORGE_API_URL') || API_BASE || '';
-                        const next = window.prompt('Enter your backend URL (e.g. https://gateforge-backend.onrender.com):', current);
-                        if (next !== null && next.trim()) {
-                          localStorage.setItem('GATEFORGE_API_URL', next.trim().replace(/\/+$/, ''));
-                          window.location.reload();
-                        }
-                      }}
-                      className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition cursor-pointer"
-                    >
-                      <span>⚙️ Configure Backend URL</span>
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={handleGenerateSession}
+                    className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-semibold bg-rose-900/50 hover:bg-rose-900/80 text-rose-200 border border-rose-700 transition cursor-pointer"
+                  >
+                    <span>🔄 Try Again</span>
+                  </button>
                 </div>
               </div>
             </div>
