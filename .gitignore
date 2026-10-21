@@ -21,6 +21,7 @@ build/
 # Scratch and Temporary Directories
 scratch/
 .system_generated/
+backend/data/sessions/
 *.tmp
 
 # Logs

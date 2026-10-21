@@ -18,7 +18,7 @@ export class SemanticVerificationService {
    */
   async verifyQuestion(question, options) {
     if (!this.ai.isConfigured()) {
-      throw new AIError('AI provider is not configured. Please set GEMINI_API_KEY.', 'AI_NOT_CONFIGURED', 503);
+      throw new AIError('AI provider is not configured. Please set GROQ_API_KEY.', 'AI_NOT_CONFIGURED', 503);
     }
 
     if (!question || typeof question !== 'object') {

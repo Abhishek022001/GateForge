@@ -8,7 +8,7 @@ export class AIError extends Error {
 }
 
 export class AIConfigurationError extends AIError {
-  constructor(message = 'AI provider is not configured. Please set GEMINI_API_KEY.') {
+  constructor(message = 'AI provider is not configured. Please set GROQ_API_KEY.') {
     super(message, 'AI_NOT_CONFIGURED', 503);
     this.name = 'AIConfigurationError';
   }

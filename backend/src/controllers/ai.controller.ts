@@ -37,7 +37,7 @@ export class AIController {
     if (!aiService.isConfigured()) {
       res.status(503).json({
         success: false,
-        error: 'AI provider is not configured. Please configure GEMINI_API_KEY in backend/.env.',
+        error: 'AI provider is not configured. Please configure GROQ_API_KEY in backend/.env.',
         code: 'AI_NOT_CONFIGURED',
       });
       return;
@@ -87,7 +87,7 @@ export class AIController {
     if (!aiService.isConfigured()) {
       res.status(503).json({
         success: false,
-        error: 'AI provider is not configured. Please configure GEMINI_API_KEY in backend/.env.',
+        error: 'AI provider is not configured. Please configure GROQ_API_KEY in backend/.env.',
         code: 'AI_NOT_CONFIGURED',
       });
       return;
@@ -127,7 +127,7 @@ export class AIController {
     if (!aiService.isConfigured()) {
       res.status(503).json({
         success: false,
-        error: 'AI provider is not configured. Please set GEMINI_API_KEY in backend/.env',
+        error: 'AI provider is not configured. Please set GROQ_API_KEY in backend/.env',
         code: 'AI_NOT_CONFIGURED',
       });
       return;
@@ -163,7 +163,7 @@ export class AIController {
     if (!aiService.isConfigured()) {
       res.status(503).json({
         success: false,
-        error: 'AI provider is not configured. Please set GEMINI_API_KEY in backend/.env',
+        error: 'AI provider is not configured. Please set GROQ_API_KEY in backend/.env',
         code: 'AI_NOT_CONFIGURED',
       });
       return;
@@ -242,7 +242,7 @@ export class AIController {
     if (!aiService.isConfigured()) {
       res.status(503).json({
         success: false,
-        error: 'AI provider is not configured. Please set GEMINI_API_KEY in backend/.env',
+        error: 'AI provider is not configured. Please set GROQ_API_KEY in backend/.env',
         code: 'AI_NOT_CONFIGURED',
       });
       return;
@@ -281,7 +281,7 @@ export class AIController {
     if (!aiService.isConfigured()) {
       res.status(503).json({
         success: false,
-        error: 'AI provider is not configured. Please set GEMINI_API_KEY in backend/.env',
+        error: 'AI provider is not configured. Please set GROQ_API_KEY in backend/.env',
         code: 'AI_NOT_CONFIGURED',
       });
       return;
@@ -343,7 +343,7 @@ export class AIController {
     if (!aiService.isConfigured()) {
       res.status(503).json({
         success: false,
-        error: 'AI provider is not configured. Please set GEMINI_API_KEY in backend/.env',
+        error: 'AI provider is not configured. Please set GROQ_API_KEY in backend/.env',
         code: 'AI_NOT_CONFIGURED',
       });
       return;

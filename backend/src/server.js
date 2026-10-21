@@ -370,7 +370,7 @@ const server = http.createServer(async (req, res) => {
       res.end(
         JSON.stringify({
           success: false,
-          error: 'AI provider is not configured. Please set GEMINI_API_KEY in backend/.env',
+          error: 'AI provider is not configured. Please set GROQ_API_KEY in backend/.env',
           code: 'AI_NOT_CONFIGURED',
         })
       );
@@ -433,7 +433,7 @@ const server = http.createServer(async (req, res) => {
       res.end(
         JSON.stringify({
           success: false,
-          error: 'AI provider is not configured. Please set GEMINI_API_KEY in backend/.env',
+          error: 'AI provider is not configured. Please set GROQ_API_KEY in backend/.env',
           code: 'AI_NOT_CONFIGURED',
         })
       );
@@ -485,7 +485,7 @@ const server = http.createServer(async (req, res) => {
       res.end(
         JSON.stringify({
           success: false,
-          error: 'AI provider is not configured. Please set GEMINI_API_KEY in backend/.env',
+          error: 'AI provider is not configured. Please set GROQ_API_KEY in backend/.env',
           code: 'AI_NOT_CONFIGURED',
         })
       );
@@ -593,7 +593,7 @@ const server = http.createServer(async (req, res) => {
       res.end(
         JSON.stringify({
           success: false,
-          error: 'AI provider is not configured. Please set GEMINI_API_KEY in backend/.env',
+          error: 'AI provider is not configured. Please set GROQ_API_KEY in backend/.env',
           code: 'AI_NOT_CONFIGURED',
         })
       );
@@ -867,7 +867,7 @@ const server = http.createServer(async (req, res) => {
       res.end(
         JSON.stringify({
           success: false,
-          error: 'AI provider is not configured. Please set GEMINI_API_KEY in backend/.env',
+          error: 'AI provider is not configured. Please set GROQ_API_KEY in backend/.env',
           code: 'AI_NOT_CONFIGURED',
         })
       );
@@ -1178,7 +1178,7 @@ const server = http.createServer(async (req, res) => {
       res.end(
         JSON.stringify({
           success: false,
-          error: 'AI provider is not configured. Please configure GEMINI_API_KEY in backend/.env.',
+          error: 'AI provider is not configured. Please configure GROQ_API_KEY in backend/.env.',
           code: 'AI_NOT_CONFIGURED',
         })
       );
@@ -1252,7 +1252,7 @@ const server = http.createServer(async (req, res) => {
       res.end(
         JSON.stringify({
           success: false,
-          error: 'AI provider is not configured. Please configure GEMINI_API_KEY in backend/.env.',
+          error: 'AI provider is not configured. Please configure GROQ_API_KEY in backend/.env.',
           code: 'AI_NOT_CONFIGURED',
         })
       );
@@ -1309,7 +1309,7 @@ const server = http.createServer(async (req, res) => {
       res.end(
         JSON.stringify({
           success: false,
-          error: 'AI provider is not configured. Please configure GEMINI_API_KEY in backend/.env.',
+          error: 'AI provider is not configured. Please configure GROQ_API_KEY in backend/.env.',
           code: 'AI_NOT_CONFIGURED',
         })
       );

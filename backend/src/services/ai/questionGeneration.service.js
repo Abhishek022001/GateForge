@@ -42,7 +42,7 @@ export class QuestionGenerationService {
    */
   async generateQuestion(context) {
     if (!this.ai.isConfigured()) {
-      throw new AIError('AI provider is not configured. Please set GEMINI_API_KEY.', 'AI_NOT_CONFIGURED', 503);
+      throw new AIError('AI provider is not configured. Please set GROQ_API_KEY.', 'AI_NOT_CONFIGURED', 503);
     }
 
     const targetType = (context.questionType || 'MCQ').toUpperCase();
@@ -141,7 +141,7 @@ export class QuestionGenerationService {
    */
   async generateQuestionWithContext(request, db) {
     if (!this.ai.isConfigured()) {
-      throw new AIError('AI provider is not configured. Please set GEMINI_API_KEY.', 'AI_NOT_CONFIGURED', 503);
+      throw new AIError('AI provider is not configured. Please set GROQ_API_KEY.', 'AI_NOT_CONFIGURED', 503);
     }
 
     if (!request || typeof request !== 'object') {
@@ -540,7 +540,7 @@ export class QuestionGenerationService {
    */
   async testGeneration(input) {
     if (!this.ai.isConfigured()) {
-      throw new AIError('AI provider is not configured. Please set GEMINI_API_KEY.', 'AI_NOT_CONFIGURED', 503);
+      throw new AIError('AI provider is not configured. Please set GROQ_API_KEY.', 'AI_NOT_CONFIGURED', 503);
     }
 
     if (input && typeof input === 'object' && (input.subject || input.questionType || input.topic || input.concepts)) {

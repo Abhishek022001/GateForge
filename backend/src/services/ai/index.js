@@ -1,5 +1,6 @@
 export * from './ai.interface.js';
 export * from './ai.service.js';
+export * from './groq.provider.js';
 export * from './gemini.provider.js';
 export * from './structuredParser.js';
 export * from './prompts/analysis.prompt.js';

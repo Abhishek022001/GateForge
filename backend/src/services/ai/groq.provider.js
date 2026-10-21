@@ -21,16 +21,18 @@ export class GroqProvider {
   constructor() {
     this.providerName = 'groq';
     this.endpoint = 'https://api.groq.com/openai/v1/chat/completions';
+    this._activeModel = null;
   }
 
   get modelName() {
+    if (this._activeModel) return this._activeModel;
     const config = getAIConfig();
     return config.model && config.model.includes('llama') ? config.model : 'llama-3.3-70b-versatile';
   }
 
   get apiKey() {
     const config = getAIConfig();
-    return config.groqApiKey || config.apiKey;
+    return config.apiKey || '';
   }
 
   isConfigured() {
@@ -114,6 +116,18 @@ export class GroqProvider {
         if (!res.ok) {
           const errBody = await res.json().catch(() => ({}));
           const errMsg = errBody?.error?.message || `HTTP ${res.status} ${res.statusText}`;
+
+          // Auto-fallback if the account only has access to 8B instant model
+          if (
+            (errMsg.includes('does not exist') || errMsg.includes('access')) &&
+            this.modelName !== 'llama-3.1-8b-instant'
+          ) {
+            console.warn(`[AI:Groq] Model ${this.modelName} not accessible on this key. Falling back to llama-3.1-8b-instant...`);
+            this._activeModel = 'llama-3.1-8b-instant';
+            payload.model = 'llama-3.1-8b-instant';
+            continue;
+          }
+
           const mappedErr = this.mapError(new Error(errMsg), res.status);
           if (res.status === 429 || res.status >= 500) {
             lastError = mappedErr;
@@ -130,7 +144,7 @@ export class GroqProvider {
 
         return {
           text,
-          model,
+          model: payload.model,
           latencyMs,
         };
       } catch (err) {
@@ -198,6 +212,18 @@ export class GroqProvider {
         if (!res.ok) {
           const errBody = await res.json().catch(() => ({}));
           const errMsg = errBody?.error?.message || `HTTP ${res.status} ${res.statusText}`;
+
+          // Auto-fallback if the account only has access to 8B instant model
+          if (
+            (errMsg.includes('does not exist') || errMsg.includes('access')) &&
+            this.modelName !== 'llama-3.1-8b-instant'
+          ) {
+            console.warn(`[AI:Groq] Model ${this.modelName} not accessible on this key. Falling back to llama-3.1-8b-instant...`);
+            this._activeModel = 'llama-3.1-8b-instant';
+            payload.model = 'llama-3.1-8b-instant';
+            continue;
+          }
+
           const mappedErr = this.mapError(new Error(errMsg), res.status);
           if (res.status === 429 || res.status >= 500) {
             lastError = mappedErr;
@@ -212,12 +238,12 @@ export class GroqProvider {
 
         const parsed = parseStructuredJson(text);
 
-        console.log(`[AI:Groq] Structured request succeeded in ${latencyMs}ms (model: ${model})`);
+        console.log(`[AI:Groq] Structured request succeeded in ${latencyMs}ms (model: ${payload.model})`);
 
         return {
           data: parsed,
           rawText: text,
-          model,
+          model: payload.model,
           latencyMs,
         };
       } catch (err) {
