@@ -197,6 +197,8 @@ class ApiService {
     analyzedQuestions: number;
     subjectsCovered: number;
     practiceModes: number;
+    uniqueVisitors?: number;
+    totalVisits?: number;
   }> {
     const res = await this.request<{ success: boolean; data: any }>('/api/stats');
     return res.data;

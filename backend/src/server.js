@@ -24,6 +24,8 @@ import { pyqValidationService } from './services/pyqExtraction/pyqValidation.ser
 import { officialPyqImportService } from './services/pyqExtraction/officialPyqImport.service.js';
 import { pyqEnrichmentService } from './services/pyqExtraction/pyqEnrichment.service.js';
 import { practiceSessionService } from './services/ai/practiceSession.service.js';
+import { analyticsService } from './services/analytics.service.js';
+import { connectToDatabase } from './config/db.js';
 import { AIError } from './services/ai/ai.interface.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -1386,8 +1388,9 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // GET /api/stats (Real-Time Dynamic System Statistics)
+  // GET /api/stats (Real-Time Dynamic System Statistics & Privacy-Preserving Analytics)
   if (req.method === 'GET' && pathname === '/api/stats') {
+    const analytics = await analyticsService.recordVisit(req);
     const all = db.findAll();
     const officialCount = all.filter(
       (q) =>
@@ -1410,6 +1413,8 @@ const server = http.createServer(async (req, res) => {
           analyzedQuestions: analyzedCount,
           subjectsCovered: subjects.size || GATE_CS_SUBJECTS.length,
           practiceModes: 4, // Mixed, MCQ, MSQ, NAT
+          uniqueVisitors: analytics.uniqueVisitors,
+          totalVisits: analytics.totalVisits,
         },
       })
     );
@@ -1853,11 +1858,14 @@ const server = http.createServer(async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   console.log(`🚀 GATEForge Server listening on http://localhost:${PORT}`);
   console.log(`🤖 AI Provider: ${aiService.getProviderName()} (model: ${aiService.getModelName()}, configured: ${aiService.isConfigured()})`);
   console.log(`📡 API Endpoints active at http://localhost:${PORT}/api/questions`);
   console.log(`🧠 AI Question Analysis at http://localhost:${PORT}/api/ai/analyze-question/:id`);
   console.log(`📊 AI Patterns Analytics at http://localhost:${PORT}/api/ai/patterns`);
   console.log(`⚡ AI Generation Test at http://localhost:${PORT}/api/ai/generation/test`);
+  try {
+    await connectToDatabase();
+  } catch (_) {}
 });
