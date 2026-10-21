@@ -231,7 +231,8 @@ class AnalyticsService {
               { upsert: true, new: true }
             );
           } else {
-            // Already seen in DB previously; check session gap
+            // Already seen in DB previously; adjust in-memory unique visitor count
+            this.uniqueVisitorsCount = Math.max(1, this.uniqueVisitorsCount - 1);
             if (now - new Date(existingInDb.lastSeen).getTime() > SESSION_WINDOW_MS) {
               await VisitorModel.updateOne({ hash }, { $set: { lastSeen: new Date(now) } });
               await MetricModel.findByIdAndUpdate(
@@ -262,6 +263,7 @@ class AnalyticsService {
   getStats() {
     return {
       uniqueVisitors: this.uniqueVisitorsCount,
+      peopleVisitedSoFar: this.uniqueVisitorsCount,
       totalVisits: this.totalVisits,
     };
   }

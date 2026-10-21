@@ -15,9 +15,10 @@ const frontendCandidates = [
 ];
 
 const frontendDir = frontendCandidates.find((dir) => fs.existsSync(dir));
+const hasFrontendModules = frontendDir && fs.existsSync(path.join(frontendDir, 'node_modules'));
 
-if (frontendDir) {
-  console.log(`[Unified Build] Found frontend directory at: ${frontendDir}`);
+if (frontendDir && hasFrontendModules && process.env.SKIP_FRONTEND_BUILD !== 'true') {
+  console.log(`[Unified Build] Found frontend directory with dependencies at: ${frontendDir}`);
   try {
     console.log('[Unified Build] Running frontend build (Vite)...');
     execSync('npm run build', {
@@ -26,11 +27,10 @@ if (frontendDir) {
     });
     console.log('[Unified Build] Frontend build completed successfully.');
   } catch (err) {
-    console.error('[Unified Build] Frontend build failed:', err.message);
-    process.exit(1);
+    console.warn('[Unified Build] Frontend build skipped or failed (Vercel hosts frontend):', err.message);
   }
 } else {
-  console.log('[Unified Build] Frontend directory not found; skipping frontend build.');
+  console.log('[Unified Build] Frontend dependencies not found or frontend hosted externally; skipping frontend build.');
 }
 
 console.log('[Unified Build] Compiling backend TypeScript (tsc)...');

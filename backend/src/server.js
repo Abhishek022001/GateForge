@@ -1414,6 +1414,7 @@ const server = http.createServer(async (req, res) => {
           subjectsCovered: subjects.size || GATE_CS_SUBJECTS.length,
           practiceModes: 4, // Mixed, MCQ, MSQ, NAT
           uniqueVisitors: analytics.uniqueVisitors,
+          peopleVisitedSoFar: analytics.peopleVisitedSoFar ?? analytics.uniqueVisitors,
           totalVisits: analytics.totalVisits,
         },
       })

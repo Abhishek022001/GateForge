@@ -32,6 +32,7 @@ interface IStatsData {
   subjectsCovered: number;
   practiceModes: number;
   uniqueVisitors?: number;
+  peopleVisitedSoFar?: number;
   totalVisits?: number;
 }
 
@@ -322,7 +323,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               ) : statsError ? (
                 <span className="text-slate-500 text-lg">--</span>
               ) : (
-                Math.max(1, stats?.uniqueVisitors ?? 0).toLocaleString()
+                Math.max(1, stats?.peopleVisitedSoFar ?? stats?.uniqueVisitors ?? 0).toLocaleString()
               )}
             </div>
             <div className="text-xs text-slate-500 mt-1">

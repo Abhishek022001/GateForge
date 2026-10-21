@@ -2,6 +2,7 @@ import { IncomingMessage } from 'node:http';
 
 export interface IAnalyticsStats {
   uniqueVisitors: number;
+  peopleVisitedSoFar: number;
   totalVisits: number;
 }
 
