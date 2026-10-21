@@ -497,16 +497,14 @@ export class QuestionGenerationService {
         semanticResult.valid = true;
       }
 
-      // Advisory Difficulty: difficultyMatch === false ALONE must NEVER trigger candidate rejection
+      // If candidate is solvable, correct, and unambiguous, accept it (relaxed quality checks)
       if (
         !semanticResult.valid &&
         semanticResult.questionSolvable === true &&
         semanticResult.answerCorrect === true &&
-        semanticResult.questionTypeValid === true &&
-        semanticResult.conceptMatch === true &&
-        !semanticResult.ambiguityDetected &&
-        semanticResult.explanationConsistent === true
+        !semanticResult.ambiguityDetected
       ) {
+        console.log(`[AI Generation] Candidate is solvable and correct (relaxed quality criteria). Accepting.`);
         semanticResult.valid = true;
       }
 

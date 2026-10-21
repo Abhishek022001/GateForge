@@ -9,6 +9,14 @@ import {
 } from './ai.interface.js';
 import { parseStructuredJson } from './structuredParser.js';
 
+const FALLBACK_CHAIN = [
+  'llama-3.3-70b-versatile',
+  'openai/gpt-oss-120b',
+  'openai/gpt-oss-20b',
+  'qwen/qwen3.8-27b',
+  'llama-3.1-8b-instant',
+];
+
 function sanitizeErrorMessage(rawMessage) {
   if (!rawMessage || typeof rawMessage !== 'string') return 'An unexpected AI service error occurred.';
   return rawMessage
@@ -117,15 +125,16 @@ export class GroqProvider {
           const errBody = await res.json().catch(() => ({}));
           const errMsg = errBody?.error?.message || `HTTP ${res.status} ${res.statusText}`;
 
-          // Auto-fallback if the account only has access to 8B instant model
-          if (
-            (errMsg.includes('does not exist') || errMsg.includes('access')) &&
-            this.modelName !== 'llama-3.1-8b-instant'
-          ) {
-            console.warn(`[AI:Groq] Model ${this.modelName} not accessible on this key. Falling back to llama-3.1-8b-instant...`);
-            this._activeModel = 'llama-3.1-8b-instant';
-            payload.model = 'llama-3.1-8b-instant';
-            continue;
+          // Auto-fallback across supported Groq models if model is not accessible
+          if (errMsg.includes('does not exist') || errMsg.includes('access')) {
+            const currentIdx = FALLBACK_CHAIN.indexOf(payload.model);
+            const nextModel = FALLBACK_CHAIN.slice(currentIdx + 1).find((m) => m !== payload.model);
+            if (nextModel) {
+              console.warn(`[AI:Groq] Model ${payload.model} not accessible on this key. Falling back to ${nextModel}...`);
+              this._activeModel = nextModel;
+              payload.model = nextModel;
+              continue;
+            }
           }
 
           const mappedErr = this.mapError(new Error(errMsg), res.status);
@@ -213,15 +222,16 @@ export class GroqProvider {
           const errBody = await res.json().catch(() => ({}));
           const errMsg = errBody?.error?.message || `HTTP ${res.status} ${res.statusText}`;
 
-          // Auto-fallback if the account only has access to 8B instant model
-          if (
-            (errMsg.includes('does not exist') || errMsg.includes('access')) &&
-            this.modelName !== 'llama-3.1-8b-instant'
-          ) {
-            console.warn(`[AI:Groq] Model ${this.modelName} not accessible on this key. Falling back to llama-3.1-8b-instant...`);
-            this._activeModel = 'llama-3.1-8b-instant';
-            payload.model = 'llama-3.1-8b-instant';
-            continue;
+          // Auto-fallback across supported Groq models if model is not accessible
+          if (errMsg.includes('does not exist') || errMsg.includes('access')) {
+            const currentIdx = FALLBACK_CHAIN.indexOf(payload.model);
+            const nextModel = FALLBACK_CHAIN.slice(currentIdx + 1).find((m) => m !== payload.model);
+            if (nextModel) {
+              console.warn(`[AI:Groq] Model ${payload.model} not accessible on this key. Falling back to ${nextModel}...`);
+              this._activeModel = nextModel;
+              payload.model = nextModel;
+              continue;
+            }
           }
 
           const mappedErr = this.mapError(new Error(errMsg), res.status);

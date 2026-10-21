@@ -743,9 +743,12 @@ const server = http.createServer(async (req, res) => {
               const code = result.status === 'GENERATION_ATTEMPTS_EXHAUSTED'
                 ? 'GENERATION_ATTEMPTS_EXHAUSTED'
                 : 'SESSION_GENERATION_FAILED';
-              const message = result.status === 'GENERATION_ATTEMPTS_EXHAUSTED'
+              let message = result.status === 'GENERATION_ATTEMPTS_EXHAUSTED'
                 ? "We couldn't generate a question that passed all quality checks. Try again."
                 : `Failed to generate verified question for type ${targetType}. Status: ${result.status}`;
+              if (result.lastFailureReason && (result.lastFailureReason.includes('API') || result.lastFailureReason.includes('Error'))) {
+                message = result.lastFailureReason;
+              }
               generationError = new AIError(message, code, 422);
               return;
             }
