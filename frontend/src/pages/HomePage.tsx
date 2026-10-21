@@ -237,7 +237,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           </span>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {/* Stat 1: Official PYQs */}
           <div className="bg-slate-950/50 border border-slate-800/80 rounded-xl p-4">
             <div className="text-xs font-mono text-slate-400 uppercase tracking-wider mb-1">
@@ -304,31 +304,6 @@ export const HomePage: React.FC<HomePageProps> = ({
               )}
             </div>
             <div className="text-xs text-slate-500 mt-1">MCQ • MSQ • NAT • Mixed</div>
-          </div>
-
-          {/* Stat 5: Live People Visited / Visitors (Pure Server-Side) */}
-          <div className="bg-slate-950/50 border border-slate-800/80 rounded-xl p-4 col-span-2 sm:col-span-1 relative overflow-hidden">
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-xs font-mono text-slate-400 uppercase tracking-wider">
-                People Visited So Far
-              </div>
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-            </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-emerald-400 font-mono">
-              {isLoadingStats ? (
-                <div className="h-8 w-16 bg-slate-800 rounded animate-pulse" />
-              ) : statsError ? (
-                <span className="text-slate-500 text-lg">--</span>
-              ) : (
-                Math.max(1, stats?.peopleVisitedSoFar ?? stats?.uniqueVisitors ?? 0).toLocaleString()
-              )}
-            </div>
-            <div className="text-xs text-slate-500 mt-1">
-              <span>Number of people visited this website so far</span>
-            </div>
           </div>
         </div>
       </div>

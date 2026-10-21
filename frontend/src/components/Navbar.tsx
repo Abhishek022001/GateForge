@@ -1,17 +1,43 @@
-import React from 'react';
-import { Cpu, Terminal, Compass, CheckCircle2, Sparkles } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Cpu, Terminal, Compass, CheckCircle2, Sparkles, Users } from 'lucide-react';
+import { api } from '../services/api';
 
 interface NavbarProps {
   currentView: 'home' | 'practice' | 'ai-practice';
   onNavigate: (view: 'home' | 'practice' | 'ai-practice') => void;
   apiConnected?: boolean;
+  visitorCount?: number;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   currentView,
   onNavigate,
   apiConnected = true,
+  visitorCount: initialVisitorCount,
 }) => {
+  const [visitorCount, setVisitorCount] = useState<number | null>(
+    initialVisitorCount ?? null
+  );
+
+  useEffect(() => {
+    if (initialVisitorCount !== undefined && initialVisitorCount !== null) {
+      setVisitorCount(initialVisitorCount);
+      return;
+    }
+    let isMounted = true;
+    api
+      .getStats()
+      .then((data) => {
+        if (isMounted) {
+          setVisitorCount(data.peopleVisitedSoFar ?? data.uniqueVisitors ?? 1);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
+  }, [initialVisitorCount]);
   return (
     <header className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -38,8 +64,33 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Navigation & Status */}
-        <div className="flex items-center space-x-3 sm:space-x-4">
+        {/* Navigation & Visitor Component */}
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          {/* People Visited So Far Highlight Badge (Replaces AI Ready) */}
+          <div
+            className="flex items-center space-x-1.5 sm:space-x-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-slate-900/90 border border-emerald-500/40 shadow-sm shadow-emerald-500/10 text-xs font-mono transition-all hover:border-emerald-500/60"
+            title="Total number of people visited this website so far"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <Users className="w-3.5 h-3.5 text-emerald-400 hidden xs:inline" />
+            <span className="text-slate-300 font-sans text-xs hidden sm:inline">
+              People visited so far:
+            </span>
+            <span className="text-slate-300 font-sans text-xs sm:hidden">
+              Visited:
+            </span>
+            <span className="font-extrabold text-emerald-400 font-mono tracking-tight text-xs sm:text-sm">
+              {visitorCount !== null && visitorCount !== undefined ? (
+                Math.max(1, visitorCount).toLocaleString()
+              ) : (
+                <span className="animate-pulse">--</span>
+              )}
+            </span>
+          </div>
+
           <nav className="flex items-center space-x-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
             <button
               onClick={() => onNavigate('home')}
@@ -77,23 +128,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>AI Practice</span>
             </button>
           </nav>
-
-          {/* Engine Status indicator */}
-          <div className="hidden md:flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-300">
-            {apiConnected ? (
-              <>
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-slate-400">Core Engine:</span>
-                <span className="text-emerald-400 font-medium">Ready</span>
-              </>
-            ) : (
-              <>
-                <span className="w-2 h-2 rounded-full bg-amber-400" />
-                <span className="text-slate-400">Core Engine:</span>
-                <span className="text-amber-400 font-medium">Connecting</span>
-              </>
-            )}
-          </div>
         </div>
       </div>
     </header>

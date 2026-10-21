@@ -16,6 +16,7 @@ export const App: React.FC = () => {
 
   const [currentView, setCurrentView] = useState<'home' | 'practice' | 'ai-practice'>(getInitialView);
   const [apiConnected, setApiConnected] = useState<boolean>(true);
+  const [visitorCount, setVisitorCount] = useState<number | null>(null);
 
   // Sync view navigation with browser history
   const handleNavigate = (view: 'home' | 'practice' | 'ai-practice') => {
@@ -38,7 +39,7 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Periodic health check with backend
+  // Periodic health check with backend and load visitor count
   useEffect(() => {
     const checkBackend = async () => {
       try {
@@ -49,6 +50,13 @@ export const App: React.FC = () => {
       }
     };
     checkBackend();
+
+    api
+      .getStats()
+      .then((data) => {
+        setVisitorCount(data.peopleVisitedSoFar ?? data.uniqueVisitors ?? 1);
+      })
+      .catch(() => {});
   }, []);
 
   return (
@@ -58,6 +66,7 @@ export const App: React.FC = () => {
         currentView={currentView}
         onNavigate={handleNavigate}
         apiConnected={apiConnected}
+        visitorCount={visitorCount ?? undefined}
       />
 
       {/* Main Content Area */}
