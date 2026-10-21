@@ -1,12 +1,23 @@
 import { geminiProvider } from './gemini.provider.js';
+import { groqProvider } from './groq.provider.js';
+import { getAIConfig } from '../../config/ai.config.js';
 
 export class AIService {
   constructor(provider) {
-    this.provider = provider || geminiProvider;
+    this._customProvider = provider || null;
+  }
+
+  get provider() {
+    if (this._customProvider) return this._customProvider;
+    const config = getAIConfig();
+    if (config.provider === 'groq') {
+      return groqProvider;
+    }
+    return geminiProvider;
   }
 
   setProvider(provider) {
-    this.provider = provider;
+    this._customProvider = provider;
   }
 
   getProviderName() {

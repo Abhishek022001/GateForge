@@ -9,15 +9,34 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 dotenv.config();
 
 export function getAIConfig() {
-  const apiKey = (process.env.GEMINI_API_KEY || '').trim();
-  const provider = (process.env.AI_PROVIDER || 'gemini').trim().toLowerCase();
-  const model = (process.env.AI_MODEL || 'gemini-flash-lite-latest').trim();
-  const timeoutMs = Math.max(1000, parseInt(process.env.AI_REQUEST_TIMEOUT_MS || '30000', 10) || 30000);
+  const groqKey = (process.env.GROQ_API_KEY || '').trim();
+  const geminiKey = (process.env.GEMINI_API_KEY || '').trim();
+  const explicitProvider = (process.env.AI_PROVIDER || '').trim().toLowerCase();
+
+  let provider = 'gemini';
+  let apiKey = geminiKey;
+  let defaultModel = 'gemini-flash-lite-latest';
+
+  // If GROQ_API_KEY is present or explicitly selected, use Groq for 10x faster inference
+  if (explicitProvider === 'groq' || (!explicitProvider && groqKey)) {
+    provider = 'groq';
+    apiKey = groqKey;
+    defaultModel = 'llama-3.3-70b-versatile';
+  } else if (!apiKey && groqKey) {
+    provider = 'groq';
+    apiKey = groqKey;
+    defaultModel = 'llama-3.3-70b-versatile';
+  }
+
+  const model = (process.env.AI_MODEL || defaultModel).trim();
+  const timeoutMs = Math.max(1000, parseInt(process.env.AI_REQUEST_TIMEOUT_MS || '25000', 10) || 25000);
   const maxRetries = Math.max(0, parseInt(process.env.AI_MAX_RETRIES || '2', 10) || 2);
   const temperature = 0.7;
 
   return {
     apiKey,
+    groqApiKey: groqKey,
+    geminiApiKey: geminiKey,
     provider,
     model,
     timeoutMs,

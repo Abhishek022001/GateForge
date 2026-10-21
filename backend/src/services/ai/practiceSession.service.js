@@ -1,5 +1,12 @@
 import crypto from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { AIError } from './ai.interface.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const SESSIONS_DIR = path.resolve(__dirname, '../../data/sessions');
 
 export class PracticeSessionService {
   constructor(ttlMs = 60 * 60 * 1000) {
@@ -7,6 +14,36 @@ export class PracticeSessionService {
     this.sessions = new Map();
     this.multiSessions = new Map();
     this.ttlMs = ttlMs;
+    this.ensureSessionDir();
+  }
+
+  ensureSessionDir() {
+    try {
+      if (!fs.existsSync(SESSIONS_DIR)) {
+        fs.mkdirSync(SESSIONS_DIR, { recursive: true });
+      }
+    } catch (_) {}
+  }
+
+  saveSessionToDisk(sessionId, data) {
+    try {
+      this.ensureSessionDir();
+      fs.writeFileSync(path.join(SESSIONS_DIR, `${sessionId}.json`), JSON.stringify(data), 'utf8');
+    } catch (_) {}
+  }
+
+  loadSessionFromDisk(sessionId) {
+    try {
+      const file = path.join(SESSIONS_DIR, `${sessionId}.json`);
+      if (fs.existsSync(file)) {
+        const raw = fs.readFileSync(file, 'utf8');
+        const data = JSON.parse(raw);
+        if (data && data.expiresAt && Date.now() < data.expiresAt) {
+          return data;
+        }
+      }
+    } catch (_) {}
+    return null;
   }
 
   /**
@@ -65,14 +102,17 @@ export class PracticeSessionService {
       };
     });
 
-    this.multiSessions.set(sessionId, {
+    const sessionData = {
       sessionId,
       config: { ...config },
       questions: sessionQuestions,
       createdAt: now,
       expiresAt: now + this.ttlMs,
       submitted: false,
-    });
+    };
+
+    this.multiSessions.set(sessionId, sessionData);
+    this.saveSessionToDisk(sessionId, sessionData);
 
     return {
       sessionId,
@@ -84,11 +124,21 @@ export class PracticeSessionService {
    * Retrieves a multi-question session by ID if not expired.
    */
   getMultiQuestionSession(sessionId) {
-    const entry = this.multiSessions.get(sessionId);
+    let entry = this.multiSessions.get(sessionId);
+    if (!entry) {
+      entry = this.loadSessionFromDisk(sessionId);
+      if (entry) {
+        this.multiSessions.set(sessionId, entry);
+      }
+    }
     if (!entry) return null;
 
     if (Date.now() > entry.expiresAt) {
       this.multiSessions.delete(sessionId);
+      try {
+        const file = path.join(SESSIONS_DIR, `${sessionId}.json`);
+        if (fs.existsSync(file)) fs.unlinkSync(file);
+      } catch (_) {}
       return null;
     }
 
@@ -199,6 +249,7 @@ export class PracticeSessionService {
 
     session.submitted = true;
     session.submissionResult = submissionResult;
+    this.saveSessionToDisk(sessionId, session);
 
     return submissionResult;
   }

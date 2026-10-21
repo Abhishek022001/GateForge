@@ -1,16 +1,26 @@
 import { IAIProvider, IAIGenerateOptions, IAITextResponse, IAIStructuredResponse, IAIHealthStatus } from './ai.interface.js';
 import { geminiProvider } from './gemini.provider.js';
+import { groqProvider } from './groq.provider.js';
 import { getAIConfig } from '../../config/ai.config.js';
 
 export class AIService {
-  private provider: IAIProvider;
+  private _customProvider: IAIProvider | null;
 
   constructor(provider?: IAIProvider) {
-    this.provider = provider || geminiProvider;
+    this._customProvider = provider || null;
+  }
+
+  public get provider(): IAIProvider {
+    if (this._customProvider) return this._customProvider;
+    const config = getAIConfig();
+    if (config.provider === 'groq') {
+      return groqProvider;
+    }
+    return geminiProvider;
   }
 
   public setProvider(provider: IAIProvider): void {
-    this.provider = provider;
+    this._customProvider = provider;
   }
 
   public getProviderName(): string {
