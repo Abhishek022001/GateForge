@@ -703,9 +703,48 @@
       const renderedHtml = useMemo(() => {
         try {
           let text = content;
+
+          // Client-side cleanup of any leaked footers, PUA glyphs, and mangled scripts
+          text = text
+            .replace(/\s*GATE\s+\d{4}\s+Computer\s+Science[^\n]*/gi, '')
+            .replace(/\s*Page\s+\d+\s+of\s+\d+/gi, '')
+            .replace(/\s*Organizing\s+Institute[^\n]*/gi, '');
+
+          // PUA glyph replacements
+          const PUA = {
+            '\uF02B': '+', '\uF02D': '-', '\uF03D': '=', '\uF03E': '>', '\uF03C': '<',
+            '\uF028': '(', '\uF029': ')', '\uF050': '\\Pi', '\uF071': '\\Theta',
+            '\uF073': '\\sigma', '\uF057': '\\Omega', '\uF0AE': '\\rightarrow',
+            '\uF0B4': '\\times', '\uF0CE': '\\in', '\uF0CD': '\\subseteq',
+            '\uF0B9': '\\ne', '\uF0B3': '\\ge', '\uF0A3': '\\le', '\uF0C7': '\\cap',
+            '\uF0C8': '\\cup', '\uF0B7': '•', '\uF0D7': '\\cdot', '\uF0B8': '/',
+            '\uF066': '\\phi', '\uF0A2': "'", '\uF020': ' '
+          };
+          for (const [k, v] of Object.entries(PUA)) {
+            if (text.includes(k)) text = text.split(k).join(v);
+          }
+
+          // Odia digits as exponents
+          text = text
+            .replace(/([A-Za-z0-9])\u0B30/g, '$1^0')
+            .replace(/([A-Za-z0-9])\u0B31/g, '$1^1')
+            .replace(/([A-Za-z0-9])\u0B32/g, '$1^2')
+            .replace(/([A-Za-z0-9])\u0B33/g, '$1^3')
+            .replace(/([A-Za-z0-9])\u0B34/g, '$1^4')
+            .replace(/([A-Za-z0-9])\u0B35/g, '$1^5')
+            .replace(/([A-Za-z0-9])\u0B36/g, '$1^6')
+            .replace(/([A-Za-z0-9])\u0B37/g, '$1^7')
+            .replace(/([A-Za-z0-9])\u0B38/g, '$1^8')
+            .replace(/([A-Za-z0-9])\u0B39/g, '$1^9');
+
           // Normalize LaTeX math delimiters \[ \] and \( \)
           text = text.replace(/\\\[([\s\S]*?)\\\]/g, '$$$$$1$$$$');
           text = text.replace(/\\\(([\s\S]*?)\\\)/g, '$$$1$$');
+
+          // Auto-wrap raw LaTeX commands if not already inside $...$
+          if (!text.includes('$') && /\\[A-Za-z]+/.test(text)) {
+            text = `$${text.trim()}$`;
+          }
 
           const regex = /(\$\$[\s\S]*?\$\$|\$[^\$\n]+?\$)/g;
           const tokens = [];
@@ -730,7 +769,7 @@
           }
 
           if (tokens.length === 0) {
-            return content;
+            return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br/>');
           }
 
           return tokens.map(token => {
