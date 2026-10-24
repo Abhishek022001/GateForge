@@ -2815,7 +2815,7 @@
       const [flaggedQuestions, setFlaggedQuestions] = useState({});
       const [visitedQuestions, setVisitedQuestions] = useState({});
       const [selectedPaper, setSelectedPaper] = useState(initialFilter?.year ? String(initialFilter.year) : 'all');
-      const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+      const [isPaletteOpen, setIsPaletteOpen] = useState(true);
       const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
       const [isLoading, setIsLoading] = useState(true);
       const [isSubmitting, setIsSubmitting] = useState(false);
@@ -2986,7 +2986,9 @@
       const handleJump = (idx) => {
         if (idx >= 0 && idx < questions.length) {
           setCurrentIndex(idx);
-          setIsPaletteOpen(false);
+          if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+            setIsPaletteOpen(false);
+          }
         }
       };
 
