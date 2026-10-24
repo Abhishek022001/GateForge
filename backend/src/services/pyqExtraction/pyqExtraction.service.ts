@@ -11,6 +11,7 @@ import { officialGateSourceService } from '../gateSources/officialGateSource.js'
 import { extractPdfText, IPdfExtractionResult } from './pdfExtractor.js';
 import { segmentQuestions, IExtractedQuestionCandidate } from './questionSegmenter.js';
 import { geminiExtractionFallback } from './geminiExtractionFallback.js';
+import { extractFiguresForSource } from './figureExtractor.js';
 
 export interface IPyqExtractionResponse {
   source: {
@@ -72,7 +73,22 @@ export class PyqExtractionService {
     // 3. Segment into candidate questions
     let candidates: IExtractedQuestionCandidate[] = segmentQuestions(pdfResult.pageTexts);
 
-    // 4. Optional: Run Gemini fallback ONLY for low-confidence candidates (if enabled)
+    // 4. Extract and attach visual diagram figures if available locally
+    const localPdfPath = officialGateSourceService.getDownloadedPath(sourceId);
+    if (localPdfPath) {
+      try {
+        const figureMap = extractFiguresForSource(localPdfPath, sourceId);
+        for (const c of candidates) {
+          if (c.requiresFigure && figureMap[c.questionNumber]) {
+            c.imageUrl = figureMap[c.questionNumber];
+          }
+        }
+      } catch (err: any) {
+        console.warn(`[PYQ Extraction] Could not extract figures for ${sourceId}:`, err.message);
+      }
+    }
+
+    // 5. Optional: Run Gemini fallback ONLY for low-confidence candidates (if enabled)
     if (options?.useFallback) {
       for (let i = 0; i < candidates.length; i++) {
         const c = candidates[i];

@@ -9,6 +9,7 @@
     "start": "node dist/index.js",
     "dev": "node src/server.js",
     "seed": "tsx src/scripts/seed.ts",
+    "ingest:pyqs": "tsx src/scripts/ingestAllPyqs.js",
     "import:questions": "node src/scripts/importQuestions.js"
   },
   "dependencies": {

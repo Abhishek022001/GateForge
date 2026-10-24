@@ -26,6 +26,7 @@ export interface IQuestion {
   numericalTolerance?: number;
   tolerance?: number;
   explanation?: string;
+  imageUrl?: string;
   source?: {
     type: 'PYQ' | 'AI_GENERATED' | 'MANUAL' | 'PRACTICE';
     provider?: string;

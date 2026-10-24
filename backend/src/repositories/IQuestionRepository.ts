@@ -5,6 +5,7 @@ export interface IQuestionFilter {
   topic?: string;
   difficulty?: string;
   questionType?: string;
+  year?: number | string;
 }
 
 export interface IQuestionRepository {

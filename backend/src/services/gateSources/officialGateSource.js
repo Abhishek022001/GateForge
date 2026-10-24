@@ -193,6 +193,13 @@ export class OfficialGateSourceService {
     }
   }
 
+  getDownloadedPath(sourceId) {
+    const source = sourceRegistry.getSourceById(sourceId);
+    if (!source) return null;
+    const targetPath = source.localPath || path.join(this.downloadDir, `${source.id}.pdf`);
+    return fs.existsSync(targetPath) ? targetPath : null;
+  }
+
   getDownloadedBuffer(sourceId) {
     const source = sourceRegistry.getSourceById(sourceId);
     if (!source) return null;

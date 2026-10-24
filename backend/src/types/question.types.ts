@@ -78,6 +78,7 @@ export interface IQuestion {
   tolerance?: number;
   marks?: number;
   requiresFigure?: boolean;
+  imageUrl?: string;
   extractionConfidence?: number;
   source: IQuestionSource;
   reasoningType?: ReasoningType[] | string[];

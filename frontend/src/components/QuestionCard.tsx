@@ -66,9 +66,24 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
 
       {/* Question Content Body */}
       <div className="p-6 md:p-8">
-        <div className="text-base md:text-lg leading-relaxed text-slate-100 font-normal mb-8 whitespace-pre-line tracking-wide">
+        <div className="text-base md:text-lg leading-relaxed text-slate-100 font-normal mb-6 whitespace-pre-line tracking-wide">
           {question.question}
         </div>
+
+        {/* Official Figure / Schematic Diagram */}
+        {question.imageUrl && (
+          <div className="my-6 flex flex-col items-center justify-center p-4 bg-slate-950/70 rounded-xl border border-slate-800">
+            <img
+              src={question.imageUrl}
+              alt={`Figure for Question ${question.questionNumber || ''}`}
+              className="max-h-[400px] max-w-full rounded-lg object-contain shadow-md border border-slate-700/60 bg-white p-2"
+              loading="lazy"
+            />
+            <span className="text-[11px] font-mono text-slate-400 mt-2">
+              Official Examination Figure • GATE {question.year || question.source?.year || ''}
+            </span>
+          </div>
+        )}
 
         {/* Options List */}
         <div className="space-y-3 mb-8">

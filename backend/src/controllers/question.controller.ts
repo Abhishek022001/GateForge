@@ -5,12 +5,13 @@ import { IQuestionInput } from '../types/question.types.js';
 export class QuestionController {
   async getAllQuestions(req: Request, res: Response): Promise<void> {
     try {
-      const { subject, topic, difficulty, questionType } = req.query;
+      const { subject, topic, difficulty, questionType, year } = req.query;
       const questions = await questionService.getAllQuestions({
         subject: subject as string | undefined,
         topic: topic as string | undefined,
         difficulty: difficulty as string | undefined,
         questionType: questionType as string | undefined,
+        year: year as string | undefined,
       });
 
       res.status(200).json({

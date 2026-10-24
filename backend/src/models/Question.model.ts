@@ -96,6 +96,7 @@ const QuestionSchema = new Schema<IQuestionDocument>(
     numericalTolerance: { type: Number, default: 0.01 },
     marks: { type: Number },
     requiresFigure: { type: Boolean, default: false },
+    imageUrl: { type: String, required: false },
     extractionConfidence: { type: Number },
     source: { type: SourceSchema, required: true, default: () => ({ type: 'MANUAL', exam: 'GATE' }) },
     reasoningType: { type: [String], default: [] },

@@ -17,6 +17,7 @@ export class QuestionService {
     topic?: string;
     difficulty?: string;
     questionType?: string;
+    year?: number | string;
   }): Promise<Omit<IQuestion, 'correctAnswer' | 'explanation'>[]> {
     // Ensure repository has seed questions if empty
     await this.repo.seedIfEmpty(SEED_QUESTIONS);

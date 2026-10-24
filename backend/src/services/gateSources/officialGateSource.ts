@@ -241,6 +241,16 @@ export class OfficialGateSourceService {
   }
 
   /**
+   * Returns the local file path for a source if available locally.
+   */
+  public getDownloadedPath(sourceId: string): string | null {
+    const source = sourceRegistry.getSourceById(sourceId);
+    if (!source) return null;
+    const targetPath = source.localPath || path.join(this.downloadDir, `${source.id}.pdf`);
+    return fs.existsSync(targetPath) ? targetPath : null;
+  }
+
+  /**
    * Loads the downloaded file buffer for a source if available locally.
    */
   public getDownloadedBuffer(sourceId: string): Buffer | null {

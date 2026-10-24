@@ -135,11 +135,15 @@ export function validateAndMapCandidates(candidates, answerKeyRecords, options) 
     }
 
     if (candidate.requiresFigure) {
-      issues.push('Question depends on a visual figure/circuit/diagram not captured in text extraction.');
-      if (status !== 'FAILED') status = 'NEEDS_REVIEW';
+      if (candidate.imageUrl) {
+        // Visual diagram has been extracted and attached successfully
+      } else {
+        issues.push('Question depends on a visual figure/circuit/diagram not captured in text extraction.');
+        if (status !== 'FAILED') status = 'NEEDS_REVIEW';
+      }
     }
 
-    if (candidate.extractionConfidence < 0.7) {
+    if (candidate.extractionConfidence < 0.7 && !candidate.imageUrl) {
       issues.push(`Low text extraction confidence (${Math.round(candidate.extractionConfidence * 100)}%).`);
       if (status !== 'FAILED') status = 'NEEDS_REVIEW';
     }
@@ -161,6 +165,7 @@ export function validateAndMapCandidates(candidates, answerKeyRecords, options) 
       numericalAnswer,
       marks,
       requiresFigure: candidate.requiresFigure,
+      imageUrl: candidate.imageUrl,
       extractionConfidence: candidate.extractionConfidence,
       provenance: {
         type: 'PYQ',

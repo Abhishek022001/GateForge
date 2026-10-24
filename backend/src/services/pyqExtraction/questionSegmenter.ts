@@ -14,6 +14,7 @@ export interface IExtractedQuestionCandidate {
   extractionConfidence: number;
   requiresReview: boolean;
   requiresFigure: boolean;
+  imageUrl?: string;
   marks?: number;
   notes?: string;
 }

@@ -40,11 +40,20 @@ export interface IImportOptions {
 export class OfficialPyqImportService {
   /**
    * Generates a deterministic, stable identifier for an official GATE question.
-   * e.g. "gate-2024-cs-q01", "gate-2024-cs-q22"
+   * e.g. "gate-2024-cs-q01", "gate-2024-cs2-q01", "gate-2025-cs1-q01"
    */
-  public generateQuestionId(year: number | string, paper: string, questionNumber: number): string {
+  public generateQuestionId(year: number | string, paper: string, questionNumber: number, sessionCode?: string): string {
     const qPad = String(questionNumber).padStart(2, '0');
-    return `gate-${year}-${paper.toLowerCase()}-q${qPad}`;
+    let paperCode = paper.toLowerCase();
+    if (sessionCode) {
+      const normSession = sessionCode.replace(/[\s-]/g, '').toLowerCase();
+      if (normSession === 'cs2' || normSession === 's2' || normSession === '2') {
+        paperCode = 'cs2';
+      } else if ((normSession === 'cs1' || normSession === 's1' || normSession === '1') && String(year) === '2025') {
+        paperCode = 'cs1';
+      }
+    }
+    return `gate-${year}-${paperCode}-q${qPad}`;
   }
 
   /**
@@ -55,10 +64,13 @@ export class OfficialPyqImportService {
     candidate: IValidatedCandidateQuestion,
     sourceRecord: IGateSourceRecord
   ): IQuestion {
+    const sessionMatch = (sourceRecord.id + ' ' + (sourceRecord.title || '')).match(/\b(CS[-\s]?[12]|CS[12])\b/i);
+    const sessionCode = sessionMatch ? sessionMatch[1] : undefined;
     const id = this.generateQuestionId(
       candidate.provenance.year,
       candidate.provenance.paper,
-      candidate.questionNumber
+      candidate.questionNumber,
+      sessionCode
     );
 
     const source: IQuestionSource = {
@@ -93,6 +105,7 @@ export class OfficialPyqImportService {
       section: candidate.provenance.section || (candidate.questionNumber <= 10 ? 'GA' : 'CS'),
       questionNumber: candidate.questionNumber,
       requiresFigure: candidate.requiresFigure,
+      imageUrl: candidate.imageUrl,
       extractionConfidence: candidate.extractionConfidence,
       explanation: 'Explanation not available yet.',
       source,
@@ -111,12 +124,14 @@ export class OfficialPyqImportService {
    */
   public isDuplicate(
     candidate: IValidatedCandidateQuestion,
-    db: any
+    db: any,
+    sessionCode?: string
   ): boolean {
     const targetId = this.generateQuestionId(
       candidate.provenance.year,
       candidate.provenance.paper,
-      candidate.questionNumber
+      candidate.questionNumber,
+      sessionCode
     );
 
     // 1. Direct ID check
@@ -133,6 +148,7 @@ export class OfficialPyqImportService {
           (q.source?.type === 'PYQ' &&
             String(q.source?.year) === String(candidate.provenance.year) &&
             q.source?.paper?.toUpperCase() === candidate.provenance.paper?.toUpperCase() &&
+            q.source?.questionPaperSourceId === candidate.provenance.questionPaperSourceId &&
             q.source?.questionNumber === candidate.questionNumber)
       );
       if (match) return true;
@@ -177,6 +193,9 @@ export class OfficialPyqImportService {
     let importedCount = 0;
     let duplicateCount = 0;
 
+    const sessionMatch = (sourceRecord.id + ' ' + (sourceRecord.title || '')).match(/\b(CS[-\s]?[12]|CS[12])\b/i);
+    const sessionCode = sessionMatch ? sessionMatch[1] : undefined;
+
     // 2. Iterate through candidate questions
     for (const candidate of validationResult.questions) {
       // Exclude NEEDS_REVIEW and FAILED
@@ -191,7 +210,7 @@ export class OfficialPyqImportService {
       }
 
       // 3. Duplicate Detection
-      if (this.isDuplicate(candidate, db)) {
+      if (this.isDuplicate(candidate, db, sessionCode)) {
         duplicateCount++;
         continue;
       }

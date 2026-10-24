@@ -7,6 +7,7 @@ import { officialGateSourceService } from '../gateSources/officialGateSource.js'
 import { extractPdfText } from './pdfExtractor.js';
 import { segmentQuestions } from './questionSegmenter.js';
 import { geminiExtractionFallback } from './geminiExtractionFallback.js';
+import { extractFiguresForSource } from './figureExtractor.js';
 
 export class PyqExtractionService {
   async extractFromSource(sourceId, options) {
@@ -40,6 +41,20 @@ export class PyqExtractionService {
     }
 
     let candidates = segmentQuestions(pdfResult.pageTexts);
+
+    const localPdfPath = officialGateSourceService.getDownloadedPath(sourceId);
+    if (localPdfPath) {
+      try {
+        const figureMap = extractFiguresForSource(localPdfPath, sourceId);
+        for (const c of candidates) {
+          if (c.requiresFigure && figureMap[c.questionNumber]) {
+            c.imageUrl = figureMap[c.questionNumber];
+          }
+        }
+      } catch (err) {
+        console.warn(`[PYQ Extraction] Could not extract figures for ${sourceId}:`, err.message);
+      }
+    }
 
     if (options?.useFallback) {
       for (let i = 0; i < candidates.length; i++) {

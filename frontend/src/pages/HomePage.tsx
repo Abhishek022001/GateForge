@@ -136,7 +136,7 @@ export const HomePage: React.FC<HomePageProps> = ({
     {
       step: '04',
       title: 'AI Pattern Analysis',
-      desc: 'Gemini analyzes reasoning types, cognitive depth, distractor patterns, and common traps.',
+      desc: 'Groq (Llama 3.3 70B) analyzes reasoning types, cognitive depth, distractor patterns, and common traps.',
       icon: Sparkles,
       color: 'text-amber-400 border-amber-500/30 bg-amber-950/40',
     },
@@ -149,7 +149,7 @@ export const HomePage: React.FC<HomePageProps> = ({
     },
     {
       step: '06',
-      title: 'Gemini Generation',
+      title: 'Groq Model Generation',
       desc: 'Generates candidate questions conditioned on official patterns with bounded retries.',
       icon: Cpu,
       color: 'text-violet-400 border-violet-500/30 bg-violet-950/40',

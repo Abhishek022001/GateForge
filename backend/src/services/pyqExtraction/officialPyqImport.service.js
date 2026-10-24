@@ -6,16 +6,28 @@ import { sourceRegistry } from '../gateSources/sourceRegistry.js';
 import { pyqValidationService } from './pyqValidation.service.js';
 
 export class OfficialPyqImportService {
-  generateQuestionId(year, paper, questionNumber) {
+  generateQuestionId(year, paper, questionNumber, sessionCode) {
     const qPad = String(questionNumber).padStart(2, '0');
-    return `gate-${year}-${paper.toLowerCase()}-q${qPad}`;
+    let paperCode = paper.toLowerCase();
+    if (sessionCode) {
+      const normSession = sessionCode.replace(/[\s-]/g, '').toLowerCase();
+      if (normSession === 'cs2' || normSession === 's2' || normSession === '2') {
+        paperCode = 'cs2';
+      } else if ((normSession === 'cs1' || normSession === 's1' || normSession === '1') && String(year) === '2025') {
+        paperCode = 'cs1';
+      }
+    }
+    return `gate-${year}-${paperCode}-q${qPad}`;
   }
 
   mapCandidateToQuestion(candidate, sourceRecord) {
+    const sessionMatch = (sourceRecord.id + ' ' + (sourceRecord.title || '')).match(/\b(CS[-\s]?[12]|CS[12])\b/i);
+    const sessionCode = sessionMatch ? sessionMatch[1] : undefined;
     const id = this.generateQuestionId(
       candidate.provenance.year,
       candidate.provenance.paper,
-      candidate.questionNumber
+      candidate.questionNumber,
+      sessionCode
     );
 
     const source = {
@@ -50,6 +62,7 @@ export class OfficialPyqImportService {
       section: candidate.provenance.section || (candidate.questionNumber <= 10 ? 'GA' : 'CS'),
       questionNumber: candidate.questionNumber,
       requiresFigure: candidate.requiresFigure,
+      imageUrl: candidate.imageUrl,
       extractionConfidence: candidate.extractionConfidence,
       explanation: 'Explanation not available yet.',
       source,
@@ -62,11 +75,12 @@ export class OfficialPyqImportService {
     };
   }
 
-  isDuplicate(candidate, db) {
+  isDuplicate(candidate, db, sessionCode) {
     const targetId = this.generateQuestionId(
       candidate.provenance.year,
       candidate.provenance.paper,
-      candidate.questionNumber
+      candidate.questionNumber,
+      sessionCode
     );
 
     if (typeof db.findById === 'function' && db.findById(targetId)) {
@@ -81,6 +95,7 @@ export class OfficialPyqImportService {
           (q.source?.type === 'PYQ' &&
             String(q.source?.year) === String(candidate.provenance.year) &&
             q.source?.paper?.toUpperCase() === candidate.provenance.paper?.toUpperCase() &&
+            q.source?.questionPaperSourceId === candidate.provenance.questionPaperSourceId &&
             q.source?.questionNumber === candidate.questionNumber)
       );
       if (match) return true;
@@ -111,6 +126,9 @@ export class OfficialPyqImportService {
     let importedCount = 0;
     let duplicateCount = 0;
 
+    const sessionMatch = (sourceRecord.id + ' ' + (sourceRecord.title || '')).match(/\b(CS[-\s]?[12]|CS[12])\b/i);
+    const sessionCode = sessionMatch ? sessionMatch[1] : undefined;
+
     for (const candidate of validationResult.questions) {
       if (candidate.validationStatus !== 'VALID') {
         excludedQuestions.push({
@@ -122,7 +140,7 @@ export class OfficialPyqImportService {
         continue;
       }
 
-      if (this.isDuplicate(candidate, db)) {
+      if (this.isDuplicate(candidate, db, sessionCode)) {
         duplicateCount++;
         continue;
       }

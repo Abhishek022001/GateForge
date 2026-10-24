@@ -24,21 +24,29 @@
         extend: {
           colors: {
             brand: {
-              50: '#f0f7ff',
-              100: '#e0effe',
-              200: '#bae0fd',
-              300: '#7cc7fb',
-              400: '#36aaf5',
-              500: '#0c8ee9',
-              600: '#006fc7',
-              700: '#0159a2',
-              800: '#054b85',
-              900: '#0a3f6f',
-              950: '#06284a',
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+              950: '#0f172a',
+            },
+            surface: {
+              0: '#050811',
+              1: '#090e1a',
+              2: '#0e1526',
+              3: '#141d33',
+              4: '#1a2642',
             },
             slate: {
-              850: '#151f32',
-              950: '#080d1a',
+              850: '#121a2c',
+              900: '#0c1322',
+              950: '#060a14',
             }
           },
           fontFamily: {
@@ -46,9 +54,12 @@
             mono: ['JetBrains Mono', 'monospace'],
           },
           boxShadow: {
-            'glow': '0 0 25px -5px rgba(12, 142, 233, 0.3)',
-            'glow-success': '0 0 25px -5px rgba(34, 197, 94, 0.3)',
-            'glow-error': '0 0 25px -5px rgba(239, 68, 68, 0.3)',
+            'glow': '0 0 25px -5px rgba(59, 130, 246, 0.25)',
+            'glow-emerald': '0 0 25px -5px rgba(16, 185, 129, 0.25)',
+            'glow-purple': '0 0 25px -5px rgba(168, 85, 247, 0.25)',
+            'glow-amber': '0 0 25px -5px rgba(245, 158, 11, 0.25)',
+            'card-glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+            'inner-subtle': 'inset 0 1px 0 0 rgba(255, 255, 255, 0.08)',
           }
         }
       }
@@ -62,9 +73,11 @@
 
   <style>
     body {
-      background-color: #080d1a;
-      color: #e2e8f0;
+      background-color: #060a14;
+      color: #f1f5f9;
       font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
     code, pre, .font-mono {
       font-family: 'JetBrains Mono', monospace;
@@ -74,21 +87,39 @@
       color: inherit;
     }
     .katex-display {
-      margin: 0.75em 0;
+      margin: 0.85em 0;
       overflow-x: auto;
       overflow-y: hidden;
-      padding: 0.25em 0;
+      padding: 0.35em 0;
+    }
+    /* Subtle Glass Card Elevation */
+    .glass-surface {
+      background: rgba(14, 21, 38, 0.72);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+    }
+    .glass-surface-hover:hover {
+      border-color: rgba(255, 255, 255, 0.16);
+      transform: translateY(-1px);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    /* Craft Tactile Press */
+    .btn-press:active {
+      transform: scale(0.975);
+      transition: transform 0.05s ease-in-out;
     }
     ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
+      width: 6px;
+      height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: #0d1527;
+      background: #060a14;
     }
     ::-webkit-scrollbar-thumb {
       background: #1e293b;
-      border-radius: 4px;
+      border-radius: 9999px;
     }
     ::-webkit-scrollbar-thumb:hover {
       background: #334155;
@@ -182,23 +213,23 @@
       Terminal: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><polyline points="4 17 10 11 4 5" strokeWidth="2"/><line x1="12" y1="19" x2="20" y2="19" strokeWidth="2"/></svg>,
       Database: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3" strokeWidth="2"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" strokeWidth="2"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" strokeWidth="2"/></svg>,
       Sparkles: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" strokeWidth="2"/></svg>,
-      ArrowRight: () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><line x1="5" y1="12" x2="19" y2="12" strokeWidth="2"/><polyline points="12 5 19 12 12 19" strokeWidth="2"/></svg>,
+      ArrowRight: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><line x1="5" y1="12" x2="19" y2="12" strokeWidth="2"/><polyline points="12 5 19 12 12 19" strokeWidth="2"/></svg>,
       Check: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><polyline points="20 6 9 17 4 12" strokeWidth="3"/></svg>,
-      X: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18" strokeWidth="3"/><line x1="6" y1="6" x2="18" y2="18" strokeWidth="3"/></svg>,
-      CheckCircle2: () => <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" strokeWidth="2"/><path d="M9 12l2 2 4-4" strokeWidth="2.5"/></svg>,
-      XCircle: () => <svg className="w-5 h-5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" strokeWidth="2"/><line x1="15" y1="9" x2="9" y2="15" strokeWidth="2.5"/><line x1="9" y1="9" x2="15" y2="15" strokeWidth="2.5"/></svg>,
+      X: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18" strokeWidth="2.5"/><line x1="6" y1="6" x2="18" y2="18" strokeWidth="2.5"/></svg>,
+      CheckCircle2: () => <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" strokeWidth="2"/><path d="M9 12l2 2 4-4" strokeWidth="2.5"/></svg>,
+      XCircle: () => <svg className="w-4 h-4 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" strokeWidth="2"/><line x1="15" y1="9" x2="9" y2="15" strokeWidth="2.5"/><line x1="9" y1="9" x2="15" y2="15" strokeWidth="2.5"/></svg>,
       BookOpen: () => <svg className="w-4 h-4 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" strokeWidth="2"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" strokeWidth="2"/></svg>,
       Lightbulb: () => <svg className="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.5 3 6h8c1.5-1.5 3-3.5 3-6a7 7 0 0 0-7-7z" strokeWidth="2"/></svg>,
       ChevronLeft: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><polyline points="15 18 9 12 15 6" strokeWidth="2"/></svg>,
       ChevronRight: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><polyline points="9 18 15 12 9 6" strokeWidth="2"/></svg>,
       Send: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><line x1="22" y1="2" x2="11" y2="13" strokeWidth="2"/><polygon points="22 2 15 22 11 13 2 9 22 2" strokeWidth="2"/></svg>,
       RotateCcw: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><polyline points="1 4 1 10 7 10" strokeWidth="2"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" strokeWidth="2"/></svg>,
-      Award: () => <svg className="w-8 h-8 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="8" r="7" strokeWidth="2"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" strokeWidth="2"/></svg>,
-      ShieldCheck: () => <svg className="w-5 h-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" strokeWidth="2"/><path d="m9 12 2 2 4-4" strokeWidth="2"/></svg>,
+      Award: () => <svg className="w-7 h-7 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="8" r="7" strokeWidth="2"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" strokeWidth="2"/></svg>,
+      ShieldCheck: () => <svg className="w-4 h-4 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" strokeWidth="2"/><path d="m9 12 2 2 4-4" strokeWidth="2"/></svg>,
       CheckSquare: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><polyline points="9 11 12 14 22 4" strokeWidth="2.5"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" strokeWidth="2"/></svg>,
       Hash: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><line x1="4" y1="9" x2="20" y2="9" strokeWidth="2"/><line x1="4" y1="15" x2="20" y2="15" strokeWidth="2"/><line x1="10" y1="3" x2="8" y2="21" strokeWidth="2"/><line x1="16" y1="3" x2="14" y2="21" strokeWidth="2"/></svg>,
       Flag: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" strokeWidth="2"/><line x1="4" y1="22" x2="4" y2="15" strokeWidth="2"/></svg>,
-      AlertTriangle: () => <svg className="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" strokeWidth="2"/><line x1="12" y1="9" x2="12" y2="13" strokeWidth="2"/><line x1="12" y1="17" x2="12.01" y2="17" strokeWidth="2"/></svg>,
+      AlertTriangle: () => <svg className="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" strokeWidth="2"/><line x1="12" y1="9" x2="12" y2="13" strokeWidth="2"/><line x1="12" y1="17" x2="12.01" y2="17" strokeWidth="2"/></svg>,
       Upload: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" strokeWidth="2"/><polyline points="17 8 12 3 7 8" strokeWidth="2"/><line x1="12" y1="3" x2="12" y2="15" strokeWidth="2"/></svg>,
       Search: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="11" cy="11" r="8" strokeWidth="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" strokeWidth="2"/></svg>,
       Filter: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" strokeWidth="2"/></svg>,
@@ -207,107 +238,453 @@
       Brain: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04z" strokeWidth="2"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z" strokeWidth="2"/></svg>,
       BarChart: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><line x1="12" y1="20" x2="12" y2="10" strokeWidth="2"/><line x1="18" y1="20" x2="18" y2="4" strokeWidth="2"/><line x1="6" y1="20" x2="6" y2="16" strokeWidth="2"/></svg>,
       Activity: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" strokeWidth="2"/></svg>,
+      ZoomIn: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="11" cy="11" r="8" strokeWidth="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" strokeWidth="2"/><line x1="11" y1="8" x2="11" y2="14" strokeWidth="2"/><line x1="8" y1="11" x2="14" y2="11" strokeWidth="2"/></svg>,
+      ZoomOut: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="11" cy="11" r="8" strokeWidth="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" strokeWidth="2"/><line x1="8" y1="11" x2="14" y2="11" strokeWidth="2"/></svg>,
+      Contrast: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" strokeWidth="2"/><path d="M12 2v20a10 10 0 0 0 0-20z" fill="currentColor"/></svg>,
+      Calculator: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="4" y="2" width="16" height="20" rx="2" strokeWidth="2"/><line x1="8" y1="6" x2="16" y2="6" strokeWidth="2"/><line x1="16" y1="14" x2="16" y2="18" strokeWidth="2"/><path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M8 18h.01M12 18h.01" strokeWidth="3"/></svg>,
+      Image: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><polyline points="21 15 16 10 5 21" strokeWidth="2"/></svg>,
+      Copy: () => <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" strokeWidth="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" strokeWidth="2"/></svg>,
+      Grid: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="7" height="7" strokeWidth="2"/><rect x="14" y="3" width="7" height="7" strokeWidth="2"/><rect x="14" y="14" width="7" height="7" strokeWidth="2"/><rect x="3" y="14" width="7" height="7" strokeWidth="2"/></svg>,
+      Clock: () => <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" strokeWidth="2"/><polyline points="12 6 12 12 16 14" strokeWidth="2"/></svg>,
+      Bookmark: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" strokeWidth="2"/></svg>,
+      AlertCircle: () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" strokeWidth="2"/><line x1="12" y1="8" x2="12" y2="12" strokeWidth="2"/><line x1="12" y1="16" x2="12.01" y2="16" strokeWidth="2"/></svg>,
     };
 
-    // Reusable KaTeX Math Renderer Component
-    function MathText({ content, className = '' }) {
-      if (!content || typeof content !== 'string') return <span>{content}</span>;
+    // Global Non-Intrusive Toast System
+    const ToastContext = React.createContext({ showToast: () => {} });
+    function ToastProvider({ children }) {
+      const [toasts, setToasts] = useState([]);
+      const showToast = (message, type = 'info', duration = 3200) => {
+        const id = Date.now() + Math.random();
+        setToasts((prev) => [...prev, { id, message, type }]);
+        setTimeout(() => {
+          setToasts((prev) => prev.filter((t) => t.id !== id));
+        }, duration);
+      };
+      return (
+        <ToastContext.Provider value={{ showToast }}>
+          {children}
+          <div className="fixed bottom-5 right-5 z-[100] flex flex-col gap-2.5 max-w-sm pointer-events-none">
+            {toasts.map((t) => (
+              <div
+                key={t.id}
+                className={`pointer-events-auto px-4 py-3 rounded-xl border shadow-2xl backdrop-blur-md text-xs font-mono flex items-center space-x-2.5 transition-all transform animate-in fade-in duration-200 ${
+                  t.type === 'error'
+                    ? 'bg-rose-950/90 border-rose-800 text-rose-200 shadow-rose-950/50'
+                    : t.type === 'success'
+                    ? 'bg-emerald-950/90 border-emerald-800 text-emerald-200 shadow-emerald-950/50'
+                    : t.type === 'warning'
+                    ? 'bg-amber-950/90 border-amber-800 text-amber-200 shadow-amber-950/50'
+                    : 'bg-slate-900/95 border-slate-700 text-slate-200 shadow-slate-950/50'
+                }`}
+              >
+                <span>{t.type === 'error' ? '⚠️' : t.type === 'success' ? '✓' : t.type === 'warning' ? '⚡' : 'ℹ️'}</span>
+                <span className="flex-1 font-sans">{t.message}</span>
+              </div>
+            ))}
+          </div>
+        </ToastContext.Provider>
+      );
+    }
+    function useToast() {
+      return React.useContext(ToastContext);
+    }
 
-      const renderMath = (mathStr, displayMode) => {
-        try {
-          if (window.katex) {
-            return window.katex.renderToString(mathStr.trim(), {
-              displayMode,
-              throwOnError: false,
-              output: 'htmlAndMathml',
-            });
-          }
-        } catch (e) {
-          console.warn('KaTeX error:', e);
+    // High-Contrast Diagram Lightbox Modal
+    function FigureLightboxModal({ isOpen, imageUrl, caption, year, questionNumber, onClose }) {
+      const [scale, setScale] = useState(1);
+      const [isInverted, setIsInverted] = useState(false);
+
+      useEffect(() => {
+        const handleKeyDown = (e) => {
+          if (e.key === 'Escape') onClose();
+          if (e.key === '+' || e.key === '=') setScale(s => Math.min(3, s + 0.25));
+          if (e.key === '-' || e.key === '_') setScale(s => Math.max(0.5, s - 0.25));
+          if (e.key === '0') setScale(1);
+        };
+        if (isOpen) {
+          document.body.style.overflow = 'hidden';
+          window.addEventListener('keydown', handleKeyDown);
         }
-        return mathStr;
+        return () => {
+          document.body.style.overflow = '';
+          window.removeEventListener('keydown', handleKeyDown);
+        };
+      }, [isOpen, onClose]);
+
+      if (!isOpen || !imageUrl) return null;
+
+      return (
+        <div className="fixed inset-0 z-50 flex flex-col bg-black/90 backdrop-blur-md animate-in fade-in duration-200">
+          {/* Lightbox Control Bar */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.08] bg-slate-950/80">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/20">
+                <Icons.Image />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-white flex items-center space-x-2">
+                  <span>Official Examination Schematic</span>
+                  {year && <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-brand-950 text-brand-300 border border-brand-800">GATE {year}</span>}
+                  {questionNumber && <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700">Q{questionNumber}</span>}
+                </h4>
+                <p className="text-xs text-slate-400 font-mono mt-0.5">
+                  {caption || 'Pristine Vector/Raster Extraction from Organizing Institute Master Paper'}
+                </p>
+              </div>
+            </div>
+
+            {/* Controls */}
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setScale(s => Math.max(0.5, s - 0.25))}
+                className="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 hover:border-slate-700 transition cursor-pointer"
+                title="Zoom Out (-)"
+              >
+                <Icons.ZoomOut />
+              </button>
+              <span className="text-xs font-mono font-semibold text-slate-300 min-w-[50px] text-center">
+                {Math.round(scale * 100)}%
+              </span>
+              <button
+                onClick={() => setScale(s => Math.min(3, s + 0.25))}
+                className="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 hover:border-slate-700 transition cursor-pointer"
+                title="Zoom In (+)"
+              >
+                <Icons.ZoomIn />
+              </button>
+              <button
+                onClick={() => setScale(1)}
+                className="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-xs font-mono text-slate-300 border border-slate-800 hover:border-slate-700 transition cursor-pointer"
+                title="Reset Zoom (100%)"
+              >
+                1:1
+              </button>
+              <button
+                onClick={() => setIsInverted(v => !v)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-mono transition cursor-pointer flex items-center space-x-1.5 border ${
+                  isInverted
+                    ? 'bg-amber-950/80 text-amber-300 border-amber-700'
+                    : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800'
+                }`}
+                title="Toggle Inverted Color Mode"
+              >
+                <Icons.Contrast />
+                <span>{isInverted ? 'Inverted' : 'Original'}</span>
+              </button>
+              <button
+                onClick={onClose}
+                className="p-2 rounded-lg bg-slate-900 hover:bg-rose-950/60 text-slate-400 hover:text-rose-300 border border-slate-800 hover:border-rose-800 transition cursor-pointer ml-2"
+                title="Close Lightbox (ESC)"
+              >
+                <Icons.X />
+              </button>
+            </div>
+          </div>
+
+          {/* Canvas */}
+          <div
+            className="flex-1 overflow-auto flex items-center justify-center p-8 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px]"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) onClose();
+            }}
+          >
+            <div
+              className={`transition-all duration-150 inline-block rounded-2xl shadow-2xl overflow-hidden border border-slate-700/80 ${
+                isInverted ? 'invert bg-black' : 'bg-white p-3'
+              }`}
+              style={{ transform: `scale(${scale})`, transformOrigin: 'center center' }}
+            >
+              <img
+                src={imageUrl}
+                alt={caption || 'GATE Exam Figure'}
+                className="max-w-[85vw] max-h-[75vh] object-contain rounded-lg select-none"
+                draggable={false}
+              />
+            </div>
+          </div>
+          <div className="px-6 py-2 bg-slate-950/80 border-t border-white/[0.08] text-center text-[11px] font-mono text-slate-500">
+            Keyboard Shortcuts: [+] Zoom In • [-] Zoom Out • [0] Reset • [ESC] Close
+          </div>
+        </div>
+      );
+    }
+
+    // Embedded Diagram Container with Lightbox Trigger
+    function FigureViewer({ imageUrl, caption, year, questionNumber, className = '' }) {
+      const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+      const [isInverted, setIsInverted] = useState(false);
+
+      if (!imageUrl) return null;
+
+      return (
+        <>
+          <div className={`my-5 rounded-2xl border border-white/[0.08] bg-slate-900/60 overflow-hidden shadow-lg group ${className}`}>
+            <div className="flex items-center justify-between px-4 py-2 bg-slate-950/80 border-b border-white/[0.06] text-xs font-mono">
+              <div className="flex items-center space-x-2 text-slate-300">
+                <span className="p-1 rounded bg-brand-500/10 text-brand-400">
+                  <Icons.Image />
+                </span>
+                <span className="font-semibold text-white">Official Examination Figure</span>
+                {year && <span className="text-slate-500">•</span>}
+                {year && <span className="text-brand-300">GATE {year}</span>}
+                {questionNumber && <span className="text-slate-400 font-bold">Q{questionNumber}</span>}
+              </div>
+
+              <div className="flex items-center space-x-1.5">
+                <button
+                  type="button"
+                  onClick={() => setIsInverted(v => !v)}
+                  className={`px-2 py-1 rounded text-[11px] font-mono transition cursor-pointer border ${
+                    isInverted
+                      ? 'bg-amber-950/70 text-amber-300 border-amber-800'
+                      : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
+                  }`}
+                  title="Toggle Inverted Color Mode"
+                >
+                  <span className="flex items-center space-x-1">
+                    <Icons.Contrast />
+                    <span>{isInverted ? 'Invert' : 'Invert'}</span>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsLightboxOpen(true)}
+                  className="px-2.5 py-1 rounded text-[11px] font-mono bg-brand-950/80 hover:bg-brand-900 text-brand-300 border border-brand-800 hover:border-brand-700 transition flex items-center space-x-1.5 cursor-pointer"
+                  title="Expand figure in full-screen zoom lightbox"
+                >
+                  <Icons.ZoomIn />
+                  <span>Expand & Zoom</span>
+                </button>
+              </div>
+            </div>
+
+            <div
+              onClick={() => setIsLightboxOpen(true)}
+              className="p-4 flex flex-col items-center justify-center cursor-zoom-in bg-slate-950/40 hover:bg-slate-950/20 transition-all"
+            >
+              <div className={`p-3 rounded-xl transition-all shadow-md ${
+                isInverted ? 'invert bg-black' : 'bg-white border border-slate-200'
+              }`}>
+                <img
+                  src={imageUrl}
+                  alt={caption || 'GATE Figure'}
+                  className="max-h-[340px] max-w-full object-contain rounded select-none"
+                  loading="lazy"
+                />
+              </div>
+              <span className="text-[11px] font-mono text-slate-400 mt-2.5 flex items-center space-x-1">
+                <span>Click schematic to expand in full-resolution lightbox</span>
+              </span>
+            </div>
+          </div>
+
+          <FigureLightboxModal
+            isOpen={isLightboxOpen}
+            imageUrl={imageUrl}
+            caption={caption}
+            year={year}
+            questionNumber={questionNumber}
+            onClose={() => setIsLightboxOpen(false)}
+          />
+        </>
+      );
+    }
+
+    // Authentic GATE Virtual Scientific Calculator Modal
+    function GateCalculatorModal({ isOpen, onClose }) {
+      const [display, setDisplay] = useState('0');
+      const [history, setHistory] = useState('');
+      const [isRad, setIsRad] = useState(true);
+
+      if (!isOpen) return null;
+
+      const handleDigit = (d) => {
+        setDisplay(prev => (prev === '0' || prev === 'Error') ? String(d) : prev + String(d));
       };
 
-      const parsedHtml = useMemo(() => {
-        const blockRegex = /\$\$([\s\S]+?)\$\$/g;
-        let lastIndex = 0;
-        let htmlParts = [];
-        let match;
+      const handleClear = () => {
+        setDisplay('0');
+        setHistory('');
+      };
 
-        const processInlineAndText = (textChunk) => {
-          if (!textChunk) return '';
-          const inlineRegex = /\$([^\$\n]+?)\$/g;
-          let inlineLastIndex = 0;
-          let inlineHtml = '';
-          let inlineMatch;
+      const handleBackspace = () => {
+        setDisplay(prev => prev.length > 1 ? prev.slice(0, -1) : '0');
+      };
 
-          while ((inlineMatch = inlineRegex.exec(textChunk)) !== null) {
-            const plainText = textChunk.slice(inlineLastIndex, inlineMatch.index);
-            inlineHtml += escapeAndFormatText(plainText);
-            inlineHtml += renderMath(inlineMatch[1], false);
-            inlineLastIndex = inlineRegex.lastIndex;
+      const handleOp = (op) => {
+        setHistory(`${display} ${op}`);
+        setDisplay('0');
+      };
+
+      const handleUnary = (type) => {
+        try {
+          const val = parseFloat(display);
+          let res = val;
+          const factor = isRad ? 1 : Math.PI / 180;
+          switch (type) {
+            case 'sin': res = Math.sin(val * factor); break;
+            case 'cos': res = Math.cos(val * factor); break;
+            case 'tan': res = Math.tan(val * factor); break;
+            case 'log': res = Math.log10(val); break;
+            case 'ln': res = Math.log(val); break;
+            case 'sqrt': res = Math.sqrt(val); break;
+            case 'sqr': res = val * val; break;
+            case 'inv': res = 1 / val; break;
+            case 'fact':
+              if (val < 0 || val > 170) throw new Error('Range');
+              let f = 1;
+              for (let i = 2; i <= Math.floor(val); i++) f *= i;
+              res = f;
+              break;
+            case 'neg': res = -val; break;
           }
-
-          inlineHtml += escapeAndFormatText(textChunk.slice(inlineLastIndex));
-          return inlineHtml;
-        };
-
-        const escapeAndFormatText = (str) => {
-          if (!str) return '';
-          let escaped = str
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
-          
-          escaped = escaped.replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>');
-          escaped = escaped.replace(/\*([^\*]+?)\*/g, '<em class="text-slate-300">$1</em>');
-          escaped = escaped.replace(/\n/g, '<br />');
-          return escaped;
-        };
-
-        while ((match = blockRegex.exec(content)) !== null) {
-          const textBefore = content.slice(lastIndex, match.index);
-          htmlParts.push(processInlineAndText(textBefore));
-          const mathBlock = renderMath(match[1], true);
-          htmlParts.push(`<div class="my-3 overflow-x-auto text-center">${mathBlock}</div>`);
-          lastIndex = blockRegex.lastIndex;
+          setDisplay(String(Number(res.toFixed(8))));
+        } catch (_) {
+          setDisplay('Error');
         }
+      };
 
-        htmlParts.push(processInlineAndText(content.slice(lastIndex)));
-        return htmlParts.join('');
-      }, [content]);
+      const handleConst = (c) => {
+        if (c === 'pi') setDisplay(String(Math.PI));
+        if (c === 'e') setDisplay(String(Math.E));
+      };
 
-      return <span className={className} dangerouslySetInnerHTML={{ __html: parsedHtml }} />;
+      const handleEquals = () => {
+        try {
+          if (!history) return;
+          const [left, op] = history.split(' ');
+          const a = parseFloat(left);
+          const b = parseFloat(display);
+          let res = 0;
+          switch (op) {
+            case '+': res = a + b; break;
+            case '-': res = a - b; break;
+            case '×': res = a * b; break;
+            case '÷': res = b !== 0 ? a / b : 'Error'; break;
+            case '^': res = Math.pow(a, b); break;
+            case '%': res = a % b; break;
+            default: res = b;
+          }
+          setHistory(`${history} ${display} =`);
+          setDisplay(typeof res === 'number' ? String(Number(res.toFixed(8))) : res);
+        } catch (_) {
+          setDisplay('Error');
+        }
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden font-mono">
+            <div className="flex items-center justify-between px-5 py-3.5 bg-slate-950 border-b border-slate-800">
+              <div className="flex items-center space-x-2 text-white text-xs font-bold">
+                <Icons.Calculator />
+                <span>GATE Scientific Virtual Calculator</span>
+              </div>
+              <button
+                onClick={onClose}
+                className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+              >
+                <Icons.X />
+              </button>
+            </div>
+
+            <div className="p-4 bg-slate-950/90 border-b border-slate-800">
+              <div className="text-right text-[11px] text-slate-500 h-5 font-mono overflow-hidden">
+                {history}
+              </div>
+              <div className="text-right text-2xl font-bold text-white tracking-wider font-mono select-all overflow-x-auto">
+                {display}
+              </div>
+              <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-800/80 text-[10px] text-slate-400">
+                <button
+                  onClick={() => setIsRad(v => !v)}
+                  className={`px-2 py-0.5 rounded font-bold transition cursor-pointer ${
+                    isRad ? 'bg-brand-500/20 text-brand-300 border border-brand-500/40' : 'text-slate-400'
+                  }`}
+                >
+                  {isRad ? 'RAD' : 'DEG'}
+                </button>
+                <span className="text-slate-500 font-mono">Official GATE CBT Simulation</span>
+              </div>
+            </div>
+
+            <div className="p-4 grid grid-cols-5 gap-2 bg-slate-900 text-xs">
+              <button onClick={() => handleUnary('sin')} className="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold cursor-pointer">sin</button>
+              <button onClick={() => handleUnary('cos')} className="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold cursor-pointer">cos</button>
+              <button onClick={() => handleUnary('tan')} className="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold cursor-pointer">tan</button>
+              <button onClick={handleBackspace} className="p-2.5 rounded-lg bg-rose-950/50 hover:bg-rose-900/60 text-rose-300 border border-rose-800/60 font-semibold cursor-pointer">⌫</button>
+              <button onClick={handleClear} className="p-2.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold cursor-pointer">C</button>
+
+              <button onClick={() => handleUnary('ln')} className="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold cursor-pointer">ln</button>
+              <button onClick={() => handleUnary('log')} className="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold cursor-pointer">log₁₀</button>
+              <button onClick={() => handleUnary('sqrt')} className="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold cursor-pointer">√x</button>
+              <button onClick={() => handleOp('^')} className="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold cursor-pointer">xʸ</button>
+              <button onClick={() => handleOp('÷')} className="p-2.5 rounded-lg bg-brand-950 text-brand-300 border border-brand-800 hover:bg-brand-900 font-bold cursor-pointer">÷</button>
+
+              <button onClick={() => handleUnary('sqr')} className="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold cursor-pointer">x²</button>
+              <button onClick={() => handleDigit(7)} className="p-2.5 rounded-lg bg-slate-850 hover:bg-slate-800 text-white font-bold cursor-pointer">7</button>
+              <button onClick={() => handleDigit(8)} className="p-2.5 rounded-lg bg-slate-850 hover:bg-slate-800 text-white font-bold cursor-pointer">8</button>
+              <button onClick={() => handleDigit(9)} className="p-2.5 rounded-lg bg-slate-850 hover:bg-slate-800 text-white font-bold cursor-pointer">9</button>
+              <button onClick={() => handleOp('×')} className="p-2.5 rounded-lg bg-brand-950 text-brand-300 border border-brand-800 hover:bg-brand-900 font-bold cursor-pointer">×</button>
+
+              <button onClick={() => handleUnary('inv')} className="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold cursor-pointer">1/x</button>
+              <button onClick={() => handleDigit(4)} className="p-2.5 rounded-lg bg-slate-850 hover:bg-slate-800 text-white font-bold cursor-pointer">4</button>
+              <button onClick={() => handleDigit(5)} className="p-2.5 rounded-lg bg-slate-850 hover:bg-slate-800 text-white font-bold cursor-pointer">5</button>
+              <button onClick={() => handleDigit(6)} className="p-2.5 rounded-lg bg-slate-850 hover:bg-slate-800 text-white font-bold cursor-pointer">6</button>
+              <button onClick={() => handleOp('-')} className="p-2.5 rounded-lg bg-brand-950 text-brand-300 border border-brand-800 hover:bg-brand-900 font-bold cursor-pointer">−</button>
+
+              <button onClick={() => handleUnary('fact')} className="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold cursor-pointer">n!</button>
+              <button onClick={() => handleDigit(1)} className="p-2.5 rounded-lg bg-slate-850 hover:bg-slate-800 text-white font-bold cursor-pointer">1</button>
+              <button onClick={() => handleDigit(2)} className="p-2.5 rounded-lg bg-slate-850 hover:bg-slate-800 text-white font-bold cursor-pointer">2</button>
+              <button onClick={() => handleDigit(3)} className="p-2.5 rounded-lg bg-slate-850 hover:bg-slate-800 text-white font-bold cursor-pointer">3</button>
+              <button onClick={() => handleOp('+')} className="p-2.5 rounded-lg bg-brand-950 text-brand-300 border border-brand-800 hover:bg-brand-900 font-bold cursor-pointer">+</button>
+
+              <button onClick={() => handleConst('pi')} className="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold cursor-pointer">π</button>
+              <button onClick={() => handleConst('e')} className="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold cursor-pointer">e</button>
+              <button onClick={() => handleDigit(0)} className="p-2.5 rounded-lg bg-slate-850 hover:bg-slate-800 text-white font-bold cursor-pointer">0</button>
+              <button onClick={() => handleDigit('.')} className="p-2.5 rounded-lg bg-slate-850 hover:bg-slate-800 text-white font-bold cursor-pointer">.</button>
+              <button onClick={handleEquals} className="p-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold cursor-pointer shadow-lg shadow-emerald-600/20">=</button>
+            </div>
+          </div>
+        </div>
+      );
     }
 
     // Exam Badge Component
-    function ExamBadge({ label, variant, difficulty, questionType, sourceType }) {
-      let styleClasses = 'bg-slate-800 text-slate-300 border-slate-700';
+    function ExamBadge({ label, variant, difficulty, questionType, sourceType, marks }) {
+      let styleClasses = 'bg-slate-800/80 text-slate-300 border-white/[0.08]';
 
       if (variant === 'type') {
         if (questionType === 'MSQ') {
-          styleClasses = 'bg-purple-950/90 text-purple-300 border-purple-700 font-bold';
+          styleClasses = 'bg-purple-950/80 text-purple-300 border-purple-700/60 font-bold';
         } else if (questionType === 'NAT') {
-          styleClasses = 'bg-teal-950/90 text-teal-300 border-teal-700 font-bold';
+          styleClasses = 'bg-teal-950/80 text-teal-300 border-teal-700/60 font-bold';
         } else {
-          styleClasses = 'bg-indigo-950/90 text-indigo-300 border-indigo-700 font-bold';
+          styleClasses = 'bg-blue-950/80 text-blue-300 border-blue-700/60 font-bold';
+        }
+      } else if (variant === 'marks') {
+        if (marks === 2 || String(marks) === '2') {
+          styleClasses = 'bg-amber-950/80 text-amber-300 border-amber-700/60 font-bold';
+        } else {
+          styleClasses = 'bg-slate-850 text-slate-300 border-slate-700 font-medium';
         }
       } else if (variant === 'difficulty' && difficulty) {
-        if (difficulty === 'Easy') styleClasses = 'bg-emerald-950/80 text-emerald-300 border-emerald-700/60';
-        else if (difficulty === 'Medium') styleClasses = 'bg-amber-950/80 text-amber-300 border-amber-700/60';
-        else styleClasses = 'bg-rose-950/80 text-rose-300 border-rose-700/60';
+        if (difficulty === 'Easy') styleClasses = 'bg-emerald-950/70 text-emerald-300 border-emerald-700/50';
+        else if (difficulty === 'Medium') styleClasses = 'bg-amber-950/70 text-amber-300 border-amber-700/50';
+        else styleClasses = 'bg-rose-950/70 text-rose-300 border-rose-700/50';
       } else if (variant === 'source') {
-        if (sourceType === 'PYQ') {
-          styleClasses = 'bg-blue-950/90 text-blue-300 border-blue-600 font-bold';
+        if (sourceType === 'PYQ' || sourceType === 'OFFICIAL_PYQ') {
+          styleClasses = 'bg-emerald-950/80 text-emerald-300 border-emerald-600/60 font-bold';
         } else if (sourceType === 'AI_GENERATED') {
-          styleClasses = 'bg-fuchsia-950/90 text-fuchsia-300 border-fuchsia-600 font-bold';
+          styleClasses = 'bg-fuchsia-950/80 text-fuchsia-300 border-fuchsia-600/60 font-bold';
         } else {
-          styleClasses = 'bg-slate-800 text-slate-400 border-slate-700 font-medium';
+          styleClasses = 'bg-slate-800/80 text-slate-400 border-slate-700 font-medium';
         }
       } else if (variant === 'primary') {
-        styleClasses = 'bg-brand-950 text-brand-300 border-brand-700/60 font-semibold';
+        styleClasses = 'bg-brand-950/80 text-brand-300 border-brand-700/60 font-semibold';
       } else if (variant === 'subject') {
-        styleClasses = 'bg-slate-800/90 text-slate-200 border-slate-700';
+        styleClasses = 'bg-slate-850 text-slate-200 border-white/[0.08]';
       }
 
       return (
@@ -315,6 +692,129 @@
           {label}
         </span>
       );
+    }
+
+    // KaTeX LaTeX Mathematical Formula & Text Formatter
+    function MathText({ content, className = '' }) {
+      if (!content || typeof content !== 'string') {
+        return <span className={className}>{content || ''}</span>;
+      }
+
+      const renderedHtml = useMemo(() => {
+        try {
+          let text = content;
+          // Normalize LaTeX math delimiters \[ \] and \( \)
+          text = text.replace(/\\\[([\s\S]*?)\\\]/g, '$$$$$1$$$$');
+          text = text.replace(/\\\(([\s\S]*?)\\\)/g, '$$$1$$');
+
+          const regex = /(\$\$[\s\S]*?\$\$|\$[^\$\n]+?\$)/g;
+          const tokens = [];
+          let lastIdx = 0;
+          let match;
+
+          while ((match = regex.exec(text)) !== null) {
+            if (match.index > lastIdx) {
+              tokens.push({ type: 'text', value: text.slice(lastIdx, match.index) });
+            }
+            const tokenStr = match[0];
+            if (tokenStr.startsWith('$$') && tokenStr.endsWith('$$')) {
+              tokens.push({ type: 'display', math: tokenStr.slice(2, -2) });
+            } else if (tokenStr.startsWith('$') && tokenStr.endsWith('$')) {
+              tokens.push({ type: 'inline', math: tokenStr.slice(1, -1) });
+            }
+            lastIdx = match.index + tokenStr.length;
+          }
+
+          if (lastIdx < text.length) {
+            tokens.push({ type: 'text', value: text.slice(lastIdx) });
+          }
+
+          if (tokens.length === 0) {
+            return content;
+          }
+
+          return tokens.map(token => {
+            if (token.type === 'text') {
+              return token.value
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\n/g, '<br/>');
+            }
+            try {
+              if (typeof katex !== 'undefined' && katex.renderToString) {
+                return katex.renderToString(token.math, {
+                  displayMode: token.type === 'display',
+                  throwOnError: false,
+                  output: 'htmlAndMathml',
+                });
+              }
+            } catch (kErr) {
+              console.warn('KaTeX render failed:', kErr);
+            }
+            return token.type === 'display' ? `$$${token.math}$$` : `$${token.math}$`;
+          }).join('');
+        } catch (err) {
+          console.warn('MathText error:', err);
+          return content;
+        }
+      }, [content]);
+
+      return (
+        <span
+          className={`katex-math-wrapper inline ${className}`}
+          dangerouslySetInnerHTML={{ __html: renderedHtml }}
+        />
+      );
+    }
+
+    // Graceful React ErrorBoundary for View Resilience
+    class ErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+      }
+
+      static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+      }
+
+      componentDidCatch(error, errorInfo) {
+        console.error('GATEForge Page Error:', error, errorInfo);
+      }
+
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="max-w-xl mx-auto my-16 p-8 rounded-2xl bg-slate-900/90 border border-rose-500/30 text-center shadow-2xl backdrop-blur-md">
+              <div className="w-12 h-12 rounded-xl bg-rose-950/60 text-rose-400 border border-rose-800/60 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-rose-950/40">
+                <Icons.AlertCircle />
+              </div>
+              <h2 className="text-xl font-bold text-white mb-2">Display Notice</h2>
+              <p className="text-xs text-slate-400 font-mono mb-6 leading-relaxed">
+                {this.state.error?.message || 'An unexpected rendering issue occurred in this section.'}
+              </p>
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => this.setState({ hasError: false, error: null })}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white transition cursor-pointer shadow-md"
+                >
+                  Reload Component
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.location.href = '/'}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition cursor-pointer"
+                >
+                  Return to Home
+                </button>
+              </div>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
     }
 
     // Navigation Bar
@@ -435,7 +935,7 @@
     }
 
     // Home Page
-    function HomePage({ onStartAIPractice, onExploreQuestionBank }) {
+    function HomePage({ onStartAIPractice, onExploreQuestionBank, onStartPracticeWithFilter }) {
       const [stats, setStats] = useState(null);
       const [isLoadingStats, setIsLoadingStats] = useState(true);
       const [statsError, setStatsError] = useState(false);
@@ -474,12 +974,51 @@
         { step: '01', title: 'Official GATE PYQs', desc: 'Authoritative question papers ingested from official organizing institute archives.' },
         { step: '02', title: 'Extraction & Key Mapping', desc: 'Automated parsing into structured MCQ, MSQ, and NAT representations with official keys.' },
         { step: '03', title: 'Structured Question Bank', desc: 'Strict schema validation, normalized mathematical notation, and provenance tracking.' },
-        { step: '04', title: 'AI Pattern Analysis', desc: 'Gemini extracts cognitive depth, reasoning types, distractor patterns, and common traps.' },
+        { step: '04', title: 'AI Pattern Analysis', desc: 'Groq (Llama 3.3 70B) extracts cognitive depth, reasoning types, distractor patterns, and common traps.' },
         { step: '05', title: 'Context Retrieval', desc: 'Dynamically selects relevant analyzed official PYQs as few-shot conceptual anchors.' },
-        { step: '06', title: 'Gemini Generation', desc: 'Generates candidate questions conditioned on official patterns with bounded retries.' },
+        { step: '06', title: 'Groq Model Generation', desc: 'Generates candidate questions conditioned on official patterns with bounded retries.' },
         { step: '07', title: 'Correctness Verification', desc: 'Independent semantic verifier audits mathematical correctness, unambiguous keys, and logic.' },
         { step: '08', title: 'Originality Check', desc: 'Deterministic similarity guard catches exact copies, trivial renamings, and near-duplicates.' },
         { step: '09', title: 'AI Practice & Server Scoring', desc: 'Interactive multi-question sessions with zero answer leakage and server-side evaluation.' },
+      ];
+
+      const officialExamPapers = [
+        {
+          year: '2025',
+          institute: 'IIT Roorkee',
+          badge: 'Latest Official Paper',
+          badgeColor: 'bg-emerald-950 text-emerald-300 border-emerald-800',
+          title: 'GATE CS 2025 (Set 1 & Set 2)',
+          description: '130 official questions parsed with official answer keys and 18 high-resolution schematic circuit & automata figures.',
+          sets: [
+            { label: 'Set 1 (65 Qs)', filter: { year: '2025', paper: 'Set 1' } },
+            { label: 'Set 2 (65 Qs)', filter: { year: '2025', paper: 'Set 2' } },
+          ],
+        },
+        {
+          year: '2024',
+          institute: 'IISc Bangalore',
+          badge: 'Master Archive',
+          badgeColor: 'bg-blue-950 text-blue-300 border-blue-800',
+          title: 'GATE CS 2024 (Set 1 & Set 2)',
+          description: '130 official questions with complete MCQ, MSQ, and NAT validation and 18 extracted schematic diagrams.',
+          sets: [
+            { label: 'Set 1 (65 Qs)', filter: { year: '2024', paper: 'Set 1' } },
+            { label: 'Set 2 (65 Qs)', filter: { year: '2024', paper: 'Set 2' } },
+          ],
+        },
+        {
+          year: '2023 & 2022',
+          institute: 'IIT Kanpur & IIT Kharagpur',
+          badge: 'Historical Gold Standard',
+          badgeColor: 'bg-purple-950 text-purple-300 border-purple-800',
+          title: 'GATE CS 2023 & 2022 Master Papers',
+          description: '111 verified examination questions with authentic mathematical derivations and 13 extracted technical figures.',
+          sets: [
+            { label: '2023 Paper (65 Qs)', filter: { year: '2023' } },
+            { label: '2022 Paper (46 Qs)', filter: { year: '2022' } },
+          ],
+        },
       ];
 
       return (
@@ -610,6 +1149,76 @@
                 </div>
                 <div className="text-xs text-slate-500 mt-1">MCQ • MSQ • NAT • Mixed</div>
               </div>
+            </div>
+          </div>
+
+          {/* Official GATE Examination Simulation Suite */}
+          <div className="mb-20">
+            <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-8">
+              <div>
+                <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-emerald-400 font-semibold mb-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>Official Ingested Archive</span>
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                  Official GATE Examination Simulator
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-xl">
+                  Simulate full official Computer Science papers (2022–2025) under authentic GATE conditions with scientific calculator, question palette, and official scoring.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={onExploreQuestionBank}
+                className="text-xs font-mono font-semibold text-brand-400 hover:text-brand-300 flex items-center space-x-1 cursor-pointer"
+              >
+                <span>Browse All 386 Questions</span>
+                <Icons.ArrowRight />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {officialExamPapers.map((paper) => (
+                <div
+                  key={paper.year}
+                  className="bg-slate-900/70 border border-white/[0.08] hover:border-white/[0.16] rounded-2xl p-6 transition-all shadow-lg flex flex-col justify-between group"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className={`px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase border ${paper.badgeColor}`}>
+                        {paper.badge}
+                      </span>
+                      <span className="text-[11px] font-mono text-slate-400">{paper.institute}</span>
+                    </div>
+
+                    <h3 className="text-base font-bold text-white mb-2 group-hover:text-brand-300 transition-colors">
+                      {paper.title}
+                    </h3>
+                    <p className="text-xs text-slate-400 leading-relaxed mb-6">
+                      {paper.description}
+                    </p>
+                  </div>
+
+                  <div className="pt-4 border-t border-white/[0.06] flex items-center gap-2.5">
+                    {paper.sets.map((s, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          if (onStartPracticeWithFilter) {
+                            onStartPracticeWithFilter(s.filter);
+                          } else {
+                            onStartAIPractice();
+                          }
+                        }}
+                        className="flex-1 py-2.5 px-3 rounded-xl text-xs font-mono font-bold bg-slate-800 hover:bg-brand-600 text-slate-200 hover:text-white border border-slate-700/80 hover:border-brand-500 transition-all cursor-pointer text-center"
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -1403,6 +2012,7 @@
 
     // Question Bank Page (Phase 2 & Phase 3B)
     function QuestionBankPage({ onStartPracticeWithFilter }) {
+      const { showToast } = useToast();
       const [questions, setQuestions] = useState([]);
       const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 });
       const [taxonomy, setTaxonomy] = useState({ subjects: [], questionTypes: [], difficultyLevels: [], sourceTypes: [] });
@@ -1410,6 +2020,9 @@
       const [selectedType, setSelectedType] = useState('');
       const [selectedDifficulty, setSelectedDifficulty] = useState('');
       const [selectedSource, setSelectedSource] = useState('');
+      const [selectedYear, setSelectedYear] = useState('');
+      const [selectedMarks, setSelectedMarks] = useState('');
+      const [onlyFigures, setOnlyFigures] = useState(false);
       const [searchQuery, setSearchQuery] = useState('');
       const [selectedAIStatus, setSelectedAIStatus] = useState(''); // '', 'true', 'false'
       const [expandedQuestionId, setExpandedQuestionId] = useState(null);
@@ -1425,7 +2038,7 @@
 
       useEffect(() => {
         loadBankQuestions(pagination.page);
-      }, [selectedSubject, selectedType, selectedDifficulty, selectedSource, selectedAIStatus, searchQuery, pagination.page]);
+      }, [selectedSubject, selectedType, selectedDifficulty, selectedSource, selectedYear, selectedMarks, onlyFigures, selectedAIStatus, searchQuery, pagination.page]);
 
       const fetchTaxonomy = async () => {
         try {
@@ -1452,6 +2065,9 @@
           if (selectedDifficulty) params.append('difficulty', selectedDifficulty);
           if (selectedSource) params.append('sourceType', selectedSource);
           if (selectedAIStatus) params.append('analyzed', selectedAIStatus);
+          if (selectedYear) params.append('year', selectedYear);
+          if (selectedMarks) params.append('marks', selectedMarks);
+          if (onlyFigures) params.append('hasFigure', 'true');
           if (searchQuery.trim()) params.append('search', searchQuery.trim());
 
           const res = await fetch(`${API_BASE}/api/questions?${params.toString()}`);
@@ -1483,9 +2099,11 @@
             if (selectedQuestionForAI?.id === questionId) {
               setSelectedQuestionForAI(prev => ({ ...prev, aiAnalysis: json.data.aiAnalysis }));
             }
+            showToast('Question pattern analysis complete!', 'success');
           }
         } catch (err) {
           console.error('Single question analysis failed:', err);
+          showToast('Question analysis failed: ' + err.message, 'error');
         } finally {
           setAnalyzingQuestionIds(prev => ({ ...prev, [questionId]: false }));
         }
@@ -1502,6 +2120,9 @@
         setSelectedType('');
         setSelectedDifficulty('');
         setSelectedSource('');
+        setSelectedYear('');
+        setSelectedMarks('');
+        setOnlyFigures(false);
         setSelectedAIStatus('');
         setSearchQuery('');
         setPagination(prev => ({ ...prev, page: 1 }));
@@ -1533,13 +2154,13 @@
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-white">GATE CS Question Bank</h1>
               </div>
               <p className="text-xs text-slate-400 font-mono mt-1">
-                Browse, filter, and inspect structured GATE questions with concepts, LaTeX notation, and provenance.
+                Browse, filter, and inspect structured official GATE questions (2022–2025) with authentic schematics, LaTeX, and solutions.
               </p>
             </div>
 
             <button
               onClick={() => setIsImportModalOpen(true)}
-              className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-500 hover:bg-brand-400 text-white shadow-lg shadow-brand-500/20 transition cursor-pointer"
+              className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/20 transition cursor-pointer"
             >
               <Icons.Upload />
               <span>Import Questions (JSON)</span>
@@ -1547,7 +2168,8 @@
           </div>
 
           {/* Filter Bar */}
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 mb-8 shadow-sm">
+          <div className="bg-slate-900/90 border border-white/[0.08] rounded-2xl p-5 mb-8 shadow-sm">
+            {/* Row 1: Search and Select Dropdowns */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
               {/* Search */}
               <div className="lg:col-span-2 relative">
@@ -1618,8 +2240,79 @@
               </div>
             </div>
 
-            {/* Filter Pills & Reset */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800 text-xs font-mono">
+            {/* Row 2: Year Pills & Diagram Toggle */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 pb-3 border-t border-slate-800/80 text-xs font-mono">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-slate-400 font-semibold mr-1">Official Year:</span>
+                {[
+                  { label: 'All Years', val: '' },
+                  { label: '2025 (Set 1 & 2)', val: '2025' },
+                  { label: '2024 (Set 1 & 2)', val: '2024' },
+                  { label: '2023', val: '2023' },
+                  { label: '2022', val: '2022' },
+                ].map((item) => (
+                  <button
+                    key={item.label}
+                    onClick={() => {
+                      setSelectedYear(item.val);
+                      setPagination(p => ({ ...p, page: 1 }));
+                    }}
+                    className={`px-2.5 py-1 rounded-lg border transition cursor-pointer ${
+                      selectedYear === item.val
+                        ? 'bg-brand-950 text-brand-300 border-brand-600 font-bold shadow-sm'
+                        : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white hover:border-slate-700'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center space-x-2">
+                {/* Diagram Only Filter */}
+                <button
+                  onClick={() => {
+                    setOnlyFigures(v => !v);
+                    setPagination(p => ({ ...p, page: 1 }));
+                  }}
+                  className={`px-2.5 py-1 rounded-lg border transition cursor-pointer flex items-center space-x-1.5 ${
+                    onlyFigures
+                      ? 'bg-amber-950 text-amber-300 border-amber-600 font-bold shadow-sm'
+                      : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white hover:border-slate-700'
+                  }`}
+                  title="Filter questions with schematic circuits and figures"
+                >
+                  <Icons.Image />
+                  <span>Diagram Questions Only</span>
+                </button>
+
+                {/* Marks Filter */}
+                <div className="flex items-center space-x-1 pl-2 border-l border-slate-800">
+                  <span className="text-slate-400">Marks:</span>
+                  <button
+                    onClick={() => { setSelectedMarks(''); setPagination(p => ({ ...p, page: 1 })); }}
+                    className={`px-2 py-0.5 rounded text-[11px] ${!selectedMarks ? 'bg-slate-800 text-white font-bold' : 'text-slate-400'}`}
+                  >
+                    All
+                  </button>
+                  <button
+                    onClick={() => { setSelectedMarks('1'); setPagination(p => ({ ...p, page: 1 })); }}
+                    className={`px-2 py-0.5 rounded text-[11px] ${selectedMarks === '1' ? 'bg-slate-800 text-brand-300 font-bold border border-slate-700' : 'text-slate-400'}`}
+                  >
+                    1 Mark
+                  </button>
+                  <button
+                    onClick={() => { setSelectedMarks('2'); setPagination(p => ({ ...p, page: 1 })); }}
+                    className={`px-2 py-0.5 rounded text-[11px] ${selectedMarks === '2' ? 'bg-slate-800 text-amber-300 font-bold border border-slate-700' : 'text-slate-400'}`}
+                  >
+                    2 Marks
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Row 3: Source, AI Status & Result Count */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800/80 text-xs font-mono">
               <div className="flex flex-wrap items-center gap-3 text-slate-400">
                 <div className="flex items-center space-x-1">
                   <span>Source:</span>
@@ -1633,13 +2326,13 @@
                     onClick={() => setSelectedSource('PYQ')}
                     className={`px-2 py-1 rounded-md transition ${selectedSource === 'PYQ' ? 'bg-blue-950 text-blue-300 font-bold border border-blue-800' : 'hover:text-slate-200'}`}
                   >
-                    PYQ
+                    Official PYQ
                   </button>
                   <button
                     onClick={() => setSelectedSource('MANUAL')}
                     className={`px-2 py-1 rounded-md transition ${selectedSource === 'MANUAL' ? 'bg-slate-800 text-slate-200 font-bold border border-slate-700' : 'hover:text-slate-200'}`}
                   >
-                    Manual / Dev
+                    Manual / Core
                   </button>
                 </div>
 
@@ -1672,7 +2365,7 @@
                   onClick={handleResetFilters}
                   className="text-xs text-brand-400 hover:text-brand-300 underline cursor-pointer"
                 >
-                  Reset Filters
+                  Reset All Filters
                 </button>
               </div>
             </div>
@@ -1682,14 +2375,14 @@
           {isLoading ? (
             <div className="py-16 text-center">
               <div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-              <p className="text-xs text-slate-400 font-mono">Loading questions...</p>
+              <p className="text-xs text-slate-400 font-mono">Loading questions with authentic LaTeX rendering...</p>
             </div>
           ) : questions.length === 0 ? (
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center">
               <Icons.Database />
               <h3 className="text-base font-bold text-white mt-3 mb-1">No Questions Found</h3>
               <p className="text-xs text-slate-400 mb-4">No questions match the selected filter criteria.</p>
-              <button onClick={handleResetFilters} className="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-500 text-white">
+              <button onClick={handleResetFilters} className="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-500 text-white cursor-pointer">
                 Clear Filters
               </button>
             </div>
@@ -1704,18 +2397,28 @@
                 return (
                   <div
                     key={q.id}
-                    className="bg-slate-900/80 border border-slate-800 hover:border-slate-700/80 rounded-2xl p-5 transition-all shadow-sm"
+                    className="bg-slate-900/80 border border-white/[0.08] hover:border-white/[0.14] rounded-2xl p-5 transition-all shadow-sm"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-mono text-xs font-bold text-brand-400">#{(pagination.page - 1) * pagination.limit + idx + 1}</span>
                         <ExamBadge label={q.questionType} variant="type" questionType={q.questionType} />
-                        <ExamBadge label={source.type || 'MANUAL'} variant="source" sourceType={source.type || 'MANUAL'} />
+                        <ExamBadge label={source.type || 'OFFICIAL_PYQ'} variant="source" sourceType={source.type || 'PYQ'} />
                         <ExamBadge label={q.subject} variant="subject" />
                         <ExamBadge label={q.difficulty} variant="difficulty" difficulty={q.difficulty} />
-                        <span className="px-2 py-0.5 rounded text-xs font-mono bg-slate-950 text-slate-400 border border-slate-800">
+                        {q.marks && (
+                          <ExamBadge label={`${q.marks} Mark${q.marks > 1 ? 's' : ''}`} variant="marks" marks={q.marks} />
+                        )}
+                        <span className="px-2 py-0.5 rounded text-xs font-mono bg-slate-950 text-slate-300 border border-slate-800">
                           {q.year || source.year || 2024}
                         </span>
+
+                        {q.imageUrl && (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-950/70 text-amber-300 border border-amber-800/60 flex items-center space-x-1">
+                            <Icons.Image />
+                            <span>Diagram</span>
+                          </span>
+                        )}
 
                         {/* AI Intel Badge / Action */}
                         {isAnalyzed ? (
@@ -1725,33 +2428,68 @@
                             title="View extracted GATE pattern profile & solution strategy"
                           >
                             <Icons.Brain />
-                            <span>✦ AI Intel</span>
+                            <span>✦ Groq Intel</span>
                           </button>
                         ) : (
                           <button
                             onClick={() => handleAnalyzeSingleQuestion(q.id)}
                             disabled={isAnalyzingThis}
                             className="px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-slate-800 hover:bg-purple-950 text-slate-300 hover:text-purple-300 border border-slate-700 hover:border-purple-800 transition flex items-center space-x-1 cursor-pointer disabled:opacity-50"
-                            title="Analyze question with Gemini"
+                            title="Analyze question with Groq (Llama 3.3 70B)"
                           >
                             <Icons.Brain />
-                            <span>{isAnalyzingThis ? 'Analyzing...' : 'Analyze'}</span>
+                            <span>{isAnalyzingThis ? 'Analyzing...' : 'Analyze (Groq)'}</span>
                           </button>
                         )}
                       </div>
 
-                      <button
-                        onClick={() => setExpandedQuestionId(isExpanded ? null : q.id)}
-                        className="text-xs font-mono font-bold text-brand-400 hover:text-brand-300 transition cursor-pointer flex items-center space-x-1"
-                      >
-                        <span>{isExpanded ? 'Hide Details' : 'View Details & Solution'}</span>
-                      </button>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(q.question);
+                            showToast('Question LaTeX copied to clipboard', 'info');
+                          }}
+                          className="p-1.5 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 transition cursor-pointer"
+                          title="Copy Question LaTeX"
+                        >
+                          <Icons.Copy />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (onStartPracticeWithFilter) {
+                              onStartPracticeWithFilter({ questionId: q.id, year: q.year || source.year });
+                            }
+                          }}
+                          className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-brand-950 hover:bg-brand-900 text-brand-300 border border-brand-800 hover:border-brand-700 transition flex items-center space-x-1 cursor-pointer"
+                          title="Practice this question"
+                        >
+                          <Icons.Terminal />
+                          <span>Practice</span>
+                        </button>
+                        <button
+                          onClick={() => setExpandedQuestionId(isExpanded ? null : q.id)}
+                          className="text-xs font-mono font-bold text-brand-400 hover:text-brand-300 transition cursor-pointer flex items-center space-x-1 ml-1"
+                        >
+                          <span>{isExpanded ? 'Hide Details' : 'View Details & Solution'}</span>
+                        </button>
+                      </div>
                     </div>
 
                     {/* Question Text */}
                     <div className="text-sm sm:text-base text-slate-100 mb-3 leading-relaxed">
                       <MathText content={q.question} />
                     </div>
+
+                    {/* Official Figure (if present) */}
+                    {q.imageUrl && (
+                      <FigureViewer
+                        imageUrl={q.imageUrl}
+                        year={q.year || source.year}
+                        questionNumber={q.questionNumber || q.id}
+                      />
+                    )}
 
                     {/* Concepts & Topic Tags */}
                     <div className="flex flex-wrap items-center gap-1.5 mb-2">
@@ -2067,35 +2805,78 @@
       );
     }
 
-    // Practice Page
-    function PracticePage({ onBackToHome, isModalOpen, setIsModalOpen }) {
+    // Practice Page - Authentic GATE CBT Simulation
+    function PracticePage({ onBackToHome, isModalOpen, setIsModalOpen, initialFilter }) {
+      const { showToast } = useToast();
       const [questions, setQuestions] = useState([]);
       const [currentIndex, setCurrentIndex] = useState(0);
       const [evaluations, setEvaluations] = useState({});
       const [userAnswers, setUserAnswers] = useState({});
+      const [flaggedQuestions, setFlaggedQuestions] = useState({});
+      const [visitedQuestions, setVisitedQuestions] = useState({});
+      const [selectedPaper, setSelectedPaper] = useState(initialFilter?.year ? String(initialFilter.year) : 'all');
+      const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+      const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
       const [isLoading, setIsLoading] = useState(true);
       const [isSubmitting, setIsSubmitting] = useState(false);
       const [error, setError] = useState(null);
       const [isQuizSubmitted, setIsQuizSubmitted] = useState(false);
       const [reviewFilter, setReviewFilter] = useState('all');
+      const [timerSeconds, setTimerSeconds] = useState(0);
+
+      // Running Exam Timer
+      useEffect(() => {
+        if (isQuizSubmitted || isLoading) return;
+        const interval = setInterval(() => {
+          setTimerSeconds(s => s + 1);
+        }, 1000);
+        return () => clearInterval(interval);
+      }, [isQuizSubmitted, isLoading]);
+
+      const formatTime = (secs) => {
+        const h = Math.floor(secs / 3600);
+        const m = Math.floor((secs % 3600) / 60);
+        const s = secs % 60;
+        return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      };
 
       useEffect(() => {
         loadQuestions();
-      }, []);
+      }, [selectedPaper]);
 
       const loadQuestions = async () => {
         setIsLoading(true);
         setError(null);
         try {
-          const res = await fetch(`${API_BASE}/api/questions`);
+          let url = `${API_BASE}/api/questions?limit=100`;
+          if (selectedPaper && selectedPaper !== 'all') {
+            url += `&year=${selectedPaper}`;
+          }
+          const res = await fetch(url);
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const json = await res.json();
-          setQuestions(json.data || []);
-          setCurrentIndex(0);
+          let loaded = json.data || [];
+
+          // If a specific questionId was requested in initialFilter
+          if (initialFilter?.questionId) {
+            const matchIdx = loaded.findIndex(q => q.id === initialFilter.questionId);
+            if (matchIdx !== -1) {
+              setCurrentIndex(matchIdx);
+            } else {
+              setCurrentIndex(0);
+            }
+          } else {
+            setCurrentIndex(0);
+          }
+
+          setQuestions(loaded);
           setEvaluations({});
           setUserAnswers({});
+          setFlaggedQuestions({});
+          setVisitedQuestions({ 0: true });
           setIsQuizSubmitted(false);
           setReviewFilter('all');
+          setTimerSeconds(0);
         } catch (err) {
           setError(err.message || 'Could not connect to backend.');
         } finally {
@@ -2106,6 +2887,14 @@
       const currentQuestion = questions[currentIndex];
       const currentEvaluation = currentQuestion ? evaluations[currentQuestion.id] || null : null;
       const currentAnswer = currentQuestion ? userAnswers[currentQuestion.id] : undefined;
+      const isFlagged = currentQuestion ? Boolean(flaggedQuestions[currentQuestion.id]) : false;
+
+      // Track Visited Questions
+      useEffect(() => {
+        if (currentQuestion) {
+          setVisitedQuestions(prev => ({ ...prev, [currentIndex]: true }));
+        }
+      }, [currentIndex, currentQuestion]);
 
       const handleSelectOption = (optionId) => {
         if (currentEvaluation || isQuizSubmitted || isSubmitting || !currentQuestion) return;
@@ -2125,16 +2914,33 @@
         setUserAnswers(prev => ({ ...prev, [currentQuestion.id]: val }));
       };
 
+      const handleClearResponse = () => {
+        if (currentEvaluation || isQuizSubmitted || isSubmitting || !currentQuestion) return;
+        setUserAnswers(prev => {
+          const next = { ...prev };
+          delete next[currentQuestion.id];
+          return next;
+        });
+        showToast('Response cleared', 'info');
+      };
+
+      const handleToggleFlag = () => {
+        if (!currentQuestion) return;
+        const nextState = !isFlagged;
+        setFlaggedQuestions(prev => ({ ...prev, [currentQuestion.id]: nextState }));
+        showToast(nextState ? 'Marked for Review [🟣]' : 'Unmarked for Review', 'info');
+      };
+
       const handleSubmitAnswer = async () => {
         if (!currentQuestion || currentAnswer === undefined || isSubmitting || isQuizSubmitted) return;
         
         if (currentQuestion.questionType === 'MSQ' && (!Array.isArray(currentAnswer) || currentAnswer.length === 0)) {
-          alert('Please select at least one option for this MSQ question.');
+          showToast('Please select at least one option for this MSQ question.', 'warning');
           return;
         }
 
         if (currentQuestion.questionType === 'NAT' && (currentAnswer === '' || currentAnswer === null)) {
-          alert('Please enter a numerical answer.');
+          showToast('Please enter a numerical answer before submitting.', 'warning');
           return;
         }
 
@@ -2148,11 +2954,16 @@
           const json = await res.json();
           if (json.success && json.data) {
             setEvaluations(prev => ({ ...prev, [currentQuestion.id]: json.data }));
+            if (json.data.isCorrect) {
+              showToast('Correct! Marks awarded.', 'success');
+            } else {
+              showToast('Answer recorded. Check derivation below.', 'warning');
+            }
           } else {
-            alert(json.error || 'Evaluation failed');
+            showToast(json.error || 'Evaluation failed', 'error');
           }
         } catch (err) {
-          alert('Submission error: ' + err.message);
+          showToast('Submission error: ' + err.message, 'error');
         } finally {
           setIsSubmitting(false);
         }
@@ -2175,6 +2986,7 @@
       const handleJump = (idx) => {
         if (idx >= 0 && idx < questions.length) {
           setCurrentIndex(idx);
+          setIsPaletteOpen(false);
         }
       };
 
@@ -2183,35 +2995,82 @@
         setIsQuizSubmitted(true);
       };
 
+      // Keyboard Shortcuts Hook
+      useEffect(() => {
+        const handleKeyDown = (e) => {
+          if (isQuizSubmitted || isLoading || isCalculatorOpen) return;
+          // Ignore if focus is in an input or textarea
+          const tag = (document.activeElement?.tagName || '').toLowerCase();
+          if (tag === 'input' || tag === 'textarea') {
+            if (e.key === 'Enter') {
+              handleSubmitAnswer();
+            }
+            return;
+          }
+
+          if (e.key === 'ArrowRight' || e.key === 'n' || e.key === 'N') {
+            e.preventDefault();
+            handleNextQuestion();
+          } else if (e.key === 'ArrowLeft' || e.key === 'p' || e.key === 'P') {
+            e.preventDefault();
+            handlePreviousQuestion();
+          } else if (e.key === 'f' || e.key === 'F') {
+            e.preventDefault();
+            handleToggleFlag();
+          } else if (e.key === 'c' || e.key === 'C') {
+            e.preventDefault();
+            handleClearResponse();
+          } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (currentEvaluation) {
+              handleNextQuestion();
+            } else {
+              handleSubmitAnswer();
+            }
+          } else if (currentQuestion && currentQuestion.options) {
+            const key = e.key.toUpperCase();
+            if (['1', 'A'].includes(key) && currentQuestion.options[0]) handleSelectOption(currentQuestion.options[0].id);
+            if (['2', 'B'].includes(key) && currentQuestion.options[1]) handleSelectOption(currentQuestion.options[1].id);
+            if (['3', 'C'].includes(key) && currentQuestion.options[2]) handleSelectOption(currentQuestion.options[2].id);
+            if (['4', 'D'].includes(key) && currentQuestion.options[3]) handleSelectOption(currentQuestion.options[3].id);
+          }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+      }, [currentIndex, currentQuestion, currentAnswer, currentEvaluation, isQuizSubmitted, isLoading, isCalculatorOpen]);
+
       const answeredCount = Object.keys(evaluations).length;
       const totalQuestions = questions.length;
       const unansweredCount = totalQuestions - answeredCount;
       const correctCount = Object.values(evaluations).filter(e => e.isCorrect).length;
       const incorrectCount = answeredCount - correctCount;
-      const accuracy = answeredCount > 0 ? Math.round((correctCount / answeredCount) * 100) : 0;
+      const flaggedCount = Object.values(flaggedQuestions).filter(Boolean).length;
 
       const totalMarks = useMemo(() => {
         let marks = 0;
-        for (const evalItem of Object.values(evaluations)) {
+        for (const [qId, evalItem] of Object.entries(evaluations)) {
+          const q = questions.find(item => item.id === qId);
+          const qMarks = q?.marks || 1;
           if (evalItem.isCorrect) {
-            marks += 1.0;
+            marks += qMarks;
           } else {
             if (evalItem.questionType === 'MCQ') {
-              marks -= 0.33;
+              marks -= (qMarks === 2 ? 0.66 : 0.33);
             }
           }
         }
         return marks.toFixed(2);
-      }, [evaluations]);
+      }, [evaluations, questions]);
 
       if (isLoading) {
         return (
-          <div className="max-w-4xl mx-auto px-4 py-20 text-center">
-            <div className="inline-block p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl mb-4">
-              <div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="max-w-4xl mx-auto px-4 py-24 text-center">
+            <div className="inline-block p-4 rounded-2xl bg-slate-900 border border-white/[0.08] shadow-2xl mb-4">
+              <div className="w-9 h-9 border-2 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto" />
             </div>
-            <h3 className="text-lg font-bold text-white mb-1">Loading GATE Practice Engine</h3>
-            <p className="text-xs text-slate-400 font-mono">Loading questions with LaTeX mathematical support...</p>
+            <h3 className="text-lg font-bold text-white mb-1">Loading Authentic GATE CBT Simulation</h3>
+            <p className="text-xs text-slate-400 font-mono">Initializing official questions, diagrams, and KaTeX mathematical engine...</p>
           </div>
         );
       }
@@ -2221,10 +3080,13 @@
           <div className="max-w-xl mx-auto px-4 py-20 text-center">
             <div className="p-6 rounded-2xl bg-rose-950/30 border border-rose-800/80 shadow-2xl">
               <h3 className="text-lg font-bold text-white mb-2">Practice Session Unavailable</h3>
-              <p className="text-xs text-rose-300/80 mb-6">{error || 'No questions loaded.'}</p>
+              <p className="text-xs text-rose-300/80 mb-6">{error || 'No questions loaded for selected filter.'}</p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <button onClick={loadQuestions} className="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-500 hover:bg-brand-400 text-white cursor-pointer transition">
+                <button onClick={loadQuestions} className="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white cursor-pointer transition">
                   Retry Connection
+                </button>
+                <button onClick={() => setSelectedPaper('all')} className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer transition">
+                  Reset Paper Filter
                 </button>
               </div>
             </div>
@@ -2239,23 +3101,26 @@
           if (reviewFilter === 'correct') return evalItem?.isCorrect === true;
           if (reviewFilter === 'incorrect') return evalItem && evalItem.isCorrect === false;
           if (reviewFilter === 'unanswered') return !evalItem;
+          if (reviewFilter === 'flagged') return Boolean(flaggedQuestions[q.id]);
           return true;
         });
 
         return (
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl mb-10">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-in fade-in duration-200">
+            <div className="bg-slate-900/90 border border-white/[0.08] rounded-2xl p-6 sm:p-8 shadow-2xl mb-10">
               <div className="text-center mb-8">
                 <div className="inline-flex p-3 rounded-2xl bg-brand-950/80 border border-brand-800/80 mb-3 shadow-glow">
                   <Icons.Award />
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-white">GATE CS Practice Result</h2>
-                <p className="text-xs text-slate-400 font-mono mt-1">Official Evaluation & Marking Breakdown</p>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-white">GATE CS Official Practice Results</h2>
+                <p className="text-xs text-slate-400 font-mono mt-1">
+                  Time Elapsed: <strong className="text-brand-300">{formatTime(timerSeconds)}</strong> • Standard Official GATE Marking Scheme
+                </p>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8">
                 <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center">
-                  <div className="text-xs font-mono uppercase text-slate-400 mb-1">Total</div>
+                  <div className="text-xs font-mono uppercase text-slate-400 mb-1">Total Questions</div>
                   <div className="text-2xl font-mono font-bold text-slate-200">{totalQuestions}</div>
                 </div>
                 <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center">
@@ -2279,28 +3144,28 @@
               <div className="p-5 rounded-xl bg-brand-950/30 border border-brand-800/40 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
                   <div className="text-xs font-mono uppercase tracking-wider text-brand-400 font-semibold">
-                    Net Score (GATE Standard Marking)
+                    Net Score (Authentic GATE Marking)
                   </div>
                   <div className="text-xs text-slate-400 mt-0.5">
-                    MCQ: +1 / -0.33 | MSQ: +1 / 0 (no negative) | NAT: +1 / 0 (no negative) | Unanswered: 0
+                    1-Mark MCQ: +1 / -0.33 • 2-Mark MCQ: +2 / -0.66 • MSQ & NAT: No Negative Marking
                   </div>
                 </div>
                 <div className="text-3xl font-mono font-extrabold text-brand-300">
-                  {totalMarks} <span className="text-sm font-sans text-slate-400">/ {totalQuestions} Marks</span>
+                  {totalMarks} <span className="text-sm font-sans text-slate-400">Marks</span>
                 </div>
               </div>
 
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6 mt-6 border-t border-slate-800">
                 <button
                   onClick={loadQuestions}
-                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center space-x-2 cursor-pointer"
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center space-x-2 cursor-pointer transition"
                 >
                   <Icons.RotateCcw />
                   <span>Retake Practice</span>
                 </button>
                 <button
                   onClick={onBackToHome}
-                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-xs font-semibold bg-brand-500 hover:bg-brand-400 text-white cursor-pointer"
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white cursor-pointer transition"
                 >
                   Back to Overview
                 </button>
@@ -2331,6 +3196,12 @@
                     Incorrect ({incorrectCount})
                   </button>
                   <button
+                    onClick={() => setReviewFilter('flagged')}
+                    className={`px-3 py-1 rounded-lg transition ${reviewFilter === 'flagged' ? 'bg-purple-950 text-purple-300 font-bold' : 'text-slate-400'}`}
+                  >
+                    Flagged ({flaggedCount})
+                  </button>
+                  <button
                     onClick={() => setReviewFilter('unanswered')}
                     className={`px-3 py-1 rounded-lg transition ${reviewFilter === 'unanswered' ? 'bg-slate-800 text-slate-300 font-bold' : 'text-slate-400'}`}
                   >
@@ -2343,15 +3214,22 @@
                 const evalItem = evaluations[q.id];
                 const isAttempted = !!evalItem;
                 const isCorrect = evalItem?.isCorrect;
+                const qMarks = q.marks || 1;
 
                 return (
-                  <div key={q.id} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-md">
+                  <div key={q.id} className="bg-slate-900/80 border border-white/[0.08] rounded-2xl p-6 shadow-md">
                     <div className="flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-800/80">
                       <div className="flex items-center space-x-2">
                         <span className="text-xs font-mono font-bold text-slate-400">Q{questions.findIndex(item => item.id === q.id) + 1}</span>
                         <ExamBadge label={q.questionType} variant="type" questionType={q.questionType} />
                         <ExamBadge label={q.subject} variant="subject" />
                         <ExamBadge label={q.difficulty} variant="difficulty" difficulty={q.difficulty} />
+                        <ExamBadge label={`${qMarks} Mark${qMarks > 1 ? 's' : ''}`} variant="marks" marks={qMarks} />
+                        {flaggedQuestions[q.id] && (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-950 text-purple-300 border border-purple-800">
+                            Flagged
+                          </span>
+                        )}
                       </div>
 
                       <div>
@@ -2361,11 +3239,11 @@
                           </span>
                         ) : isCorrect ? (
                           <span className="px-2.5 py-1 rounded-md text-xs font-mono bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold">
-                            Correct (+1.00 Marks)
+                            Correct (+{qMarks}.00 Marks)
                           </span>
                         ) : (
                           <span className="px-2.5 py-1 rounded-md text-xs font-mono bg-rose-950 text-rose-400 border border-rose-800 font-bold">
-                            {q.questionType === 'MCQ' ? 'Incorrect (-0.33 Marks)' : 'Incorrect (0.00 Marks)'}
+                            {q.questionType === 'MCQ' ? `Incorrect (-${qMarks === 2 ? '0.66' : '0.33'} Marks)` : 'Incorrect (0.00 Marks)'}
                           </span>
                         )}
                       </div>
@@ -2374,6 +3252,14 @@
                     <div className="text-base text-slate-100 mb-4 leading-relaxed">
                       <MathText content={q.question} />
                     </div>
+
+                    {q.imageUrl && (
+                      <FigureViewer
+                        imageUrl={q.imageUrl}
+                        year={q.year || q.source?.year}
+                        questionNumber={q.questionNumber || q.id}
+                      />
+                    )}
 
                     {q.options && q.options.length > 0 && (
                       <div className="space-y-2 mb-4">
@@ -2427,9 +3313,10 @@
       const isNAT = currentQuestion?.questionType === 'NAT';
       const isCurrentAnswered = currentEvaluation !== null;
       const hasSelectedAnswer = isMSQ ? (Array.isArray(currentAnswer) && currentAnswer.length > 0) : (currentAnswer !== undefined && currentAnswer !== '');
+      const qMarks = currentQuestion?.marks || 1;
 
       return (
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <SubmitQuizModal
             isOpen={isModalOpen}
             unansweredCount={unansweredCount}
@@ -2437,204 +3324,399 @@
             onCancel={() => setIsModalOpen(false)}
           />
 
-          <div className="flex items-center justify-between mb-4">
-            <button onClick={onBackToHome} className="inline-flex items-center space-x-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 cursor-pointer">
+          <GateCalculatorModal
+            isOpen={isCalculatorOpen}
+            onClose={() => setIsCalculatorOpen(false)}
+          />
+
+          {/* Top Practice Navigation & Utility Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <button
+              onClick={onBackToHome}
+              className="inline-flex items-center space-x-1.5 text-xs font-medium text-slate-400 hover:text-white transition cursor-pointer"
+            >
               <Icons.ChevronLeft />
-              <span>Back to Home</span>
+              <span>Back to Overview</span>
             </button>
 
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-mono font-bold transition cursor-pointer"
-            >
-              <Icons.Flag />
-              <span>Submit Quiz ({answeredCount}/{totalQuestions} Answered)</span>
-            </button>
+            {/* Exam Simulation Paper Selector Pill Strip */}
+            <div className="flex items-center space-x-1.5 bg-slate-900 p-1 rounded-xl border border-white/[0.08] text-xs font-mono overflow-x-auto">
+              {[
+                { label: 'All Papers', val: 'all' },
+                { label: 'GATE 2025', val: '2025' },
+                { label: 'GATE 2024', val: '2024' },
+                { label: 'GATE 2023', val: '2023' },
+                { label: 'GATE 2022', val: '2022' },
+              ].map((p) => (
+                <button
+                  key={p.val}
+                  onClick={() => setSelectedPaper(p.val)}
+                  className={`px-3 py-1 rounded-lg transition cursor-pointer whitespace-nowrap ${
+                    selectedPaper === p.val
+                      ? 'bg-brand-600 text-white font-bold shadow-sm'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Action Buttons: Calculator, Palette, Submit Quiz */}
+            <div className="flex items-center space-x-2">
+              <button
+                type="button"
+                onClick={() => setIsCalculatorOpen(true)}
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-mono font-semibold transition cursor-pointer shadow-sm"
+                title="Open GATE Virtual Scientific Calculator"
+              >
+                <Icons.Calculator />
+                <span>Calculator</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsPaletteOpen(v => !v)}
+                className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono font-semibold transition cursor-pointer shadow-sm ${
+                  isPaletteOpen
+                    ? 'bg-brand-950 text-brand-300 border-brand-600'
+                    : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800'
+                }`}
+                title="Toggle GATE Question Palette"
+              >
+                <Icons.Grid />
+                <span>Palette ({answeredCount}/{totalQuestions})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-mono font-bold transition cursor-pointer"
+              >
+                <Icons.Flag />
+                <span>Submit Quiz</span>
+              </button>
+            </div>
           </div>
 
-          <div className="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm mb-6">
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
-              <div className="flex items-center space-x-2">
-                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-brand-400">Progress</span>
-                <span className="text-slate-400 text-xs">/</span>
+          {/* Exam Live Info Strip (Time, Marks, Progress) */}
+          <div className="w-full bg-slate-900/80 border border-white/[0.08] rounded-xl p-4 shadow-sm mb-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-2.5">
+              <div className="flex items-center space-x-3">
+                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-brand-400">Question</span>
                 <span className="text-sm font-semibold text-slate-200">
-                  Question <span className="text-brand-400 font-mono font-bold">{currentIndex + 1}</span> of <span className="font-mono">{totalQuestions}</span>
+                  <span className="text-brand-400 font-mono font-bold text-base">{currentIndex + 1}</span> of <span className="font-mono">{totalQuestions}</span>
+                </span>
+                <span className="text-slate-600">|</span>
+                <span className="inline-flex items-center space-x-1.5 text-xs font-mono text-slate-300 bg-slate-950 px-2.5 py-0.5 rounded border border-slate-800">
+                  <Icons.Clock />
+                  <span className="text-white font-bold">{formatTime(timerSeconds)}</span>
                 </span>
               </div>
-              <div className="flex items-center space-x-4 text-xs font-mono">
-                <span className="text-slate-300">Answered: {answeredCount}/{totalQuestions}</span>
-                {answeredCount > 0 && <span className="text-emerald-400 font-medium">Score: {correctCount}/{answeredCount}</span>}
+
+              <div className="flex items-center space-x-3 text-xs font-mono">
+                <span className="text-slate-300">Attempted: <strong className="text-white">{answeredCount}</strong>/{totalQuestions}</span>
+                {flaggedCount > 0 && (
+                  <span className="text-purple-400 bg-purple-950/70 border border-purple-800 px-2 py-0.5 rounded">
+                    Flagged: {flaggedCount}
+                  </span>
+                )}
+                {answeredCount > 0 && (
+                  <span className="text-emerald-400 bg-emerald-950/70 border border-emerald-800 px-2 py-0.5 rounded">
+                    Correct: {correctCount}
+                  </span>
+                )}
                 <span className="text-slate-400 font-bold">{percentage}%</span>
               </div>
             </div>
-            <div className="relative w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-brand-600 to-indigo-500 rounded-full transition-all duration-300" style={{ width: `${percentage}%` }} />
+
+            <div className="relative w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-brand-600 to-indigo-500 rounded-full transition-all duration-300"
+                style={{ width: `${percentage}%` }}
+              />
             </div>
           </div>
 
-          {/* Quick Jump Strip */}
-          <div className="mb-6 p-3 rounded-xl bg-slate-900/60 border border-slate-800 overflow-x-auto">
-            <div className="flex items-center space-x-2 min-w-max">
-              <span className="text-[11px] font-mono text-slate-400 mr-2 uppercase font-semibold">Quick Jump:</span>
-              {questions.map((q, idx) => {
-                const isCurrent = idx === currentIndex;
-                const evalItem = evaluations[q.id];
-                const hasInput = userAnswers[q.id] !== undefined && userAnswers[q.id] !== '' && (!Array.isArray(userAnswers[q.id]) || userAnswers[q.id].length > 0);
-
-                let itemStyles = 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700';
-                if (evalItem) {
-                  itemStyles = evalItem.isCorrect ? 'bg-emerald-950 text-emerald-300 border-emerald-700 font-bold' : 'bg-rose-950 text-rose-300 border-rose-700 font-bold';
-                } else if (hasInput) {
-                  itemStyles = 'bg-brand-950 text-brand-300 border-brand-700 font-bold';
-                }
-
-                if (isCurrent) itemStyles += ' ring-2 ring-brand-400 font-extrabold shadow-glow';
-
-                return (
-                  <button
-                    key={q.id}
-                    onClick={() => handleJump(idx)}
-                    className={`w-7 h-7 rounded-lg border font-mono text-xs transition flex items-center justify-center cursor-pointer ${itemStyles}`}
-                    title={`Q${idx + 1} (${q.questionType}) - ${q.subject}`}
-                  >
-                    {idx + 1}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Question Card */}
-          {currentQuestion && (
-            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl shadow-xl overflow-hidden backdrop-blur-sm">
-              <div className="p-5 border-b border-slate-800 bg-slate-900/50 flex flex-wrap items-center justify-between gap-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <ExamBadge label={currentQuestion.exam || 'GATE CS'} variant="primary" />
-                  <ExamBadge label={currentQuestion.questionType} variant="type" questionType={currentQuestion.questionType} />
-                  <ExamBadge label={currentQuestion.subject} variant="subject" />
-                  <ExamBadge label={currentQuestion.difficulty} variant="difficulty" difficulty={currentQuestion.difficulty} />
-                </div>
-                <div className="text-xs text-slate-400 font-mono px-2 py-0.5 rounded bg-slate-800/60 border border-slate-700/60">
-                  {currentQuestion.topic}
-                </div>
-              </div>
-
-              <div className="p-6 md:p-8">
-                <div className="text-base md:text-lg leading-relaxed text-slate-100 font-normal mb-8">
-                  <MathText content={currentQuestion.question} />
-                </div>
-
-                {!isNAT && currentQuestion.options && (
-                  <div className="space-y-3 mb-8">
-                    <div className="text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold mb-2 flex items-center justify-between">
-                      <span>{isMSQ ? 'Select one or more options (MSQ):' : 'Select one option (MCQ):'}</span>
-                      {isMSQ && <span className="text-purple-400 text-[11px] lowercase">multiple options may be correct</span>}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+            {/* Main Question Card Area (Spans 3 cols on desktop, or full if palette closed) */}
+            <div className={isPaletteOpen ? 'lg:col-span-3' : 'lg:col-span-4'}>
+              {currentQuestion && (
+                <div className="bg-slate-900/90 border border-white/[0.08] rounded-2xl shadow-xl overflow-hidden backdrop-blur-sm">
+                  {/* Card Header: Exam Metadata & GATE Marks */}
+                  <div className="p-5 border-b border-white/[0.08] bg-slate-950/60 flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <ExamBadge label={currentQuestion.exam || 'GATE CS'} variant="primary" />
+                      <ExamBadge label={currentQuestion.questionType} variant="type" questionType={currentQuestion.questionType} />
+                      <ExamBadge label={currentQuestion.subject} variant="subject" />
+                      <ExamBadge label={currentQuestion.difficulty} variant="difficulty" difficulty={currentQuestion.difficulty} />
+                      <ExamBadge label={`${qMarks} Mark${qMarks > 1 ? 's' : ''}`} variant="marks" marks={qMarks} />
+                      <span className="px-2 py-0.5 rounded text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700">
+                        {currentQuestion.year || currentQuestion.source?.year || 2024}
+                      </span>
                     </div>
-                    {currentQuestion.options.map((option) => {
-                      const isSelected = isMSQ
-                        ? Array.isArray(currentAnswer) && currentAnswer.includes(option.id)
-                        : currentAnswer === option.id;
 
-                      const isUserSelection = currentEvaluation !== null
-                        ? (Array.isArray(currentEvaluation.userAnswer)
-                            ? currentEvaluation.userAnswer.includes(option.id)
-                            : currentEvaluation.userAnswer === option.id)
-                        : false;
+                    <div className="flex items-center space-x-2">
+                      {/* Negative Marking Tag */}
+                      <span className={`px-2.5 py-1 rounded text-[11px] font-mono font-semibold border ${
+                        currentQuestion.questionType === 'MCQ'
+                          ? 'bg-rose-950/50 text-rose-300 border-rose-800/60'
+                          : 'bg-emerald-950/50 text-emerald-300 border-emerald-800/60'
+                      }`}>
+                        {currentQuestion.questionType === 'MCQ'
+                          ? `Negative Marking: -${qMarks === 2 ? '0.66' : '0.33'}`
+                          : 'No Negative Marking'}
+                      </span>
 
-                      const isCorrectOption = currentEvaluation !== null
-                        ? (Array.isArray(currentEvaluation.correctAnswer)
-                            ? currentEvaluation.correctAnswer.includes(option.id)
-                            : currentEvaluation.correctAnswer === option.id)
-                        : null;
-
-                      return (
-                        <OptionCard
-                          key={option.id}
-                          option={option}
-                          isMSQ={isMSQ}
-                          isSelected={isSelected}
-                          isSubmitted={isCurrentAnswered}
-                          isCorrectOption={isCorrectOption}
-                          isUserSelection={isUserSelection}
-                          onSelect={handleSelectOption}
-                          disabled={isSubmitting}
-                        />
-                      );
-                    })}
-                  </div>
-                )}
-
-                {isNAT && (
-                  <div className="mb-8">
-                    <NATInput
-                      value={currentAnswer}
-                      onChange={handleNATChange}
-                      isSubmitted={isCurrentAnswered}
-                      evaluation={currentEvaluation}
-                      onSubmit={handleSubmitAnswer}
-                      isSubmitting={isSubmitting}
-                    />
-                  </div>
-                )}
-
-                {currentEvaluation && <ExplanationCard evaluation={currentEvaluation} />}
-
-                <div className="mt-8 pt-6 border-t border-slate-800 flex flex-wrap items-center justify-between gap-4">
-                  <div className="flex items-center space-x-3">
-                    <button
-                      type="button"
-                      onClick={handlePreviousQuestion}
-                      disabled={currentIndex === 0 || isSubmitting}
-                      className="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 disabled:opacity-40 border border-slate-700 transition cursor-pointer disabled:cursor-not-allowed"
-                    >
-                      <Icons.ChevronLeft />
-                      <span>Previous</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleNextQuestion}
-                      disabled={isSubmitting}
-                      className="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition cursor-pointer"
-                      title="Move to next question without answering"
-                    >
-                      <span>{currentIndex < totalQuestions - 1 ? (isCurrentAnswered ? 'Next Question' : 'Next / Skip') : 'Review / Finish'}</span>
-                      <Icons.ChevronRight />
-                    </button>
-                  </div>
-
-                  <div className="flex items-center space-x-3">
-                    {!isCurrentAnswered ? (
+                      {/* Flag for Review Toggle */}
                       <button
                         type="button"
-                        onClick={handleSubmitAnswer}
-                        disabled={!hasSelectedAnswer || isSubmitting}
-                        className="inline-flex items-center space-x-2 px-6 py-2.5 rounded-xl text-sm font-semibold bg-brand-500 hover:bg-brand-400 text-white shadow-lg shadow-brand-500/25 disabled:opacity-40 disabled:hover:bg-brand-500 transition-all cursor-pointer disabled:cursor-not-allowed"
+                        onClick={handleToggleFlag}
+                        className={`px-3 py-1 rounded-xl text-xs font-mono font-semibold border transition cursor-pointer flex items-center space-x-1.5 ${
+                          isFlagged
+                            ? 'bg-purple-900 text-white border-purple-500 shadow-sm'
+                            : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-white'
+                        }`}
+                        title="Mark for Review (Hotkey: [F])"
                       >
-                        {isSubmitting ? (
-                          <span>Evaluating...</span>
-                        ) : (
-                          <>
-                            <Icons.Send />
-                            <span>Submit Answer</span>
-                          </>
-                        )}
+                        <Icons.Bookmark />
+                        <span>{isFlagged ? 'Flagged [F]' : 'Mark Review [F]'}</span>
                       </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={handleNextQuestion}
-                        className="inline-flex items-center space-x-2 px-6 py-2.5 rounded-xl text-sm font-semibold bg-brand-500 hover:bg-brand-400 text-white shadow-lg shadow-brand-500/25 transition-all cursor-pointer"
-                      >
-                        <span>{currentIndex < totalQuestions - 1 ? 'Next Question' : 'View Results'}</span>
-                        <Icons.ChevronRight />
-                      </button>
+                    </div>
+                  </div>
+
+                  <div className="p-6 md:p-8">
+                    {/* Question Statement */}
+                    <div className="text-base md:text-lg leading-relaxed text-slate-100 font-normal mb-6">
+                      <MathText content={currentQuestion.question} />
+                    </div>
+
+                    {/* Official Schematic Figure (if present) */}
+                    {currentQuestion.imageUrl && (
+                      <FigureViewer
+                        imageUrl={currentQuestion.imageUrl}
+                        year={currentQuestion.year || currentQuestion.source?.year}
+                        questionNumber={currentQuestion.questionNumber || currentQuestion.id}
+                      />
                     )}
+
+                    {/* Multiple Choice / Multiple Select Options */}
+                    {!isNAT && currentQuestion.options && (
+                      <div className="space-y-3 mb-8">
+                        <div className="text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold mb-2 flex items-center justify-between">
+                          <span>{isMSQ ? 'Select one or more options (MSQ):' : 'Select one option (MCQ):'}</span>
+                          {isMSQ && <span className="text-purple-400 text-[11px] lowercase">multiple options may be correct</span>}
+                        </div>
+                        {currentQuestion.options.map((option) => {
+                          const isSelected = isMSQ
+                            ? Array.isArray(currentAnswer) && currentAnswer.includes(option.id)
+                            : currentAnswer === option.id;
+
+                          const isUserSelection = currentEvaluation !== null
+                            ? (Array.isArray(currentEvaluation.userAnswer)
+                                ? currentEvaluation.userAnswer.includes(option.id)
+                                : currentEvaluation.userAnswer === option.id)
+                            : false;
+
+                          const isCorrectOption = currentEvaluation !== null
+                            ? (Array.isArray(currentEvaluation.correctAnswer)
+                                ? currentEvaluation.correctAnswer.includes(option.id)
+                                : currentEvaluation.correctAnswer === option.id)
+                            : null;
+
+                          return (
+                            <OptionCard
+                              key={option.id}
+                              option={option}
+                              isMSQ={isMSQ}
+                              isSelected={isSelected}
+                              isSubmitted={isCurrentAnswered}
+                              isCorrectOption={isCorrectOption}
+                              isUserSelection={isUserSelection}
+                              onSelect={handleSelectOption}
+                              disabled={isSubmitting}
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Numerical Answer Type Input */}
+                    {isNAT && (
+                      <div className="mb-8">
+                        <NATInput
+                          value={currentAnswer}
+                          onChange={handleNATChange}
+                          isSubmitted={isCurrentAnswered}
+                          evaluation={currentEvaluation}
+                          onSubmit={handleSubmitAnswer}
+                          isSubmitting={isSubmitting}
+                        />
+                      </div>
+                    )}
+
+                    {/* Post-submission Evaluation & Explanation */}
+                    {currentEvaluation && <ExplanationCard evaluation={currentEvaluation} />}
+
+                    {/* Bottom Action Footer */}
+                    <div className="mt-8 pt-6 border-t border-slate-800 flex flex-wrap items-center justify-between gap-4">
+                      <div className="flex items-center space-x-2.5">
+                        <button
+                          type="button"
+                          onClick={handlePreviousQuestion}
+                          disabled={currentIndex === 0 || isSubmitting}
+                          className="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 disabled:opacity-40 border border-slate-700 transition cursor-pointer disabled:cursor-not-allowed"
+                        >
+                          <Icons.ChevronLeft />
+                          <span>Previous [←]</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleClearResponse}
+                          disabled={!hasSelectedAnswer || isCurrentAnswered || isSubmitting}
+                          className="px-3.5 py-2.5 rounded-xl text-xs font-mono font-semibold bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800 disabled:opacity-30 transition cursor-pointer disabled:cursor-not-allowed"
+                          title="Clear current selection (Hotkey: [C])"
+                        >
+                          <span>Clear [C]</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleNextQuestion}
+                          disabled={isSubmitting}
+                          className="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition cursor-pointer"
+                          title="Move to next question without answering"
+                        >
+                          <span>{currentIndex < totalQuestions - 1 ? (isCurrentAnswered ? 'Next Question' : 'Next / Skip') : 'Review / Finish'} [→]</span>
+                          <Icons.ChevronRight />
+                        </button>
+                      </div>
+
+                      <div className="flex items-center space-x-3">
+                        {!isCurrentAnswered ? (
+                          <button
+                            type="button"
+                            onClick={handleSubmitAnswer}
+                            disabled={!hasSelectedAnswer || isSubmitting}
+                            className="inline-flex items-center space-x-2 px-6 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/25 disabled:opacity-40 disabled:hover:bg-brand-600 transition-all cursor-pointer disabled:cursor-not-allowed"
+                          >
+                            {isSubmitting ? (
+                              <span>Evaluating...</span>
+                            ) : (
+                              <>
+                                <Icons.Send />
+                                <span>Save & Submit [Enter]</span>
+                              </>
+                            )}
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={handleNextQuestion}
+                            className="inline-flex items-center space-x-2 px-6 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/25 transition-all cursor-pointer"
+                          >
+                            <span>{currentIndex < totalQuestions - 1 ? 'Next Question' : 'View Results'} [Enter]</span>
+                            <Icons.ChevronRight />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Keyboard Hotkey Hint Strip */}
+                    <div className="mt-4 pt-3 border-t border-slate-800/60 text-center text-[11px] font-mono text-slate-500">
+                      Hotkeys: <span className="text-slate-400">[1-4 / A-D]</span> Select Option • <span className="text-slate-400">[F]</span> Mark Review • <span className="text-slate-400">[C]</span> Clear • <span className="text-slate-400">[Enter]</span> Submit • <span className="text-slate-400">[← / →]</span> Navigate
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
-          )}
+
+            {/* Official GATE Question Palette Sidebar Drawer */}
+            {isPaletteOpen && (
+              <div className="lg:col-span-1 bg-slate-900/95 border border-white/[0.08] rounded-2xl p-5 shadow-2xl backdrop-blur-md sticky top-20">
+                <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+                  <div className="flex items-center space-x-2 text-xs font-mono font-bold text-white uppercase">
+                    <Icons.Grid />
+                    <span>Question Palette</span>
+                  </div>
+                  <button
+                    onClick={() => setIsPaletteOpen(false)}
+                    className="p-1 rounded-md text-slate-400 hover:text-white transition cursor-pointer"
+                  >
+                    <Icons.X />
+                  </button>
+                </div>
+
+                {/* Official Palette Legend */}
+                <div className="grid grid-cols-2 gap-2 text-[10px] font-mono mb-4 pb-3 border-b border-slate-800 text-slate-400">
+                  <div className="flex items-center space-x-1.5">
+                    <span className="w-3 h-3 rounded bg-emerald-600 inline-block"></span>
+                    <span>Answered ({answeredCount})</span>
+                  </div>
+                  <div className="flex items-center space-x-1.5">
+                    <span className="w-3 h-3 rounded bg-purple-600 inline-block"></span>
+                    <span>Flagged ({flaggedCount})</span>
+                  </div>
+                  <div className="flex items-center space-x-1.5">
+                    <span className="w-3 h-3 rounded bg-rose-950 border border-rose-800 inline-block"></span>
+                    <span>Not Answered</span>
+                  </div>
+                  <div className="flex items-center space-x-1.5">
+                    <span className="w-3 h-3 rounded bg-slate-800 border border-slate-700 inline-block"></span>
+                    <span>Not Visited</span>
+                  </div>
+                </div>
+
+                {/* Question Grid Buttons (Q1 to QN) */}
+                <div className="grid grid-cols-5 gap-2 max-h-[380px] overflow-y-auto pr-1">
+                  {questions.map((q, idx) => {
+                    const isCurrent = idx === currentIndex;
+                    const evalItem = evaluations[q.id];
+                    const hasInput = userAnswers[q.id] !== undefined && userAnswers[q.id] !== '' && (!Array.isArray(userAnswers[q.id]) || userAnswers[q.id].length > 0);
+                    const isQFlagged = Boolean(flaggedQuestions[q.id]);
+                    const isVisited = Boolean(visitedQuestions[idx]);
+
+                    let btnStyles = 'bg-slate-850 text-slate-400 border-slate-700 hover:bg-slate-800';
+
+                    if (isQFlagged && (evalItem || hasInput)) {
+                      // Flagged & Answered (Official GATE purple with green dot)
+                      btnStyles = 'bg-purple-800 text-white border-purple-500 font-bold ring-2 ring-emerald-400';
+                    } else if (isQFlagged) {
+                      // Marked for Review
+                      btnStyles = 'bg-purple-700 text-white border-purple-500 font-bold';
+                    } else if (evalItem) {
+                      // Answered & Evaluated
+                      btnStyles = evalItem.isCorrect
+                        ? 'bg-emerald-600 text-white border-emerald-500 font-bold'
+                        : 'bg-rose-900 text-rose-200 border-rose-700 font-bold';
+                    } else if (hasInput) {
+                      // Input Selected (Not yet evaluated)
+                      btnStyles = 'bg-emerald-600 text-white border-emerald-500 font-bold';
+                    } else if (isVisited) {
+                      // Visited but Not Answered
+                      btnStyles = 'bg-rose-950 text-rose-300 border-rose-800';
+                    }
+
+                    if (isCurrent) {
+                      btnStyles += ' ring-2 ring-brand-400 font-extrabold shadow-glow';
+                    }
+
+                    return (
+                      <button
+                        key={q.id}
+                        onClick={() => handleJump(idx)}
+                        className={`h-8 rounded-lg border font-mono text-xs transition flex items-center justify-center cursor-pointer ${btnStyles}`}
+                        title={`Q${idx + 1} (${q.questionType}) • ${q.subject}`}
+                      >
+                        {idx + 1}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       );
     }
@@ -2872,7 +3954,7 @@
                   </span>
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-400">
-                  Multi-question practice sessions authored on-demand by Gemini & verified against official GATE patterns
+                  Multi-question practice sessions authored on-demand by Groq (Llama 3.3 70B) & verified against official GATE patterns
                 </p>
               </div>
             </div>
@@ -3139,9 +4221,17 @@
 
               {/* Question Text Body */}
               <div className="p-6 md:p-8">
-                <div className="text-base md:text-lg leading-relaxed text-slate-100 font-normal mb-8 whitespace-pre-line tracking-wide">
+                <div className="text-base md:text-lg leading-relaxed text-slate-100 font-normal mb-6 whitespace-pre-line tracking-wide">
                   <MathText content={currentQ.question} />
                 </div>
+
+                {currentQ.imageUrl && (
+                  <FigureViewer
+                    imageUrl={currentQ.imageUrl}
+                    year={currentQ.year || currentQ.source?.year}
+                    questionNumber={currentQ.questionNumber || currentQ.id}
+                  />
+                )}
 
                 {/* Interactions by Question Type */}
                 {currentQ.questionType === 'MCQ' && (
@@ -3562,6 +4652,7 @@
       const [apiConnected, setApiConnected] = useState(true);
       const [visitorCount, setVisitorCount] = useState(null);
       const [isModalOpen, setIsModalOpen] = useState(false);
+      const [practiceFilter, setPracticeFilter] = useState(null);
 
       const handleNavigate = (view) => {
         setCurrentView(view);
@@ -3569,6 +4660,11 @@
         if (window.location.pathname !== path) {
           window.history.pushState({}, '', path);
         }
+      };
+
+      const handleStartPracticeWithFilter = (filter) => {
+        setPracticeFilter(filter);
+        handleNavigate('practice');
       };
 
       useEffect(() => {
@@ -3601,41 +4697,49 @@
       }, []);
 
       return (
-        <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
-          <Navbar
-            currentView={currentView}
-            onNavigate={handleNavigate}
-            apiConnected={apiConnected}
-            visitorCount={visitorCount}
-            onSubmitQuizPrompt={() => setIsModalOpen(true)}
-          />
-          <main className="flex-grow">
-            {currentView === 'home' ? (
-              <HomePage
-                onStartAIPractice={() => handleNavigate('ai-practice')}
-                onExploreQuestionBank={() => handleNavigate('bank')}
-              />
-            ) : currentView === 'bank' ? (
-              <QuestionBankPage />
-            ) : currentView === 'patterns' ? (
-              <PatternsPage onNavigateToBank={() => handleNavigate('bank')} />
-            ) : currentView === 'ai-practice' ? (
-              <AIPracticePage onBackToHome={() => handleNavigate('home')} />
-            ) : (
-              <PracticePage
-                onBackToHome={() => handleNavigate('home')}
-                isModalOpen={isModalOpen}
-                setIsModalOpen={setIsModalOpen}
-              />
-            )}
-          </main>
-          <footer className="border-t border-slate-900 bg-slate-950 py-8 mt-16 text-center text-xs text-slate-500 font-mono">
-            <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div>GATEForge — AI Question Intelligence & Pattern Analysis (Phase 3B)</div>
-              <div>Pedagogical Pattern Profiles • Distractor Misconceptions • KaTeX LaTeX Engine</div>
-            </div>
-          </footer>
-        </div>
+        <ToastProvider>
+          <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+            <Navbar
+              currentView={currentView}
+              onNavigate={handleNavigate}
+              apiConnected={apiConnected}
+              visitorCount={visitorCount}
+              onSubmitQuizPrompt={() => setIsModalOpen(true)}
+            />
+            <main className="flex-grow">
+              <ErrorBoundary key={currentView}>
+                {currentView === 'home' ? (
+                  <HomePage
+                    onStartAIPractice={() => handleNavigate('ai-practice')}
+                    onExploreQuestionBank={() => handleNavigate('bank')}
+                    onStartPracticeWithFilter={handleStartPracticeWithFilter}
+                  />
+                ) : currentView === 'bank' ? (
+                  <QuestionBankPage
+                    onStartPracticeWithFilter={handleStartPracticeWithFilter}
+                  />
+                ) : currentView === 'patterns' ? (
+                  <PatternsPage onNavigateToBank={() => handleNavigate('bank')} />
+                ) : currentView === 'ai-practice' ? (
+                  <AIPracticePage onBackToHome={() => handleNavigate('home')} />
+                ) : (
+                  <PracticePage
+                    onBackToHome={() => handleNavigate('home')}
+                    isModalOpen={isModalOpen}
+                    setIsModalOpen={setIsModalOpen}
+                    initialFilter={practiceFilter}
+                  />
+                )}
+              </ErrorBoundary>
+            </main>
+            <footer className="border-t border-slate-900 bg-slate-950 py-8 mt-16 text-center text-xs text-slate-500 font-mono">
+              <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>GATEForge — AI Question Intelligence & Pattern Analysis (Phase 3B)</div>
+                <div>Pedagogical Pattern Profiles • Distractor Misconceptions • KaTeX LaTeX Engine</div>
+              </div>
+            </footer>
+          </div>
+        </ToastProvider>
       );
     }
 

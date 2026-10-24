@@ -38,6 +38,11 @@ export class InMemoryQuestionRepository implements IQuestionRepository {
         (q) => q.questionType?.toLowerCase() === filter.questionType?.toLowerCase()
       );
     }
+    if (filter?.year) {
+      result = result.filter(
+        (q) => String(q.year) === String(filter.year)
+      );
+    }
 
     return result;
   }

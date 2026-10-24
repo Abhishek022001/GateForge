@@ -270,7 +270,7 @@ export const AIPracticePage: React.FC<AIPracticePageProps> = () => {
               </span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-400">
-              Multi-question practice sessions authored on-demand by Gemini & verified against official GATE patterns
+              Multi-question practice sessions authored on-demand by Groq (Llama 3.3 70B) & verified against official GATE patterns
             </p>
           </div>
         </div>
@@ -550,9 +550,24 @@ export const AIPracticePage: React.FC<AIPracticePageProps> = () => {
 
           {/* Question Text Body */}
           <div className="p-6 md:p-8">
-            <div className="text-base md:text-lg leading-relaxed text-slate-100 font-normal mb-8 whitespace-pre-line tracking-wide">
+            <div className="text-base md:text-lg leading-relaxed text-slate-100 font-normal mb-6 whitespace-pre-line tracking-wide">
               {currentQ.question}
             </div>
+
+            {/* Official Figure / Schematic Diagram */}
+            {currentQ.imageUrl && (
+              <div className="my-6 flex flex-col items-center justify-center p-4 bg-slate-950/70 rounded-xl border border-slate-800">
+                <img
+                  src={currentQ.imageUrl}
+                  alt={`Figure for Question ${currentQ.questionNumber || ''}`}
+                  className="max-h-[400px] max-w-full rounded-lg object-contain shadow-md border border-slate-700/60 bg-white p-2"
+                  loading="lazy"
+                />
+                <span className="text-[11px] font-mono text-slate-400 mt-2">
+                  Official Examination Figure • GATE {currentQ.year || ''}
+                </span>
+              </div>
+            )}
 
             {/* Interactions by Question Type */}
             {currentQ.questionType === 'MCQ' && (

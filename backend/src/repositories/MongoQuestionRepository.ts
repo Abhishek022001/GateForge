@@ -9,6 +9,7 @@ export class MongoQuestionRepository implements IQuestionRepository {
     if (filter?.topic) query.topic = filter.topic;
     if (filter?.difficulty) query.difficulty = filter.difficulty;
     if (filter?.questionType) query.questionType = filter.questionType;
+    if (filter?.year) query.year = Number(filter.year);
 
     const docs = await QuestionModel.find(query).lean();
     return docs.map((doc) => ({

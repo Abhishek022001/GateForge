@@ -56,6 +56,30 @@ class QuestionDatabase {
         updatedAt: new Date().toISOString(),
       });
     }
+    try {
+      const importedPyqsCandidates = [
+        path.resolve(__dirname, './data/officialImportedPyqs.json'),
+        path.resolve(__dirname, '../src/data/officialImportedPyqs.json'),
+        path.resolve(process.cwd(), 'src/data/officialImportedPyqs.json'),
+        path.resolve(process.cwd(), 'backend/src/data/officialImportedPyqs.json'),
+      ];
+      const importedPyqsPath = importedPyqsCandidates.find((p) => fs.existsSync(p));
+      if (importedPyqsPath) {
+        const importedData = JSON.parse(fs.readFileSync(importedPyqsPath, 'utf8'));
+        if (Array.isArray(importedData)) {
+          for (const q of importedData) {
+            this.questions.set(q.id, {
+              ...q,
+              _id: `mem-${q.id}`,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            });
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Could not seed imported PYQs into QuestionDatabase:', e.message);
+    }
   }
 
   findAll(filter = {}) {
@@ -72,6 +96,13 @@ class QuestionDatabase {
     }
     if (filter.year) {
       list = list.filter((q) => String(q.year) === String(filter.year) || String(q.source?.year) === String(filter.year));
+    }
+    if (filter.marks) {
+      list = list.filter((q) => String(q.marks) === String(filter.marks));
+    }
+    if (filter.hasFigure !== undefined) {
+      const wantFigure = filter.hasFigure === 'true' || filter.hasFigure === true;
+      list = list.filter((q) => Boolean(q.imageUrl) === wantFigure);
     }
     if (filter.questionType) {
       list = list.filter((q) => (q.questionType || '').toLowerCase() === filter.questionType.toLowerCase());
@@ -308,6 +339,26 @@ const server = http.createServer(async (req, res) => {
   const urlObj = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = urlObj.pathname;
   console.log(`[API] ${req.method} ${pathname}`);
+
+  // Static Figures Route
+  if (req.method === 'GET' && (pathname.startsWith('/figures/') || pathname.startsWith('/static/figures/'))) {
+    const filename = path.basename(pathname);
+    const figuresDir = path.resolve(__dirname, '../public/figures');
+    const figPath = path.join(figuresDir, filename);
+    if (fs.existsSync(figPath) && fs.statSync(figPath).isFile()) {
+      res.writeHead(200, {
+        'Content-Type': 'image/png',
+        'Cache-Control': 'public, max-age=86400',
+        'Access-Control-Allow-Origin': '*',
+      });
+      fs.createReadStream(figPath).pipe(res);
+      return;
+    } else {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: 'Figure not found' }));
+      return;
+    }
+  }
 
   // Health Endpoint
   if (req.method === 'GET' && pathname === '/api/health') {
@@ -1518,6 +1569,8 @@ const server = http.createServer(async (req, res) => {
       topic: urlObj.searchParams.get('topic') || undefined,
       subtopic: urlObj.searchParams.get('subtopic') || undefined,
       year: urlObj.searchParams.get('year') || undefined,
+      marks: urlObj.searchParams.get('marks') || undefined,
+      hasFigure: urlObj.searchParams.has('hasFigure') ? urlObj.searchParams.get('hasFigure') : undefined,
       questionType: urlObj.searchParams.get('questionType') || undefined,
       difficulty: urlObj.searchParams.get('difficulty') || undefined,
       sourceType: urlObj.searchParams.get('sourceType') || undefined,
