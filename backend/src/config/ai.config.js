@@ -11,7 +11,7 @@ dotenv.config();
 export function getAIConfig() {
   const apiKey = (process.env.GROQ_API_KEY || '').trim();
   const provider = 'groq';
-  const model = (process.env.AI_MODEL || 'llama-3.3-70b-versatile').trim();
+  const model = (process.env.AI_MODEL || 'openai/gpt-oss-120b').trim();
   const timeoutMs = Math.max(1000, parseInt(process.env.AI_REQUEST_TIMEOUT_MS || '25000', 10) || 25000);
   const maxRetries = Math.max(0, parseInt(process.env.AI_MAX_RETRIES || '2', 10) || 2);
   const temperature = 0.7;

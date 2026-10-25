@@ -10,11 +10,9 @@ import {
 import { parseStructuredJson } from './structuredParser.js';
 
 const FALLBACK_CHAIN = [
-  'llama-3.3-70b-versatile',
   'openai/gpt-oss-120b',
   'openai/gpt-oss-20b',
   'qwen/qwen3.8-27b',
-  'llama-3.1-8b-instant',
 ];
 
 function sanitizeErrorMessage(rawMessage) {
@@ -35,7 +33,7 @@ export class GroqProvider {
   get modelName() {
     if (this._activeModel) return this._activeModel;
     const config = getAIConfig();
-    return config.model && config.model.includes('llama') ? config.model : 'llama-3.3-70b-versatile';
+    return config.model || 'openai/gpt-oss-120b';
   }
 
   get apiKey() {
@@ -125,12 +123,21 @@ export class GroqProvider {
           const errBody = await res.json().catch(() => ({}));
           const errMsg = errBody?.error?.message || `HTTP ${res.status} ${res.statusText}`;
 
-          // Auto-fallback across supported Groq models if model is not accessible
-          if (errMsg.includes('does not exist') || errMsg.includes('access')) {
+          // Auto-fallback across supported Groq models if model is rate-limited (429) or inaccessible (404)
+          if (
+            res.status === 429 ||
+            res.status === 404 ||
+            errMsg.includes('does not exist') ||
+            errMsg.includes('access') ||
+            errMsg.includes('rate_limit') ||
+            errMsg.includes('Rate limit') ||
+            errMsg.includes('tokens per minute') ||
+            errMsg.includes('TPM')
+          ) {
             const currentIdx = FALLBACK_CHAIN.indexOf(payload.model);
-            const nextModel = FALLBACK_CHAIN.slice(currentIdx + 1).find((m) => m !== payload.model);
-            if (nextModel) {
-              console.warn(`[AI:Groq] Model ${payload.model} not accessible on this key. Falling back to ${nextModel}...`);
+            const nextModel = FALLBACK_CHAIN[(currentIdx + 1) % FALLBACK_CHAIN.length];
+            if (nextModel && nextModel !== payload.model) {
+              console.warn(`[AI:Groq] Model ${payload.model} rate-limited or unavailable (HTTP ${res.status}). Auto-rotating to ${nextModel}...`);
               this._activeModel = nextModel;
               payload.model = nextModel;
               continue;
@@ -222,12 +229,21 @@ export class GroqProvider {
           const errBody = await res.json().catch(() => ({}));
           const errMsg = errBody?.error?.message || `HTTP ${res.status} ${res.statusText}`;
 
-          // Auto-fallback across supported Groq models if model is not accessible
-          if (errMsg.includes('does not exist') || errMsg.includes('access')) {
+          // Auto-fallback across supported Groq models if model is rate-limited (429) or inaccessible (404)
+          if (
+            res.status === 429 ||
+            res.status === 404 ||
+            errMsg.includes('does not exist') ||
+            errMsg.includes('access') ||
+            errMsg.includes('rate_limit') ||
+            errMsg.includes('Rate limit') ||
+            errMsg.includes('tokens per minute') ||
+            errMsg.includes('TPM')
+          ) {
             const currentIdx = FALLBACK_CHAIN.indexOf(payload.model);
-            const nextModel = FALLBACK_CHAIN.slice(currentIdx + 1).find((m) => m !== payload.model);
-            if (nextModel) {
-              console.warn(`[AI:Groq] Model ${payload.model} not accessible on this key. Falling back to ${nextModel}...`);
+            const nextModel = FALLBACK_CHAIN[(currentIdx + 1) % FALLBACK_CHAIN.length];
+            if (nextModel && nextModel !== payload.model) {
+              console.warn(`[AI:Groq] Model ${payload.model} rate-limited or unavailable (HTTP ${res.status}). Auto-rotating to ${nextModel}...`);
               this._activeModel = nextModel;
               payload.model = nextModel;
               continue;

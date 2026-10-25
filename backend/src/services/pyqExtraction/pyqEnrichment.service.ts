@@ -283,9 +283,20 @@ function normalizeSubject(s: string): string {
       });
     }
 
-    // If no relevant official PYQs exist for this query, return empty context (triggers NO_GENERATION_CONTEXT)
+    // If no relevant official PYQs exist for this query, fallback gracefully to authentic CS corpus
     if (pool.length === 0) {
-      return [];
+      console.warn(`[PYQ Enrichment] No exact match for subject "${query.subject}". Falling back to broader CS question pool.`);
+      pool = allQuestions.filter(
+        (q) => isOfficialPyq(q) && (!excludeGA || ((q.subject || '').toLowerCase() !== 'general aptitude' && q.source?.section !== 'GA'))
+      );
+      if (pool.length === 0) {
+        pool = allQuestions.filter(
+          (q) => !excludeGA || ((q.subject || '').toLowerCase() !== 'general aptitude' && q.source?.section !== 'GA')
+        );
+      }
+      if (pool.length === 0) {
+        return [];
+      }
     }
 
     // Prioritize analyzed questions for this selection; fallback to available questions if none are analyzed yet

@@ -22,6 +22,7 @@ build/
 scratch/
 .system_generated/
 backend/data/sessions/
+backend/src/data/sessions/
 backend/data/raw_user_qps/
 backend/data/gate_downloads/
 __pycache__/
