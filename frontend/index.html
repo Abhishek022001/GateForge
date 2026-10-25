@@ -1128,21 +1128,17 @@
       ];
 
       return (
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           {/* Hero Section */}
-          <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-14">
             <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-slate-900/80 border border-slate-700/80 text-slate-300 text-xs font-semibold mb-6 shadow-sm">
               <Icons.Sparkles />
               <span>Source-Grounded AI Question Intelligence</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
-              GATE<span className="text-brand-400">Forge</span>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-4 leading-snug sm:leading-tight">
+              AI-Powered GATE CS Practice Built from Official PYQ Patterns
             </h1>
-
-            <p className="text-lg sm:text-xl text-slate-200 mb-4 font-medium leading-relaxed">
-              AI-powered GATE CS practice built from official previous-year question patterns.
-            </p>
 
             <p className="text-sm sm:text-base text-slate-400 mb-8 leading-relaxed font-normal max-w-2xl mx-auto">
               Analyzes historical question patterns, cognitive skills, and distractor traps from official
@@ -1154,7 +1150,7 @@
               <button
                 type="button"
                 onClick={onStartAIPractice}
-                className="w-full sm:w-auto inline-flex items-center justify-center space-x-2.5 px-8 py-4 rounded-xl text-base font-bold bg-brand-500 hover:bg-brand-400 text-white shadow-xl shadow-brand-500/25 transition-all transform hover:-translate-y-0.5 cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center space-x-2.5 px-8 py-3.5 rounded-xl text-base font-bold bg-brand-500 hover:bg-brand-400 text-white shadow-xl shadow-brand-500/25 transition-all transform hover:-translate-y-0.5 cursor-pointer"
               >
                 <Icons.Sparkles />
                 <span>Start AI Practice</span>
@@ -1164,7 +1160,7 @@
               <button
                 type="button"
                 onClick={onExploreQuestionBank}
-                className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-7 py-4 rounded-xl text-base font-semibold bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 transition cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-7 py-3.5 rounded-xl text-base font-semibold bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 transition cursor-pointer"
               >
                 <Icons.Database />
                 <span>Explore Question Bank</span>
