@@ -25,6 +25,7 @@ backend/data/sessions/
 backend/src/data/sessions/
 backend/data/raw_user_qps/
 backend/data/gate_downloads/
+backend/data/analytics_snapshot.json
 __pycache__/
 *.pyc
 *.tmp

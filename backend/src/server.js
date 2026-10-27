@@ -227,7 +227,7 @@ const db = new QuestionDatabase();
 function setCorsHeaders(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-session-id');
 }
 
 // Security: Strict upper bound on request body size (default 2MB)
@@ -1608,7 +1608,8 @@ const server = http.createServer(async (req, res) => {
 
   // GET /api/stats (Real-Time Dynamic System Statistics & Privacy-Preserving Analytics)
   if (req.method === 'GET' && pathname === '/api/stats') {
-    const analytics = await analyticsService.recordVisit(req);
+    const sessionId = req.headers['x-session-id'] || urlObj.searchParams.get('sessionId') || null;
+    const analytics = await analyticsService.recordVisit(req, sessionId);
     const all = db.findAll();
     const officialCount = all.filter(
       (q) =>
@@ -1631,12 +1632,61 @@ const server = http.createServer(async (req, res) => {
           analyzedQuestions: analyzedCount,
           subjectsCovered: subjects.size || GATE_CS_SUBJECTS.length,
           practiceModes: 4, // Mixed, MCQ, MSQ, NAT
+          liveUsers: analytics.liveUsers ?? 1,
           uniqueVisitors: analytics.uniqueVisitors,
           peopleVisitedSoFar: analytics.peopleVisitedSoFar ?? analytics.uniqueVisitors,
           totalVisits: analytics.totalVisits,
         },
       })
     );
+    return;
+  }
+
+  // POST /api/stats/heartbeat (Active Live-User Presence Heartbeat)
+  if (req.method === 'POST' && pathname === '/api/stats/heartbeat') {
+    let sessionId = null;
+    try {
+      const body = await parseJsonBody(req, null);
+      sessionId = body?.sessionId;
+    } catch (_) {}
+    if (!sessionId && urlObj.searchParams.get('sessionId')) {
+      sessionId = urlObj.searchParams.get('sessionId');
+    }
+    if (!sessionId && req.headers['x-session-id']) {
+      sessionId = req.headers['x-session-id'];
+    }
+    const stats = analyticsService.recordHeartbeat(req, sessionId);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(
+      JSON.stringify({
+        success: true,
+        data: {
+          liveUsers: stats.liveUsers ?? 1,
+          uniqueVisitors: stats.uniqueVisitors,
+          peopleVisitedSoFar: stats.peopleVisitedSoFar ?? stats.uniqueVisitors,
+          totalVisits: stats.totalVisits,
+        },
+      })
+    );
+    return;
+  }
+
+  // POST /api/stats/leave (Immediate Unload Live-User Deregistration Beacon)
+  if (req.method === 'POST' && pathname === '/api/stats/leave') {
+    let sessionId = null;
+    try {
+      const body = await parseJsonBody(req, null);
+      sessionId = body?.sessionId;
+    } catch (_) {}
+    if (!sessionId && urlObj.searchParams.get('sessionId')) {
+      sessionId = urlObj.searchParams.get('sessionId');
+    }
+    if (!sessionId && req.headers['x-session-id']) {
+      sessionId = req.headers['x-session-id'];
+    }
+    analyticsService.recordLeave(req, sessionId);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ success: true }));
     return;
   }
 

@@ -191,18 +191,56 @@ class ApiService {
     return await this.request('/api/health');
   }
 
-  async getStats(): Promise<{
+  async getStats(sessionId?: string): Promise<{
     totalQuestions: number;
     officialPyqs: number;
     analyzedQuestions: number;
     subjectsCovered: number;
     practiceModes: number;
+    liveUsers?: number;
     uniqueVisitors?: number;
     peopleVisitedSoFar?: number;
     totalVisits?: number;
   }> {
-    const res = await this.request<{ success: boolean; data: any }>('/api/stats');
+    const url = sessionId ? `/api/stats?sessionId=${encodeURIComponent(sessionId)}` : '/api/stats';
+    const headers = sessionId ? { 'x-session-id': sessionId } : undefined;
+    const res = await this.request<{ success: boolean; data: any }>(url, { headers });
     return res.data;
+  }
+
+  async sendHeartbeat(sessionId: string): Promise<{
+    liveUsers: number;
+    peopleVisitedSoFar?: number;
+    uniqueVisitors?: number;
+    totalVisits?: number;
+  }> {
+    const res = await this.request<{ success: boolean; data: any }>('/api/stats/heartbeat', {
+      method: 'POST',
+      body: JSON.stringify({ sessionId }),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-session-id': sessionId,
+      },
+    });
+    return res.data;
+  }
+
+  sendLeaveBeacon(sessionId: string): void {
+    try {
+      const url = `${getApiBaseUrl()}/api/stats/leave`;
+      const payload = JSON.stringify({ sessionId });
+      if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+        const blob = new Blob([payload], { type: 'application/json' });
+        navigator.sendBeacon(url, blob);
+      } else if (typeof fetch !== 'undefined') {
+        fetch(url, {
+          method: 'POST',
+          body: payload,
+          keepalive: true,
+          headers: { 'Content-Type': 'application/json' },
+        }).catch(() => {});
+      }
+    } catch (_) {}
   }
 
   async reseed(): Promise<{ success: boolean; message: string }> {

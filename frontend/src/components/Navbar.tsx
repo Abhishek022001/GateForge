@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Cpu, Terminal, Compass, CheckCircle2, Sparkles, Users } from 'lucide-react';
+import { Cpu, Terminal, Compass, CheckCircle2, Sparkles, Users, Activity } from 'lucide-react';
 import { api } from '../services/api';
 
 interface NavbarProps {
@@ -7,6 +7,7 @@ interface NavbarProps {
   onNavigate: (view: 'home' | 'practice' | 'ai-practice') => void;
   apiConnected?: boolean;
   visitorCount?: number;
+  liveUsersCount?: number;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -14,30 +15,26 @@ export const Navbar: React.FC<NavbarProps> = ({
   onNavigate,
   apiConnected = true,
   visitorCount: initialVisitorCount,
+  liveUsersCount: initialLiveUsersCount,
 }) => {
   const [visitorCount, setVisitorCount] = useState<number | null>(
     initialVisitorCount ?? null
+  );
+  const [liveUsersCount, setLiveUsersCount] = useState<number | null>(
+    initialLiveUsersCount ?? null
   );
 
   useEffect(() => {
     if (initialVisitorCount !== undefined && initialVisitorCount !== null) {
       setVisitorCount(initialVisitorCount);
-      return;
     }
-    let isMounted = true;
-    api
-      .getStats()
-      .then((data) => {
-        if (isMounted) {
-          setVisitorCount(data.peopleVisitedSoFar ?? data.uniqueVisitors ?? 1);
-        }
-      })
-      .catch(() => {});
-
-    return () => {
-      isMounted = false;
-    };
   }, [initialVisitorCount]);
+
+  useEffect(() => {
+    if (initialLiveUsersCount !== undefined && initialLiveUsersCount !== null) {
+      setLiveUsersCount(initialLiveUsersCount);
+    }
+  }, [initialLiveUsersCount]);
   return (
     <header className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -66,23 +63,47 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Navigation & Visitor Component */}
         <div className="flex items-center space-x-2 sm:space-x-3">
-          {/* People Visited So Far Highlight Badge (Replaces AI Ready) */}
+          {/* Live Users Highlight Badge */}
           <div
-            className="flex items-center space-x-1.5 sm:space-x-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-slate-900/90 border border-emerald-500/40 shadow-sm shadow-emerald-500/10 text-xs font-mono transition-all hover:border-emerald-500/60"
-            title="Total number of people visited this website so far"
+            className="flex items-center space-x-1.5 sm:space-x-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-slate-900/90 border border-emerald-500/40 shadow-sm shadow-emerald-500/10 text-xs font-mono transition-all hover:border-emerald-500/60"
+            title="Current active live users on GateForge"
           >
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <Users className="w-3.5 h-3.5 text-emerald-400 hidden xs:inline" />
+            <Activity className="w-3.5 h-3.5 text-emerald-400 hidden xs:inline" />
             <span className="text-slate-300 font-sans text-xs hidden sm:inline">
+              Live:
+            </span>
+            <span className="text-slate-300 font-sans text-xs sm:hidden">
+              Live:
+            </span>
+            <span className="font-extrabold text-emerald-400 font-mono tracking-tight text-xs sm:text-sm">
+              {liveUsersCount !== null && liveUsersCount !== undefined ? (
+                Math.max(1, liveUsersCount).toLocaleString()
+              ) : (
+                <span className="animate-pulse">--</span>
+              )}
+            </span>
+          </div>
+
+          {/* People Visited So Far Highlight Badge */}
+          <div
+            className="flex items-center space-x-1.5 sm:space-x-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-slate-900/90 border border-slate-700/70 shadow-sm text-xs font-mono transition-all hover:border-slate-600"
+            title="Total number of people visited this website so far"
+          >
+            <Users className="w-3.5 h-3.5 text-slate-400 hidden xs:inline" />
+            <span className="text-slate-300 font-sans text-xs hidden lg:inline">
               People visited so far:
+            </span>
+            <span className="text-slate-300 font-sans text-xs hidden sm:inline lg:hidden">
+              Visited:
             </span>
             <span className="text-slate-300 font-sans text-xs sm:hidden">
               Visited:
             </span>
-            <span className="font-extrabold text-emerald-400 font-mono tracking-tight text-xs sm:text-sm">
+            <span className="font-extrabold text-slate-200 font-mono tracking-tight text-xs sm:text-sm">
               {visitorCount !== null && visitorCount !== undefined ? (
                 Math.max(1, visitorCount).toLocaleString()
               ) : (

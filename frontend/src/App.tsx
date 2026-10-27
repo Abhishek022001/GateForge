@@ -6,6 +6,11 @@ import { PracticePage } from './pages/PracticePage';
 import { AIPracticePage } from './pages/AIPracticePage';
 import { api } from './services/api';
 
+const clientSessionId =
+  typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID()
+    : 'gf_' + Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
+
 export const App: React.FC = () => {
   const getInitialView = (): 'home' | 'practice' | 'ai-practice' => {
     const path = window.location.pathname;
@@ -17,6 +22,7 @@ export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<'home' | 'practice' | 'ai-practice'>(getInitialView);
   const [apiConnected, setApiConnected] = useState<boolean>(true);
   const [visitorCount, setVisitorCount] = useState<number | null>(null);
+  const [liveUsers, setLiveUsers] = useState<number | null>(null);
 
   // Sync view navigation with browser history
   const handleNavigate = (view: 'home' | 'practice' | 'ai-practice') => {
@@ -39,24 +45,77 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Periodic health check with backend and load visitor count
+  // Periodic health check with backend, load visitor count & live presence
   useEffect(() => {
+    let isMounted = true;
+    let lastPing = Date.now();
+
     const checkBackend = async () => {
       try {
         await api.getHealth();
-        setApiConnected(true);
+        if (isMounted) setApiConnected(true);
       } catch (err) {
-        setApiConnected(false);
+        if (isMounted) setApiConnected(false);
       }
     };
     checkBackend();
 
-    api
-      .getStats()
-      .then((data) => {
-        setVisitorCount(data.peopleVisitedSoFar ?? data.uniqueVisitors ?? 1);
-      })
-      .catch(() => {});
+    const fetchInitialStats = async () => {
+      try {
+        const data = await api.getStats(clientSessionId);
+        if (isMounted) {
+          setVisitorCount(data.peopleVisitedSoFar ?? data.uniqueVisitors ?? 1);
+          setLiveUsers(data.liveUsers ?? 1);
+        }
+      } catch (_) {}
+    };
+    fetchInitialStats();
+
+    // Heartbeat every 25 seconds
+    const interval = setInterval(async () => {
+      if (document.visibilityState === 'visible') {
+        try {
+          const stats = await api.sendHeartbeat(clientSessionId);
+          if (isMounted) {
+            if (stats.liveUsers !== undefined) setLiveUsers(stats.liveUsers);
+            if (stats.peopleVisitedSoFar !== undefined) setVisitorCount(stats.peopleVisitedSoFar);
+          }
+          lastPing = Date.now();
+        } catch (_) {}
+      }
+    }, 25000);
+
+    // Refresh immediately when returning to tab if idle > 20s
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible' && Date.now() - lastPing > 20000) {
+        try {
+          const stats = await api.sendHeartbeat(clientSessionId);
+          if (isMounted) {
+            if (stats.liveUsers !== undefined) setLiveUsers(stats.liveUsers);
+            if (stats.peopleVisitedSoFar !== undefined) setVisitorCount(stats.peopleVisitedSoFar);
+          }
+          lastPing = Date.now();
+        } catch (_) {}
+      }
+    };
+
+    // Immediate unload deregistration beacon
+    const handleUnload = () => {
+      api.sendLeaveBeacon(clientSessionId);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleUnload);
+    window.addEventListener('pagehide', handleUnload);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleUnload);
+      window.removeEventListener('pagehide', handleUnload);
+      handleUnload();
+    };
   }, []);
 
   return (
@@ -67,6 +126,7 @@ export const App: React.FC = () => {
         onNavigate={handleNavigate}
         apiConnected={apiConnected}
         visitorCount={visitorCount ?? undefined}
+        liveUsersCount={liveUsers ?? undefined}
       />
 
       {/* Main Content Area */}

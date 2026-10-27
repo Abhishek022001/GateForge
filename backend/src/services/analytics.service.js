@@ -10,6 +10,7 @@ const SNAPSHOT_DIR = path.resolve(__dirname, '../../data');
 const SNAPSHOT_FILE = path.join(SNAPSHOT_DIR, 'analytics_snapshot.json');
 
 const SESSION_WINDOW_MS = 30 * 60 * 1000; // 30-minute standard session deduplication
+const LIVE_WINDOW_MS = 75 * 1000; // 75-second sliding window for active live users (3 missed 25s heartbeats)
 const SERVER_SALT = process.env.ANALYTICS_SALT || 'gateforge_prod_analytics_v1';
 
 // Mongoose Models Cache
@@ -50,10 +51,23 @@ class AnalyticsService {
     this.totalVisits = 0;
     this.uniqueVisitorsCount = 0;
     this.inMemoryVisitorCache = new Map(); // Map<hash, lastSeenTimestamp>
+    this.liveSessions = new Map(); // Map<sessionKey, lastSeenTimestamp>
     this.saveTimeout = null;
 
     this.loadSnapshot();
     this.setupMongoSync();
+    this.setupLivePruning();
+  }
+
+  setupLivePruning() {
+    try {
+      const pruningInterval = setInterval(() => {
+        this.getLiveCount();
+      }, 30000);
+      if (pruningInterval && typeof pruningInterval.unref === 'function') {
+        pruningInterval.unref();
+      }
+    } catch (_) {}
   }
 
   loadSnapshot() {
@@ -176,7 +190,50 @@ class AnalyticsService {
       .digest('hex');
   }
 
-  async recordVisit(req) {
+  registerLive(req, sessionId = null) {
+    const { clientIp, userAgent, isBot } = this.extractClientInfo(req);
+    if (isBot) return;
+
+    let key = '';
+    if (sessionId && typeof sessionId === 'string' && sessionId.trim().length > 0) {
+      const cleanId = sessionId.trim().slice(0, 64);
+      key = cleanId.startsWith('sess_') ? cleanId : `sess_${cleanId}`;
+    } else {
+      key = `ip_${this.generateHash(clientIp, userAgent)}`;
+    }
+
+    this.liveSessions.set(key, Date.now());
+  }
+
+  recordHeartbeat(req, sessionId = null) {
+    this.registerLive(req, sessionId);
+    return this.getStats();
+  }
+
+  recordLeave(req, sessionId = null) {
+    if (sessionId && typeof sessionId === 'string' && sessionId.trim().length > 0) {
+      const cleanId = sessionId.trim().slice(0, 64);
+      const key = cleanId.startsWith('sess_') ? cleanId : `sess_${cleanId}`;
+      this.liveSessions.delete(key);
+    }
+    const { clientIp, userAgent } = this.extractClientInfo(req);
+    this.liveSessions.delete(`ip_${this.generateHash(clientIp, userAgent)}`);
+    return this.getLiveCount();
+  }
+
+  getLiveCount() {
+    const now = Date.now();
+    for (const [key, timestamp] of this.liveSessions.entries()) {
+      if (now - timestamp > LIVE_WINDOW_MS) {
+        this.liveSessions.delete(key);
+      }
+    }
+    return this.liveSessions.size;
+  }
+
+  async recordVisit(req, sessionId = null) {
+    this.registerLive(req, sessionId);
+
     const { clientIp, userAgent, isBot } = this.extractClientInfo(req);
     if (isBot) {
       return this.getStats();
@@ -261,10 +318,12 @@ class AnalyticsService {
   }
 
   getStats() {
+    const live = this.getLiveCount();
     return {
       uniqueVisitors: this.uniqueVisitorsCount,
       peopleVisitedSoFar: this.uniqueVisitorsCount,
       totalVisits: this.totalVisits,
+      liveUsers: Math.max(1, live),
     };
   }
 }
