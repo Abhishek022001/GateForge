@@ -620,4 +620,55 @@ export class AIController {
       });
     }
   }
+
+  public static async getPracticeSession(req: Request, res: Response): Promise<void> {
+    const sessionId = req.params.sessionId;
+    const session = practiceSessionService.getSanitizedSession(sessionId);
+
+    if (!session) {
+      res.status(404).json({
+        success: false,
+        error: 'Practice session not found or has expired. Please generate a new practice set.',
+        code: 'SESSION_NOT_FOUND',
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: session,
+    });
+  }
+
+  public static async updatePracticeSessionProgress(req: Request, res: Response): Promise<void> {
+    const sessionId = req.params.sessionId;
+    const body = req.body || {};
+
+    try {
+      const updated = practiceSessionService.updateSessionProgress(sessionId, {
+        answers: body.answers,
+        currentIndex: body.currentIndex,
+      });
+
+      if (!updated) {
+        res.status(404).json({
+          success: false,
+          error: 'Session not found, expired, or already submitted.',
+          code: 'SESSION_NOT_FOUND',
+        });
+        return;
+      }
+
+      res.status(200).json({
+        success: true,
+        updated: true,
+      });
+    } catch (err: any) {
+      res.status(400).json({
+        success: false,
+        error: err.message || 'Failed to update progress.',
+        code: 'PROGRESS_UPDATE_FAILED',
+      });
+    }
+  }
 }

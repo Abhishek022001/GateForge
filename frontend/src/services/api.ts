@@ -278,6 +278,28 @@ class ApiService {
       }
     );
   }
+
+  async getPracticeSession(sessionId: string): Promise<any> {
+    return await this.request<any>(
+      `/api/ai/practice/session/${encodeURIComponent(sessionId)}`,
+      {
+        method: 'GET',
+      }
+    );
+  }
+
+  async updatePracticeSessionProgress(
+    sessionId: string,
+    progress: { answers?: Record<string, any>; currentIndex?: number }
+  ): Promise<any> {
+    return await this.request<any>(
+      `/api/ai/practice/session/${encodeURIComponent(sessionId)}/progress`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify(progress),
+      }
+    );
+  }
 }
 
 export const api = new ApiService();

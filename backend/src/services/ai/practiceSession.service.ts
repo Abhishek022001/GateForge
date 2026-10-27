@@ -86,6 +86,8 @@ export interface IMultiQuestionPracticeSession {
   createdAt: number;
   expiresAt: number;
   submitted: boolean;
+  answers?: Record<string, any>;
+  currentIndex?: number;
   submissionResult?: IMultiQuestionSessionSubmissionResult;
 }
 
@@ -232,6 +234,61 @@ export class PracticeSessionService {
   }
 
   /**
+   * Retrieves a sanitized multi-question session safe for client consumption.
+   * Excludes answer keys and explanations to enforce anti-leak integrity before submission.
+   */
+  public getSanitizedSession(sessionId: string): {
+    sessionId: string;
+    config: IMultiQuestionSessionConfig;
+    questions: ISanitizedPracticeQuestion[];
+    createdAt: number;
+    expiresAt: number;
+    submitted: boolean;
+    answers: Record<string, any>;
+    currentIndex: number;
+    submissionResult?: IMultiQuestionSessionSubmissionResult;
+  } | null {
+    const session = this.getMultiQuestionSession(sessionId);
+    if (!session) return null;
+
+    return {
+      sessionId: session.sessionId,
+      config: session.config,
+      questions: session.questions.map((q) => q.sanitizedQuestion),
+      createdAt: session.createdAt,
+      expiresAt: session.expiresAt,
+      submitted: session.submitted,
+      answers: session.answers || {},
+      currentIndex: typeof session.currentIndex === 'number' ? session.currentIndex : 0,
+      submissionResult: session.submissionResult,
+    };
+  }
+
+  /**
+   * Updates live progress (chosen answers and active question index) in the server-side session cache.
+   */
+  public updateSessionProgress(
+    sessionId: string,
+    progress: { answers?: Record<string, any>; currentIndex?: number }
+  ): boolean {
+    const session = this.getMultiQuestionSession(sessionId);
+    if (!session || session.submitted) {
+      return false;
+    }
+
+    if (progress.answers && typeof progress.answers === 'object') {
+      session.answers = { ...(session.answers || {}), ...progress.answers };
+    }
+    if (typeof progress.currentIndex === 'number' && progress.currentIndex >= 0) {
+      session.currentIndex = progress.currentIndex;
+    }
+
+    this.multiSessions.set(sessionId, session);
+    this.saveSessionToDisk(sessionId, session);
+    return true;
+  }
+
+  /**
    * Submits and evaluates a multi-question practice session (Checkpoint 4B).
    * Enforces server-side evaluation, session locking, and accurate counts for attempted/unanswered/correct/incorrect.
    */
@@ -336,6 +393,7 @@ export class PracticeSessionService {
       results,
     };
 
+    session.answers = { ...(session.answers || {}), ...(userAnswers || {}) };
     session.submitted = true;
     session.submissionResult = submissionResult;
     this.saveSessionToDisk(sessionId, session);

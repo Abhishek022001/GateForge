@@ -663,6 +663,79 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // GET /api/ai/practice/session/:sessionId - Retrieve active session & progress from server cache
+  const practiceSessionGetMatch = pathname.match(/^\/api\/ai\/practice\/session\/([^/]+)$/);
+  if (req.method === 'GET' && practiceSessionGetMatch) {
+    const sessionId = decodeURIComponent(practiceSessionGetMatch[1]);
+    const session = practiceSessionService.getSanitizedSession(sessionId);
+
+    if (!session) {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(
+        JSON.stringify({
+          success: false,
+          error: 'Practice session not found or has expired. Please generate a new practice set.',
+          code: 'SESSION_NOT_FOUND',
+        })
+      );
+      return;
+    }
+
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(
+      JSON.stringify({
+        success: true,
+        data: session,
+      })
+    );
+    return;
+  }
+
+  // PATCH /api/ai/practice/session/:sessionId/progress - Live progress caching sync
+  const practiceSessionProgressMatch = pathname.match(/^\/api\/ai\/practice\/session\/([^/]+)\/progress$/);
+  if (req.method === 'PATCH' && practiceSessionProgressMatch) {
+    const sessionId = decodeURIComponent(practiceSessionProgressMatch[1]);
+
+    try {
+      const body = await parseJsonBody(req, res);
+      const updated = practiceSessionService.updateSessionProgress(sessionId, {
+        answers: body?.answers,
+        currentIndex: body?.currentIndex,
+      });
+
+      if (!updated) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(
+          JSON.stringify({
+            success: false,
+            error: 'Session not found, expired, or already submitted.',
+            code: 'SESSION_NOT_FOUND',
+          })
+        );
+        return;
+      }
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(
+        JSON.stringify({
+          success: true,
+          updated: true,
+        })
+      );
+    } catch (err) {
+      if (res.headersSent) return;
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(
+        JSON.stringify({
+          success: false,
+          error: err.message || 'Failed to update progress.',
+          code: 'PROGRESS_UPDATE_FAILED',
+        })
+      );
+    }
+    return;
+  }
+
   // POST /api/ai/practice/session - Checkpoint 4B Multi-Question Session Generation (Controlled Concurrency & Anti-Leak)
   if (req.method === 'POST' && pathname === '/api/ai/practice/session') {
     if (!aiService.isConfigured()) {

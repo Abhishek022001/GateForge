@@ -80,11 +80,120 @@ export const AIPracticePage: React.FC<AIPracticePageProps> = () => {
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
 
+  // Server-Side Session Cache & Recovery State (Zero LocalStorage)
+  const [isRestoringSession, setIsRestoringSession] = useState<boolean>(false);
+  const [restorationMessage, setRestorationMessage] = useState<string | null>(null);
+  const progressSyncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Transparency State
   const [showTransparency, setShowTransparency] = useState<boolean>(false);
 
   // Loading animation timer
   const loadingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // URL Session Pointer Helpers (Zero Local Storage - Pointer Only in URL)
+  const getSessionIdFromUrl = (): string | null => {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      let id = urlParams.get('session');
+      if (!id && window.location.hash.includes('session=')) {
+        const hashPart = window.location.hash.split('?')[1] || '';
+        const hashParams = new URLSearchParams(hashPart);
+        id = hashParams.get('session');
+      }
+      return id ? id.trim() : null;
+    } catch (_) {
+      return null;
+    }
+  };
+
+  const updateUrlSessionId = (id: string | null) => {
+    try {
+      const newUrl = new URL(window.location.href);
+      if (id) {
+        newUrl.searchParams.set('session', id);
+      } else {
+        newUrl.searchParams.delete('session');
+      }
+      window.history.replaceState({}, '', newUrl.toString());
+    } catch (_) {}
+  };
+
+  // Restore Active Session from Server-Side Cache on Page Load / Refresh
+  useEffect(() => {
+    let isMounted = true;
+    const urlSessionId = getSessionIdFromUrl();
+    if (!urlSessionId) return;
+
+    const restoreSession = async () => {
+      setIsRestoringSession(true);
+      try {
+        const res = await api.getPracticeSession(urlSessionId);
+        if (isMounted && res.success && res.data) {
+          const sData = res.data;
+          setSessionId(sData.sessionId);
+          setQuestions(sData.questions || []);
+          if (sData.config) {
+            if (sData.config.subject) setSubject(sData.config.subject);
+            if (sData.config.topic) setTopic(sData.config.topic);
+            if (sData.config.difficulty) setDifficulty(sData.config.difficulty);
+            if (sData.config.questionType) setQuestionType(sData.config.questionType);
+            if (sData.config.questionCount) setQuestionCount(sData.config.questionCount);
+          }
+          setAnswers(sData.answers || {});
+          setCurrentIndex(typeof sData.currentIndex === 'number' ? sData.currentIndex : 0);
+          if (sData.submitted && sData.submissionResult) {
+            setSubmissionResult(sData.submissionResult);
+          }
+          setRestorationMessage('Active practice session restored from server cache.');
+          setTimeout(() => {
+            if (isMounted) setRestorationMessage(null);
+          }, 4000);
+        } else {
+          updateUrlSessionId(null);
+        }
+      } catch (err: any) {
+        if (isMounted) {
+          updateUrlSessionId(null);
+          setGenerationError('Previous session expired or was not found. You can configure and start a fresh session.');
+        }
+      } finally {
+        if (isMounted) {
+          setIsRestoringSession(false);
+        }
+      }
+    };
+
+    restoreSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Live Progress Caching Sync: Auto-sync answers and current index to Server Cache (350ms debounce)
+  useEffect(() => {
+    if (!sessionId || submissionResult || isSubmittingQuiz || isRestoringSession) return;
+
+    if (progressSyncTimeoutRef.current) {
+      clearTimeout(progressSyncTimeoutRef.current);
+    }
+
+    progressSyncTimeoutRef.current = setTimeout(() => {
+      api.updatePracticeSessionProgress(sessionId, {
+        answers,
+        currentIndex,
+      }).catch((err) => {
+        console.warn('Live progress cache sync notice:', err?.message);
+      });
+    }, 350);
+
+    return () => {
+      if (progressSyncTimeoutRef.current) {
+        clearTimeout(progressSyncTimeoutRef.current);
+      }
+    };
+  }, [sessionId, answers, currentIndex, submissionResult, isSubmittingQuiz, isRestoringSession]);
 
   // Load topics whenever selected subject changes
   useEffect(() => {
@@ -167,6 +276,7 @@ export const AIPracticePage: React.FC<AIPracticePageProps> = () => {
         setSessionId(response.sessionId);
         setQuestions(response.questions);
         setCurrentIndex(0);
+        updateUrlSessionId(response.sessionId);
       } else {
         setGenerationError(
           response.error || "We couldn't generate a complete reliable set. Try again or adjust your settings."
@@ -242,6 +352,7 @@ export const AIPracticePage: React.FC<AIPracticePageProps> = () => {
 
   // Reset to create another session
   const handleStartNewSession = () => {
+    updateUrlSessionId(null);
     setSessionId(null);
     setQuestions([]);
     setCurrentIndex(0);
@@ -276,10 +387,40 @@ export const AIPracticePage: React.FC<AIPracticePageProps> = () => {
         </div>
       </div>
 
+      {/* Restoring Session from Server Cache Indicator */}
+      {isRestoringSession && (
+        <div className="bg-slate-900/90 border border-violet-500/30 rounded-2xl p-8 mb-8 text-center shadow-xl backdrop-blur-sm animate-pulse">
+          <div className="w-12 h-12 mx-auto mb-3.5 rounded-xl bg-violet-600/20 border border-violet-500/40 flex items-center justify-center">
+            <RefreshCw className="w-6 h-6 text-violet-400 animate-spin" />
+          </div>
+          <h3 className="text-base font-semibold text-white mb-1">Restoring Practice Session...</h3>
+          <p className="text-xs text-slate-400 font-mono">
+            Retrieving active test questions and live progress from server cache
+          </p>
+        </div>
+      )}
+
+      {/* Restoration Success Notice */}
+      {restorationMessage && (
+        <div className="mb-6 p-3.5 bg-violet-950/60 border border-violet-700/50 rounded-xl flex items-center justify-between text-xs text-violet-200 shadow-md">
+          <div className="flex items-center space-x-2.5">
+            <CheckCircle2 className="w-4 h-4 text-violet-400 shrink-0" />
+            <span>{restorationMessage}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setRestorationMessage(null)}
+            className="text-violet-400 hover:text-white transition p-1 cursor-pointer"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* ------------------------------------------------------------- */}
       {/* 1. CONFIGURATION SCREEN (shown when no active session)         */}
       {/* ------------------------------------------------------------- */}
-      {!sessionId && !submissionResult && (
+      {!sessionId && !submissionResult && !isRestoringSession && (
         <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 mb-8 shadow-xl backdrop-blur-sm">
           <div className="flex items-center justify-between border-b border-slate-800/80 pb-4 mb-5">
             <div className="flex items-center space-x-2 text-xs font-mono font-semibold uppercase tracking-wider text-slate-300">
@@ -541,7 +682,11 @@ export const AIPracticePage: React.FC<AIPracticePageProps> = () => {
               </span>
             </div>
 
-            <div className="text-xs text-slate-400 font-mono">
+            <div className="flex items-center space-x-2 text-xs text-slate-400 font-mono">
+              <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono bg-emerald-950/60 text-emerald-300 border border-emerald-700/50" title="Your test progress is automatically cached and synchronized to the server">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Server Synced</span>
+              </span>
               <span className="px-2.5 py-1 rounded-lg bg-slate-800/60 border border-slate-700/60">
                 {currentQ.topic}
               </span>
