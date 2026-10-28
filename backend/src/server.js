@@ -386,18 +386,24 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  // Health Endpoint
-  if (req.method === 'GET' && pathname === '/api/health') {
+  // Health Endpoint (Keep-alive pings & uptime monitoring)
+  if ((req.method === 'GET' || req.method === 'HEAD') && (pathname === '/api/health' || pathname === '/health')) {
     res.writeHead(200, { 'Content-Type': 'application/json' });
+    if (req.method === 'HEAD') {
+      res.end();
+      return;
+    }
     res.end(
       JSON.stringify({
-        status: 'healthy',
+        status: 'OK',
+        message: 'Your API is running',
+        timestamp: new Date().toISOString(),
+        healthy: true,
         application: 'GATEForge Backend API',
         phase: '3B - AI Question Intelligence & Pattern Analysis',
         database: 'Clean Database Abstraction Layer (Active)',
         questionCount: db.count(),
         aiConfigured: aiService.isConfigured(),
-        timestamp: new Date().toISOString(),
       })
     );
     return;

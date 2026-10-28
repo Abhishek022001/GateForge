@@ -22,7 +22,7 @@ async function runPhase3ATests() {
     // 1. Health & AI Config Endpoints
     console.log('1. Testing System & AI Health Endpoints...');
     const health = await (await fetch(`${BASE_URL}/api/health`)).json();
-    assert(health.status === 'healthy', 'System health endpoint returns healthy', `Phase: ${health.phase}`);
+    assert(health.status === 'OK' || health.status === 'healthy', 'System health endpoint returns healthy', `Phase: ${health.phase}`);
 
     const aiHealth = await (await fetch(`${BASE_URL}/api/ai/health`)).json();
     assert(aiHealth.success === true, 'AI health endpoint returns success');

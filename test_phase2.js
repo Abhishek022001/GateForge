@@ -21,7 +21,7 @@ async function runPhase2Tests() {
     // 1. Health & Taxonomy Endpoints
     console.log('1. Verifying Health & Taxonomy Endpoints...');
     const health = await (await fetch(`${BASE_URL}/api/health`)).json();
-    assert(health.status === 'healthy' && Boolean(health.phase), 'Health endpoint returns system status', `Phase: ${health.phase}, DB: ${health.database}`);
+    assert((health.status === 'OK' || health.status === 'healthy') && Boolean(health.phase), 'Health endpoint returns system status', `Phase: ${health.phase}, DB: ${health.database}`);
 
     const taxonomy = await (await fetch(`${BASE_URL}/api/taxonomy`)).json();
     assert(taxonomy.success && taxonomy.data?.subjects?.length >= 10, 'Taxonomy endpoint returns GATE CS subjects', `Subjects count: ${taxonomy.data?.subjects?.length}`);

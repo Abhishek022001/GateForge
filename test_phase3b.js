@@ -33,7 +33,7 @@ async function runPhase3BTests() {
   // ----------------------------------------------------
   console.log('📋 GROUP 1: Server & AI Infrastructure Health');
   const healthRes = await (await fetch(`${API_BASE}/api/health`)).json();
-  assert(healthRes.status === 'healthy', 'Backend status is healthy');
+  assert(healthRes.status === 'OK' || healthRes.status === 'healthy', 'Backend status is healthy or OK');
   assert(healthRes.phase.includes('3B'), 'Phase is reported as Phase 3B');
   assert(healthRes.aiConfigured === true, 'AI is reported as configured');
 
