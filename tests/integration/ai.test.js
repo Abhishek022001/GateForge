@@ -20,7 +20,7 @@ describe('AI Infrastructure & Pattern Analytics', () => {
     const body = await res.json();
     assert.equal(body.success, true);
     assert.ok(body.data, 'AI health data should exist');
-    assert.ok(['ready', 'degraded', 'unconfigured'].includes(body.data.status));
+    assert.ok(['ready', 'not_configured', 'error'].includes(body.data.status));
     assert.ok(body.data.provider, 'Provider should be specified');
     assert.ok(body.data.model, 'Model should be specified');
 
