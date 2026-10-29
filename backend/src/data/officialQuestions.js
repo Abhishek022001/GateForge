@@ -1,5 +1,5 @@
 /**
- * Authentic Official GATE CS Previous-Year Questions (GATE 2024 CS)
+ * Authentic Official GATE CS Previous-Year Questions (GATE previous year questions)
  * Sourced directly from official GATE question papers.
  * Tagged strictly with source: { type: 'PYQ', provider: 'OFFICIAL_GATE' }.
  * Used for authoritative official-PYQ-grounded AI generation.

@@ -16,7 +16,7 @@ The end-to-end question generation, verification, and practice delivery pipeline
 
 ```mermaid
 flowchart TD
-    A["1. Official GATE PYQs (2024 CS Corpus)"] --> B["2. Ingestion & Schema Extraction"]
+    A["1. Official GATE PYQs (GATE previous year questions)"] --> B["2. Ingestion & Schema Extraction"]
     B --> C["3. Structured Question Bank (Indexed Storage)"]
     C --> D["4. AI Pedagogical Pattern Profiling (11 Dimensions)"]
     D --> E["5. Context Retrieval (Relevance Scoring)"]
@@ -42,7 +42,7 @@ flowchart TD
 
 ## 2. Key Features
 
-- **Grounded in Official GATE PYQs:** Practice questions are conditioned directly on real, enriched questions from the official GATE 2024 CS examination paper rather than unconstrained LLM generation.
+- **Grounded in Official GATE PYQs:** Practice questions are conditioned directly on real, enriched questions from official GATE previous year questions rather than unconstrained LLM generation.
 - **Dual-Stage Verification Engine:**
   - **Stage 1 (Structural):** Deterministic schema rules ensure exact option counts, valid keys (`A`–`D`), numerical tolerance intervals, and KaTeX-compatible LaTeX equations.
   - **Stage 2 (Semantic):** An independent verifier prompt re-solves the problem from scratch, checking mathematical proofs, conceptual correctness, syllabus boundaries, and answer consistency.

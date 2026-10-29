@@ -10,7 +10,7 @@
 
 ```mermaid
 flowchart TD
-    A["1. Official GATE PYQs (2024 CS)"] --> B["2. Extraction & Ingestion"]
+    A["1. Official GATE PYQs (GATE previous year questions)"] --> B["2. Extraction & Ingestion"]
     B --> C["3. Structured Question Bank"]
     C --> D["4. AI Pedagogical Pattern Analysis"]
     D --> E["5. Context Retrieval & Grounding"]
@@ -31,7 +31,7 @@ flowchart TD
 ```
 
 ### Stage 1: Official GATE PYQs
-- **Source Corpus:** Official GATE 2024 Computer Science (CS) examination papers and answer keys directly published by IISc/IITs.
+- **Source Corpus:** Official GATE previous year questions and answer keys directly published by IISc/IITs.
 - **Corpus Segregation:** Technical Computer Science disciplines are strictly partitioned from General Aptitude (GA) to preserve core technical depth and prevent distribution drift.
 
 ### Stage 2: Extraction & Ingestion
