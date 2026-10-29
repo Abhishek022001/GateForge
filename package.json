@@ -5,6 +5,8 @@
   "type": "module",
   "description": "GATEForge - AI-Powered GATE Preparation Platform (Unified Full-Stack)",
   "scripts": {
+    "test": "node --test tests/integration/*.test.js",
+    "test:coverage": "node --test --experimental-test-coverage tests/integration/*.test.js",
     "build:frontend": "npm --prefix frontend run build",
     "build:backend": "npm --prefix backend run build",
     "build": "npm run build:frontend && npm run build:backend",

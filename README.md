@@ -130,17 +130,17 @@ Open **`http://localhost:5173`** in your browser.
 
 ## 6. Verification & Test Suite
 
-GATEForge includes an automated regression test suite covering all architecture checkpoints:
+GATEForge includes an automated integration test suite covering API contracts, taxonomy, anti-cheat answer evaluation, rate limiting, and system health:
 
 ```bash
-# Run Checkpoint 5 hardening tests (Retry-After, Provider Quota, Official Grounding)
-node test_checkpoint5_hardening.js
+# Run complete automated integration test suite
+npm test
 
-# Run API & Rate Limiting tests
-node test_checkpoint5a.js
+# Run tests with test coverage summary
+npm run test:coverage
 
-# Run Multi-Question Session & Anti-Leakage tests
-node test_checkpoint4b.js
+# Run legacy checkpoint verification scripts
+node tests/legacy/test_checkpoint5_hardening.js
 ```
 
 ### Verified Test Suite Results

@@ -2146,3 +2146,7 @@ server.listen(PORT, async () => {
     await connectToDatabase();
   } catch (_) {}
 });
+
+export { server, db };
+export default server;
+

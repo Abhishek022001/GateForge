@@ -8,8 +8,8 @@ export async function connectToDatabase(uri) {
   }
 
   const mongoUri = uri || process.env.MONGODB_URI;
-  if (!mongoUri) {
-    console.info('[Database] MONGODB_URI not set; using clean high-performance repository.');
+  if (!mongoUri || (process.env.NODE_ENV === 'test' && !process.env.TEST_WITH_MONGO)) {
+    console.info('[Database] Test mode or MONGODB_URI not set; using clean high-performance in-memory repository.');
     return false;
   }
 

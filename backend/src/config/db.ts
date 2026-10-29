@@ -3,6 +3,10 @@ import mongoose from 'mongoose';
 let isConnected = false;
 
 export async function connectToDatabase(uri?: string): Promise<boolean> {
+  if (process.env.NODE_ENV === 'test' && !process.env.TEST_WITH_MONGO) {
+    return false;
+  }
+
   const mongoUri = uri || process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/gateforge';
 
   if (isConnected) {
