@@ -4,6 +4,7 @@ import { Navbar } from './components/Navbar';
 import { HomePage } from './pages/HomePage';
 import { PracticePage } from './pages/PracticePage';
 import { AIPracticePage } from './pages/AIPracticePage';
+import { AITutorPage } from './pages/AITutorPage';
 import { api } from './services/api';
 
 const clientSessionId =
@@ -12,22 +13,30 @@ const clientSessionId =
     : 'gf_' + Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
 
 export const App: React.FC = () => {
-  const getInitialView = (): 'home' | 'practice' | 'ai-practice' => {
+  const getInitialView = (): 'home' | 'practice' | 'ai-practice' | 'ai-tutor' => {
     const path = window.location.pathname;
+    if (path === '/ai-tutor') return 'ai-tutor';
     if (path === '/ai-practice') return 'ai-practice';
     if (path === '/practice') return 'practice';
     return 'home';
   };
 
-  const [currentView, setCurrentView] = useState<'home' | 'practice' | 'ai-practice'>(getInitialView);
+  const [currentView, setCurrentView] = useState<'home' | 'practice' | 'ai-practice' | 'ai-tutor'>(getInitialView);
   const [apiConnected, setApiConnected] = useState<boolean>(true);
   const [visitorCount, setVisitorCount] = useState<number | null>(null);
   const [liveUsers, setLiveUsers] = useState<number | null>(null);
 
   // Sync view navigation with browser history
-  const handleNavigate = (view: 'home' | 'practice' | 'ai-practice') => {
+  const handleNavigate = (view: 'home' | 'practice' | 'ai-practice' | 'ai-tutor') => {
     setCurrentView(view);
-    const targetPath = view === 'ai-practice' ? '/ai-practice' : view === 'practice' ? '/practice' : '/';
+    const targetPath =
+      view === 'ai-tutor'
+        ? '/ai-tutor'
+        : view === 'ai-practice'
+        ? '/ai-practice'
+        : view === 'practice'
+        ? '/practice'
+        : '/';
     if (window.location.pathname !== targetPath) {
       window.history.pushState({}, '', targetPath);
     }
@@ -36,7 +45,8 @@ export const App: React.FC = () => {
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
-      if (path === '/ai-practice') setCurrentView('ai-practice');
+      if (path === '/ai-tutor') setCurrentView('ai-tutor');
+      else if (path === '/ai-practice') setCurrentView('ai-practice');
       else if (path === '/practice') setCurrentView('practice');
       else setCurrentView('home');
     };
@@ -135,9 +145,12 @@ export const App: React.FC = () => {
           <HomePage
             onStartAIPractice={() => handleNavigate('ai-practice')}
             onExploreQuestionBank={() => handleNavigate('practice')}
+            onOpenAITutor={() => handleNavigate('ai-tutor')}
           />
         ) : currentView === 'practice' ? (
           <PracticePage onBackToHome={() => handleNavigate('home')} />
+        ) : currentView === 'ai-tutor' ? (
+          <AITutorPage onBackToHome={() => handleNavigate('home')} />
         ) : (
           <AIPracticePage onBackToHome={() => handleNavigate('home')} />
         )}

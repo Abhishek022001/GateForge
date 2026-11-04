@@ -12,7 +12,10 @@
     "build": "npm run build:frontend && npm run build:backend",
     "start": "node backend/dist/index.js",
     "dev:backend": "npm --prefix backend run dev",
-    "dev:frontend": "npm --prefix frontend run dev"
+    "dev:frontend": "npm --prefix frontend run dev",
+    "tutor": "ai_tutor\\venv\\Scripts\\python -m ai_tutor.main",
+    "tutor:ingest": "ai_tutor\\venv\\Scripts\\python -m ai_tutor.ingest",
+    "tutor:test": "ai_tutor\\venv\\Scripts\\python -m unittest discover -s ai_tutor -p test_*.py"
   },
   "engines": {
     "node": ">=20.0.0"

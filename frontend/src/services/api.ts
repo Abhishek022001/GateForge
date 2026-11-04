@@ -338,6 +338,68 @@ class ApiService {
       }
     );
   }
+
+  async askTutor(query: string, subject?: string, top_k = 3): Promise<IAskResponse> {
+    const payload: any = { query, top_k };
+    if (subject && subject !== 'All Subjects') {
+      payload.subject = subject;
+    }
+    const res = await fetch(`${this.getBaseUrl()}/api/tutor/ask`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || err.error || `AI Tutor request failed with HTTP ${res.status}`);
+    }
+    return await res.json();
+  }
+
+  async getTutorHealth(): Promise<ITutorHealth> {
+    const res = await fetch(`${this.getBaseUrl()}/api/tutor/health`);
+    if (!res.ok) throw new Error(`Tutor health check failed (${res.status})`);
+    return await res.json();
+  }
+
+  async getTutorSubjects(): Promise<string[]> {
+    try {
+      const res = await fetch(`${this.getBaseUrl()}/api/tutor/subjects`);
+      if (!res.ok) return [];
+      return await res.json();
+    } catch (_) {
+      return [];
+    }
+  }
+}
+
+export interface IRetrievedQuestionRef {
+  id: string;
+  question: string;
+  subject?: string;
+  topic?: string;
+  year?: number | string;
+  question_type?: string;
+  similarity_score: number;
+  correct_answer?: any;
+  explanation?: string;
+}
+
+export interface IAskResponse {
+  query: string;
+  answer: string;
+  is_grounded: boolean;
+  retrieved_references: IRetrievedQuestionRef[];
+  latency_ms: number;
+  model_used: string;
+}
+
+export interface ITutorHealth {
+  status: string;
+  questions_indexed: number;
+  chroma_status: string;
+  mongodb_connected: boolean;
+  llm_configured: boolean;
 }
 
 export const api = new ApiService();

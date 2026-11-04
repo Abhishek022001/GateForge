@@ -26,6 +26,13 @@ backend/src/data/sessions/
 backend/data/raw_user_qps/
 backend/data/gate_downloads/
 backend/data/analytics_snapshot.json
+# Python Virtual Environments & Chroma DB
+venv/
+*/venv/
+.venv/
+ai_tutor/venv/
+ai_tutor/chroma_db/
+*.sqlite3
 __pycache__/
 *.pyc
 *.tmp

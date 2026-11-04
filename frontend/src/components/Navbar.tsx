@@ -3,8 +3,8 @@ import { Cpu, Terminal, Compass, CheckCircle2, Sparkles, Users, Activity } from 
 import { api } from '../services/api';
 
 interface NavbarProps {
-  currentView: 'home' | 'practice' | 'ai-practice';
-  onNavigate: (view: 'home' | 'practice' | 'ai-practice') => void;
+  currentView: 'home' | 'practice' | 'ai-practice' | 'ai-tutor';
+  onNavigate: (view: 'home' | 'practice' | 'ai-practice' | 'ai-tutor') => void;
   apiConnected?: boolean;
   visitorCount?: number;
   liveUsersCount?: number;
@@ -147,6 +147,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <Sparkles className="w-3.5 h-3.5 text-violet-300" />
               <span>AI Practice</span>
+            </button>
+
+            <button
+              onClick={() => onNavigate('ai-tutor')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center space-x-1.5 ${
+                currentView === 'ai-tutor'
+                  ? 'bg-indigo-600 text-white shadow-sm font-bold'
+                  : 'text-slate-400 hover:text-indigo-300 hover:bg-slate-800/60'
+              }`}
+            >
+              <Cpu className="w-3.5 h-3.5 text-indigo-300" />
+              <span>AI Tutor</span>
             </button>
           </nav>
         </div>

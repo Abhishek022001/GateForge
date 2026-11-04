@@ -23,6 +23,7 @@ import { api } from '../services/api';
 interface HomePageProps {
   onStartAIPractice: () => void;
   onExploreQuestionBank: () => void;
+  onOpenAITutor?: () => void;
 }
 
 interface IStatsData {
@@ -39,6 +40,7 @@ interface IStatsData {
 export const HomePage: React.FC<HomePageProps> = ({
   onStartAIPractice,
   onExploreQuestionBank,
+  onOpenAITutor,
 }) => {
   const [stats, setStats] = useState<IStatsData | null>(null);
   const [isLoadingStats, setIsLoadingStats] = useState<boolean>(true);
@@ -210,6 +212,17 @@ export const HomePage: React.FC<HomePageProps> = ({
             <span>Start AI Practice</span>
             <ArrowRight className="w-5 h-5" />
           </button>
+
+          {onOpenAITutor && (
+            <button
+              type="button"
+              onClick={onOpenAITutor}
+              className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-7 py-4 rounded-xl text-base font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-xl shadow-indigo-500/25 transition-all transform hover:-translate-y-0.5 cursor-pointer"
+            >
+              <Cpu className="w-5 h-5" />
+              <span>RAG AI Tutor</span>
+            </button>
+          )}
 
           <button
             type="button"

@@ -338,6 +338,60 @@ function parseJsonBody(req, res = null, maxSizeBytes = MAX_BODY_SIZE_BYTES) {
   });
 }
 
+function proxyToTutorService(req, res, urlObj) {
+  const tutorHost = process.env.TUTOR_HOST || '127.0.0.1';
+  const tutorPort = parseInt(process.env.TUTOR_PORT || '8000', 10);
+  const targetHost = (tutorHost === '0.0.0.0') ? '127.0.0.1' : tutorHost;
+
+  const options = {
+    hostname: targetHost,
+    port: tutorPort,
+    path: urlObj.pathname + (urlObj.search || ''),
+    method: req.method,
+    headers: {
+      ...req.headers,
+      host: `${targetHost}:${tutorPort}`,
+    },
+    timeout: 35000,
+  };
+
+  const proxyReq = http.request(options, (proxyRes) => {
+    setCorsHeaders(res);
+    res.writeHead(proxyRes.statusCode, proxyRes.headers);
+    proxyRes.pipe(res);
+  });
+
+  proxyReq.on('error', (err) => {
+    if (res.headersSent) return;
+    setCorsHeaders(res);
+    res.writeHead(503, { 'Content-Type': 'application/json' });
+    res.end(
+      JSON.stringify({
+        success: false,
+        error: 'AI Tutor service is currently offline or unreachable. Please start the Python service on port 8000.',
+        code: 'TUTOR_SERVICE_OFFLINE',
+        detail: err.message,
+      })
+    );
+  });
+
+  proxyReq.on('timeout', () => {
+    proxyReq.destroy();
+    if (res.headersSent) return;
+    setCorsHeaders(res);
+    res.writeHead(504, { 'Content-Type': 'application/json' });
+    res.end(
+      JSON.stringify({
+        success: false,
+        error: 'AI Tutor service timed out waiting for response.',
+        code: 'TUTOR_GATEWAY_TIMEOUT',
+      })
+    );
+  });
+
+  req.pipe(proxyReq);
+}
+
 // HTTP Server Handler
 const server = http.createServer(async (req, res) => {
   setCorsHeaders(res);
@@ -365,6 +419,12 @@ const server = http.createServer(async (req, res) => {
   const urlObj = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = urlObj.pathname;
   console.log(`[API] ${req.method} ${pathname}`);
+
+  // Proxy /api/tutor/* requests to Python FastAPI Tutor Service
+  if (pathname.startsWith('/api/tutor/')) {
+    proxyToTutorService(req, res, urlObj);
+    return;
+  }
 
   // Static Figures Route
   if (req.method === 'GET' && (pathname.startsWith('/figures/') || pathname.startsWith('/static/figures/'))) {
