@@ -15,3 +15,20 @@ services:
         sync: false
       - key: MONGODB_URI
         sync: false
+      - key: TUTOR_SERVICE_URL
+        sync: false
+
+  - type: web
+    name: gateforge-tutor
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r ai_tutor/requirements.txt && python -m ai_tutor.ingest
+    startCommand: uvicorn ai_tutor.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.11.8

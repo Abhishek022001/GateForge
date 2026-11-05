@@ -1,4 +1,5 @@
 import http from 'node:http';
+import https from 'node:https';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -339,23 +340,50 @@ function parseJsonBody(req, res = null, maxSizeBytes = MAX_BODY_SIZE_BYTES) {
 }
 
 function proxyToTutorService(req, res, urlObj) {
-  const tutorHost = process.env.TUTOR_HOST || '127.0.0.1';
-  const tutorPort = parseInt(process.env.TUTOR_PORT || '8000', 10);
-  const targetHost = (tutorHost === '0.0.0.0') ? '127.0.0.1' : tutorHost;
+  let targetUrlStr = process.env.TUTOR_SERVICE_URL;
+  if (!targetUrlStr) {
+    const tutorHost = process.env.TUTOR_HOST || '127.0.0.1';
+    const tutorPort = parseInt(process.env.TUTOR_PORT || '8000', 10);
+    const targetHost = (tutorHost === '0.0.0.0') ? '127.0.0.1' : tutorHost;
+    targetUrlStr = `http://${targetHost}:${tutorPort}`;
+  }
 
-  const options = {
-    hostname: targetHost,
-    port: tutorPort,
-    path: urlObj.pathname + (urlObj.search || ''),
-    method: req.method,
-    headers: {
-      ...req.headers,
-      host: `${targetHost}:${tutorPort}`,
-    },
-    timeout: 35000,
+  let targetBase;
+  try {
+    targetBase = new URL(targetUrlStr);
+  } catch (err) {
+    if (res.headersSent) return;
+    setCorsHeaders(res);
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    return res.end(
+      JSON.stringify({
+        success: false,
+        error: `Invalid TUTOR_SERVICE_URL configured: ${targetUrlStr}`,
+        code: 'TUTOR_CONFIG_ERROR',
+      })
+    );
+  }
+
+  const isHttps = targetBase.protocol === 'https:';
+  const transport = isHttps ? https : http;
+  const targetPort = targetBase.port ? parseInt(targetBase.port, 10) : (isHttps ? 443 : 80);
+  const targetPath = urlObj.pathname + (urlObj.search || '');
+
+  const forwardedHeaders = {
+    ...req.headers,
+    host: targetBase.host,
   };
 
-  const proxyReq = http.request(options, (proxyRes) => {
+  const options = {
+    hostname: targetBase.hostname,
+    port: targetPort,
+    path: targetPath,
+    method: req.method,
+    headers: forwardedHeaders,
+    timeout: 45000,
+  };
+
+  const proxyReq = transport.request(options, (proxyRes) => {
     setCorsHeaders(res);
     res.writeHead(proxyRes.statusCode, proxyRes.headers);
     proxyRes.pipe(res);
@@ -368,7 +396,7 @@ function proxyToTutorService(req, res, urlObj) {
     res.end(
       JSON.stringify({
         success: false,
-        error: 'AI Tutor service is currently offline or unreachable. Please start the Python service on port 8000.',
+        error: 'AI Tutor service is currently offline or unreachable. Please ensure the Python service is running and accessible.',
         code: 'TUTOR_SERVICE_OFFLINE',
         detail: err.message,
       })
@@ -390,6 +418,51 @@ function proxyToTutorService(req, res, urlObj) {
   });
 
   req.pipe(proxyReq);
+}
+
+// Keep-Alive Heartbeat: Pings remote AI Tutor service every 10 minutes to prevent cloud free-tier spin-down
+function initTutorHeartbeat() {
+  const serviceUrlStr = process.env.TUTOR_SERVICE_URL;
+  if (!serviceUrlStr) return;
+
+  try {
+    const target = new URL(serviceUrlStr);
+    // Only ping if target is a remote cloud host (skip localhost / 127.0.0.1)
+    if (['localhost', '127.0.0.1', '0.0.0.0'].includes(target.hostname)) {
+      return;
+    }
+
+    const isHttps = target.protocol === 'https:';
+    const transport = isHttps ? https : http;
+    const pingPort = target.port ? parseInt(target.port, 10) : (isHttps ? 443 : 80);
+
+    const ping = () => {
+      try {
+        const pingReq = transport.request(
+          {
+            hostname: target.hostname,
+            port: pingPort,
+            path: '/api/tutor/health',
+            method: 'GET',
+            headers: { host: target.host },
+            timeout: 15000,
+          },
+          (res) => {
+            res.resume(); // Drain stream to prevent memory leak
+          }
+        );
+        pingReq.on('error', () => {}); // Silently ignore transient network blips
+        pingReq.on('timeout', () => pingReq.destroy());
+        pingReq.end();
+      } catch (_) {}
+    };
+
+    // Recurring ping every 10 minutes
+    setInterval(ping, 10 * 60 * 1000);
+    // Initial warm-up ping after 30 seconds
+    setTimeout(ping, 30 * 1000);
+    console.log(`[AI Tutor] Keep-alive heartbeat active for remote service: ${target.origin}`);
+  } catch (_) {}
 }
 
 // HTTP Server Handler
@@ -2205,6 +2278,7 @@ server.listen(PORT, async () => {
   try {
     await connectToDatabase();
   } catch (_) {}
+  initTutorHeartbeat();
 });
 
 export { server, db };
