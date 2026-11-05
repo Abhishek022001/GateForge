@@ -26,7 +26,7 @@ class TutorConfig(BaseModel):
     groq_api_key: str = os.getenv("GROQ_API_KEY", "")
     grok_api_key: str = os.getenv("GROK_API_KEY", "")
     ai_provider: str = os.getenv("AI_PROVIDER", "groq")
-    ai_model: str = os.getenv("AI_MODEL", "llama-3.3-70b-versatile")
+    ai_model: str = os.getenv("AI_MODEL", "openai/gpt-oss-120b")
     ai_endpoint: str = os.getenv(
         "AI_ENDPOINT",
         "https://api.groq.com/openai/v1/chat/completions"

@@ -26,9 +26,10 @@ def normalize_latex_delimiters(text: str) -> str:
     return text.strip()
 
 FALLBACK_MODELS = [
-    config.ai_model,
+    "openai/gpt-oss-120b",
+    "openai/gpt-oss-20b",
+    "qwen/qwen3.8-27b",
     "llama-3.3-70b-versatile",
-    "llama-3.1-8b-instant",
 ]
 
 class RAGService:
