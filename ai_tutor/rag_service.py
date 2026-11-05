@@ -46,6 +46,10 @@ class RAGService:
             self._model = get_embedding_model()
         return self._model
 
+    @property
+    def model(self) -> SentenceTransformer:
+        return self.embedding_model
+
     def retrieve(
         self,
         query: str,

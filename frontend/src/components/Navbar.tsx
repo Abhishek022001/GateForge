@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Cpu, Terminal, Compass, CheckCircle2, Sparkles, Users, Activity } from 'lucide-react';
+import { Cpu, Terminal, Compass, Zap, Brain, Activity } from 'lucide-react';
 import { api } from '../services/api';
 
 interface NavbarProps {
@@ -36,7 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
   }, [initialLiveUsersCount]);
   return (
-    <header className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80">
+    <header className="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Logo and Brand */}
         <div
@@ -61,64 +61,30 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Navigation & Visitor Component */}
+        {/* Navigation & Presence */}
         <div className="flex items-center space-x-2 sm:space-x-3">
-          {/* Live Users Highlight Badge */}
+          {/* Live Active Presence Badge */}
           <div
-            className="flex items-center space-x-1.5 sm:space-x-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-slate-900/90 border border-emerald-500/40 shadow-sm shadow-emerald-500/10 text-xs font-mono transition-all hover:border-emerald-500/60"
+            className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs font-mono shadow-sm transition-all hover:bg-emerald-500/15"
             title="Current active live users on GateForge"
           >
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
             </span>
-            <Activity className="w-3.5 h-3.5 text-emerald-400 hidden xs:inline" />
-            <span className="text-slate-300 font-sans text-xs hidden sm:inline">
-              Live:
+            <span className="font-bold text-emerald-400 font-mono tracking-tight text-xs">
+              {liveUsersCount !== null && liveUsersCount !== undefined ? Math.max(1, liveUsersCount) : 1}
             </span>
-            <span className="text-slate-300 font-sans text-xs sm:hidden">
-              Live:
-            </span>
-            <span className="font-extrabold text-emerald-400 font-mono tracking-tight text-xs sm:text-sm">
-              {liveUsersCount !== null && liveUsersCount !== undefined ? (
-                Math.max(1, liveUsersCount).toLocaleString()
-              ) : (
-                <span className="animate-pulse">--</span>
-              )}
-            </span>
+            <span className="text-slate-400 font-sans text-[11px] hidden sm:inline">online</span>
           </div>
 
-          {/* People Visited So Far Highlight Badge */}
-          <div
-            className="flex items-center space-x-1.5 sm:space-x-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-slate-900/90 border border-slate-700/70 shadow-sm text-xs font-mono transition-all hover:border-slate-600"
-            title="Total number of people visited this website so far"
-          >
-            <Users className="w-3.5 h-3.5 text-slate-400 hidden xs:inline" />
-            <span className="text-slate-300 font-sans text-xs hidden lg:inline">
-              People visited so far:
-            </span>
-            <span className="text-slate-300 font-sans text-xs hidden sm:inline lg:hidden">
-              Visited:
-            </span>
-            <span className="text-slate-300 font-sans text-xs sm:hidden">
-              Visited:
-            </span>
-            <span className="font-extrabold text-slate-200 font-mono tracking-tight text-xs sm:text-sm">
-              {visitorCount !== null && visitorCount !== undefined ? (
-                Math.max(1, visitorCount).toLocaleString()
-              ) : (
-                <span className="animate-pulse">--</span>
-              )}
-            </span>
-          </div>
-
-          <nav className="flex items-center space-x-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
+          <nav className="flex items-center space-x-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800/90">
             <button
               onClick={() => onNavigate('home')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center space-x-1.5 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer flex items-center space-x-1.5 ${
                 currentView === 'home'
-                  ? 'bg-brand-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  ? 'bg-slate-800 text-white shadow-sm border border-slate-700/80 font-semibold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
               }`}
             >
               <Compass className="w-3.5 h-3.5" />
@@ -127,10 +93,10 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={() => onNavigate('practice')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center space-x-1.5 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer flex items-center space-x-1.5 ${
                 currentView === 'practice'
-                  ? 'bg-brand-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  ? 'bg-slate-800 text-white shadow-sm border border-slate-700/80 font-semibold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
               }`}
             >
               <Terminal className="w-3.5 h-3.5" />
@@ -139,25 +105,25 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={() => onNavigate('ai-practice')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center space-x-1.5 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer flex items-center space-x-1.5 ${
                 currentView === 'ai-practice'
-                  ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  ? 'bg-indigo-600/30 text-indigo-200 shadow-sm border border-indigo-500/40 font-semibold'
+                  : 'text-slate-400 hover:text-indigo-300 hover:bg-slate-800/50'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-violet-300" />
+              <Zap className="w-3.5 h-3.5 text-indigo-400" />
               <span>AI Practice</span>
             </button>
 
             <button
               onClick={() => onNavigate('ai-tutor')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center space-x-1.5 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer flex items-center space-x-1.5 ${
                 currentView === 'ai-tutor'
-                  ? 'bg-indigo-600 text-white shadow-sm font-bold'
-                  : 'text-slate-400 hover:text-indigo-300 hover:bg-slate-800/60'
+                  ? 'bg-violet-600/30 text-violet-200 shadow-sm border border-violet-500/40 font-semibold'
+                  : 'text-slate-400 hover:text-violet-300 hover:bg-slate-800/50'
               }`}
             >
-              <Cpu className="w-3.5 h-3.5 text-indigo-300" />
+              <Brain className="w-3.5 h-3.5 text-violet-400" />
               <span>AI Tutor</span>
             </button>
           </nav>

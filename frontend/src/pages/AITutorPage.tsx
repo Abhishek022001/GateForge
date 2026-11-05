@@ -1,19 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Sparkles,
+  Brain,
+  User,
   Send,
   BookOpen,
   CheckCircle2,
   AlertCircle,
-  HelpCircle,
-  Cpu,
+  AlertTriangle,
+  RotateCcw,
   RefreshCw,
-  ExternalLink,
-  ChevronDown,
-  ChevronUp,
-  BrainCircuit,
+  Cpu,
   Database,
   Search,
+  ChevronDown,
+  ChevronUp,
+  Network,
 } from 'lucide-react';
 import { api, IAskResponse, IRetrievedQuestionRef, ITutorHealth } from '../services/api';
 
@@ -29,14 +30,15 @@ interface ChatMessage {
   latencyMs?: number;
   modelUsed?: string;
   error?: boolean;
+  queryToRetry?: string;
 }
 
 const SUGGESTIONS = [
-  'What is the minimum number of nodes in an AVL tree of height h?',
-  'Explain pipeline data hazards and operand forwarding in COA.',
-  'What is the time complexity of Dijkstra algorithm using a Min-Heap?',
-  'Explain Belady anomaly in FIFO page replacement with an example.',
-  'Difference between LL(1) and LR(0) parsers in Compiler Design.',
+  { topic: 'Algorithms', q: 'What is the minimum number of nodes in an AVL tree of height h?' },
+  { topic: 'COA', q: 'Explain pipeline data hazards and operand forwarding in COA.' },
+  { topic: 'Data Structures', q: 'What is the time complexity of Dijkstra algorithm using a Min-Heap?' },
+  { topic: 'Operating Systems', q: 'Explain Belady anomaly in FIFO page replacement with an example.' },
+  { topic: 'Compiler Design', q: 'Difference between LL(1) and LR(0) parsers in Compiler Design.' },
 ];
 
 export const AITutorPage: React.FC<{ onBackToHome?: () => void }> = ({ onBackToHome }) => {
@@ -118,6 +120,12 @@ export const AITutorPage: React.FC<{ onBackToHome?: () => void }> = ({ onBackToH
           ? err.message
           : typeof err?.error === 'string'
           ? err.error
+          : typeof err?.error?.message === 'string'
+          ? err.error.message
+          : typeof err?.detail === 'string'
+          ? err.detail
+          : (err && typeof err === 'object')
+          ? JSON.stringify(err)
           : 'Failed to retrieve answer from AI Tutor. Please wait a moment and try again.';
       const errorMsg: ChatMessage = {
         id: 'err-' + Date.now(),
@@ -125,6 +133,7 @@ export const AITutorPage: React.FC<{ onBackToHome?: () => void }> = ({ onBackToH
         text: errorText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         error: true,
+        queryToRetry: q,
       };
       setMessages((prev) => [...prev, errorMsg]);
     } finally {
@@ -501,7 +510,7 @@ export const AITutorPage: React.FC<{ onBackToHome?: () => void }> = ({ onBackToH
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
-              <BrainCircuit className="w-5 h-5 text-white" />
+              <Brain className="w-5 h-5 text-white" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
@@ -548,13 +557,13 @@ export const AITutorPage: React.FC<{ onBackToHome?: () => void }> = ({ onBackToH
         {messages.length === 0 ? (
           /* Empty State / Welcome & Starter Queries */
           <div className="my-auto py-8 text-center max-w-2xl mx-auto flex flex-col items-center">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-violet-500/20 to-indigo-500/20 border border-violet-500/30 flex items-center justify-center mb-4 text-violet-400">
-              <Sparkles className="w-7 h-7" />
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-violet-500/20 to-indigo-500/20 border border-violet-500/30 flex items-center justify-center mb-4 text-violet-400 shadow-lg shadow-violet-500/10">
+              <Brain className="w-7 h-7" />
             </div>
-            <h2 className="text-xl font-bold text-white mb-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-2 tracking-tight">
               Ask Any GATE CS Technical Question
             </h2>
-            <p className="text-sm text-slate-400 mb-6 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-400 mb-6 leading-relaxed max-w-xl">
               Our AI Tutor searches the authentic GATE question bank using vector embeddings, retrieves the top 3
               most relevant exam questions, and grounds the explanation strictly in verified reference solutions.
             </p>
@@ -563,15 +572,20 @@ export const AITutorPage: React.FC<{ onBackToHome?: () => void }> = ({ onBackToH
               <span className="text-xs font-mono uppercase text-slate-500 font-semibold mb-3 block text-center">
                 Recommended Study Inquiries:
               </span>
-              <div className="grid grid-cols-1 gap-2">
-                {SUGGESTIONS.map((s, idx) => (
+              <div className="grid grid-cols-1 gap-2.5">
+                {SUGGESTIONS.map((item, idx) => (
                   <button
                     key={idx}
-                    onClick={() => handleSend(s)}
-                    className="p-3 text-left rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-violet-500/40 hover:bg-slate-900 transition flex items-center justify-between text-xs text-slate-300 group"
+                    onClick={() => handleSend(item.q)}
+                    className="p-3.5 text-left rounded-xl bg-slate-900/70 border border-slate-800/90 hover:border-violet-500/50 hover:bg-slate-900 transition flex items-center justify-between text-xs text-slate-300 group shadow-sm cursor-pointer"
                   >
-                    <span>{s}</span>
-                    <Send className="w-3.5 h-3.5 text-slate-500 group-hover:text-violet-400 transition-transform group-hover:translate-x-0.5" />
+                    <div className="flex items-center gap-2.5 flex-1 min-w-0 pr-2">
+                      <span className="px-2 py-0.5 rounded bg-violet-500/15 text-violet-300 border border-violet-500/30 text-[10px] font-mono font-medium flex-shrink-0">
+                        {item.topic}
+                      </span>
+                      <span className="truncate group-hover:text-white transition-colors">{item.q}</span>
+                    </div>
+                    <Send className="w-3.5 h-3.5 text-slate-500 group-hover:text-violet-400 transition-transform group-hover:translate-x-0.5 flex-shrink-0" />
                   </button>
                 ))}
               </div>
@@ -588,15 +602,15 @@ export const AITutorPage: React.FC<{ onBackToHome?: () => void }> = ({ onBackToH
                 }`}
               >
                 {msg.sender === 'tutor' && (
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center flex-shrink-0 mt-1 shadow-md shadow-violet-500/10">
-                    <Sparkles className="w-4 h-4 text-white" />
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center flex-shrink-0 mt-1 shadow-md shadow-violet-500/20 text-white">
+                    <Brain className="w-4 h-4" />
                   </div>
                 )}
 
                 <div
                   className={`max-w-3xl rounded-2xl p-4 sm:p-5 ${
                     msg.sender === 'user'
-                      ? 'bg-brand-600 text-white rounded-br-sm'
+                      ? 'bg-gradient-to-r from-brand-600 to-blue-600 text-white rounded-tr-sm shadow-md shadow-brand-500/10'
                       : 'bg-slate-900/90 border border-slate-800 text-slate-100 rounded-tl-sm shadow-lg'
                   }`}
                 >
@@ -625,9 +639,25 @@ export const AITutorPage: React.FC<{ onBackToHome?: () => void }> = ({ onBackToH
 
                   {/* Message Body */}
                   {msg.error ? (
-                    <div className="flex items-center gap-2 text-rose-400 text-sm">
-                      <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                      <span>{msg.text}</span>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-2.5 text-rose-300 text-xs sm:text-sm bg-rose-950/40 border border-rose-500/30 rounded-xl p-3.5 leading-relaxed">
+                        <AlertTriangle className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <span className="font-semibold text-rose-200 block mb-0.5">Tutor Service Notice</span>
+                          <span className="break-words">{typeof msg.text === 'string' ? msg.text : JSON.stringify(msg.text)}</span>
+                        </div>
+                      </div>
+                      {msg.queryToRetry && (
+                        <button
+                          type="button"
+                          onClick={() => handleSend(msg.queryToRetry)}
+                          disabled={isLoading}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-mono font-medium text-slate-200 transition-colors cursor-pointer"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span>Retry Question</span>
+                        </button>
+                      )}
                     </div>
                   ) : (
                     renderFormattedText(msg.text)
@@ -709,14 +739,16 @@ export const AITutorPage: React.FC<{ onBackToHome?: () => void }> = ({ onBackToH
                     </div>
                   )}
 
-                  <div className="mt-2 text-[10px] text-right text-slate-500 font-mono">
-                    {msg.timestamp}
+                  <div className="mt-2 text-[10px] text-right font-mono">
+                    <span className={msg.sender === 'user' ? 'text-blue-100/75' : 'text-slate-500'}>
+                      {msg.timestamp}
+                    </span>
                   </div>
                 </div>
 
                 {msg.sender === 'user' && (
-                  <div className="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center flex-shrink-0 mt-1 shadow-md shadow-brand-500/10 text-white font-mono font-bold text-xs">
-                    U
+                  <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700/80 flex items-center justify-center flex-shrink-0 mt-1 text-slate-300 shadow-sm">
+                    <User className="w-4 h-4" />
                   </div>
                 )}
               </div>
@@ -725,10 +757,10 @@ export const AITutorPage: React.FC<{ onBackToHome?: () => void }> = ({ onBackToH
             {/* Loading Indicator */}
             {isLoading && (
               <div className="flex gap-3 justify-start">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center flex-shrink-0 mt-1 animate-pulse">
-                  <Sparkles className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center flex-shrink-0 mt-1 animate-pulse text-white">
+                  <Brain className="w-4 h-4" />
                 </div>
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-sm p-4 text-xs font-mono text-slate-400 flex items-center gap-3">
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-sm p-4 text-xs font-mono text-slate-400 flex items-center gap-3 shadow-md">
                   <RefreshCw className="w-4 h-4 animate-spin text-violet-400" />
                   <span>Searching ChromaDB vector store & synthesizing grounded explanation...</span>
                 </div>

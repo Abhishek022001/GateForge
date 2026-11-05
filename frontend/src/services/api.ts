@@ -375,6 +375,8 @@ class ApiService {
             if (errData.detail && typeof errData.detail === 'string' && !msg.includes(errData.detail)) {
               msg += ` (${errData.detail})`;
             }
+          } else if (typeof errData?.error?.message === 'string') {
+            msg = errData.error.message;
           } else if (typeof errData.message === 'string') {
             msg = errData.message;
           } else if (typeof errData.detail === 'string') {

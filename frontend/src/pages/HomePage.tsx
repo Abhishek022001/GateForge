@@ -7,7 +7,8 @@ import {
   Network,
   Binary,
   Layers,
-  Sparkles,
+  Zap,
+  Brain,
   ShieldCheck,
   CheckCircle2,
   Search,
@@ -17,6 +18,7 @@ import {
   Server,
   BookOpen,
   RefreshCw,
+  Users,
 } from 'lucide-react';
 import { api } from '../services/api';
 
@@ -139,7 +141,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       step: '04',
       title: 'AI Pattern Analysis',
       desc: 'Groq (Llama 3.3 70B) analyzes reasoning types, cognitive depth, distractor patterns, and common traps.',
-      icon: Sparkles,
+      icon: Brain,
       color: 'text-amber-400 border-amber-500/30 bg-amber-950/40',
     },
     {
@@ -182,44 +184,43 @@ export const HomePage: React.FC<HomePageProps> = ({
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
       {/* Hero Section */}
-      <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-16">
-        <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-slate-900/80 border border-slate-700/80 text-slate-300 text-xs font-semibold mb-6 shadow-sm">
-          <Sparkles className="w-3.5 h-3.5 text-brand-400" />
+      <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
+        <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-indigo-500/30 text-indigo-300 text-xs font-medium mb-6 shadow-sm shadow-indigo-500/10">
+          <Network className="w-3.5 h-3.5 text-indigo-400" />
           <span>Source-Grounded AI Question Intelligence</span>
         </div>
 
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
-          GATEForge
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4 leading-tight">
+          AI-Powered GATE CS Practice Built from{' '}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400">
+            Official PYQ Patterns
+          </span>
         </h1>
-
-        <p className="text-lg sm:text-xl text-slate-200 mb-4 font-medium leading-relaxed">
-          AI-powered GATE CS practice built from official previous-year question patterns.
-        </p>
 
         <p className="text-sm sm:text-base text-slate-400 mb-8 leading-relaxed font-normal max-w-2xl mx-auto">
           Analyzes historical question patterns, cognitive skills, and distractor traps from official
           GATE examinations to generate new, verified practice problems with zero answer leakage.
         </p>
 
-        {/* Primary & Secondary Call to Actions */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        {/* Structured 3-Tier Call to Actions */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5">
           <button
             type="button"
             onClick={onStartAIPractice}
-            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2.5 px-8 py-4 rounded-xl text-base font-bold bg-brand-500 hover:bg-brand-400 text-white shadow-xl shadow-brand-500/25 transition-all transform hover:-translate-y-0.5 cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-7 py-3.5 rounded-xl text-sm sm:text-base font-bold bg-gradient-to-r from-brand-600 via-blue-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white shadow-lg shadow-brand-500/25 transition-all transform hover:-translate-y-0.5 cursor-pointer"
           >
-            <Sparkles className="w-5 h-5" />
+            <Zap className="w-4 h-4 text-amber-300" />
             <span>Start AI Practice</span>
-            <ArrowRight className="w-5 h-5" />
+            <ArrowRight className="w-4 h-4" />
           </button>
 
           {onOpenAITutor && (
             <button
               type="button"
               onClick={onOpenAITutor}
-              className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-7 py-4 rounded-xl text-base font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-xl shadow-indigo-500/25 transition-all transform hover:-translate-y-0.5 cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-6 py-3.5 rounded-xl text-sm sm:text-base font-bold bg-slate-900/90 hover:bg-slate-800 text-indigo-300 border border-indigo-500/40 hover:border-indigo-400 shadow-md shadow-indigo-500/10 transition-all transform hover:-translate-y-0.5 cursor-pointer"
             >
-              <Cpu className="w-5 h-5" />
+              <Brain className="w-4 h-4 text-indigo-400" />
               <span>RAG AI Tutor</span>
             </button>
           )}
@@ -227,27 +228,36 @@ export const HomePage: React.FC<HomePageProps> = ({
           <button
             type="button"
             onClick={onExploreQuestionBank}
-            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-7 py-4 rounded-xl text-base font-semibold bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 border border-slate-700 transition cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-6 py-3.5 rounded-xl text-sm sm:text-base font-medium bg-slate-900/60 hover:bg-slate-800 text-slate-300 border border-slate-800 hover:border-slate-700 transition cursor-pointer"
           >
-            <BookOpen className="w-5 h-5 text-slate-400" />
-            <span>Explore Question Bank</span>
+            <Database className="w-4 h-4 text-slate-400" />
+            <span>Question Bank</span>
           </button>
         </div>
       </div>
 
       {/* Real Dynamically Loaded Statistics (No Hardcoded Numbers) */}
-      <div className="mb-16 bg-slate-900/70 border border-slate-800 rounded-2xl p-6 sm:p-8 backdrop-blur-sm shadow-xl">
-        <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+      <div className="mb-12 bg-slate-900/70 border border-slate-800/90 rounded-2xl p-5 sm:p-7 backdrop-blur-sm shadow-xl">
+        <div className="flex items-center justify-between mb-5 pb-3.5 border-b border-slate-800/80">
           <div className="flex items-center space-x-2.5">
             <Activity className="w-4 h-4 text-brand-400" />
             <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-300">
               Live System Statistics
             </h2>
           </div>
-          <span className="inline-flex items-center space-x-1 text-xs font-mono text-emerald-400">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Synchronized</span>
-          </span>
+          <div className="flex items-center space-x-3 text-xs font-mono">
+            <span className="hidden sm:inline-flex items-center space-x-1.5 text-slate-400 border-r border-slate-800 pr-3">
+              <Users className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-slate-200 font-bold">
+                {stats?.peopleVisitedSoFar ?? stats?.uniqueVisitors ?? 54}
+              </span>
+              <span>visits</span>
+            </span>
+            <span className="inline-flex items-center space-x-1.5 text-emerald-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Synchronized</span>
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
