@@ -23,8 +23,8 @@ services:
     runtime: python
     plan: free
     region: oregon
-    buildCommand: pip install -r ai_tutor/requirements.txt && python -m ai_tutor.ingest
-    startCommand: uvicorn ai_tutor.main:app --host 0.0.0.0 --port $PORT
+    buildCommand: pip install -r ai_tutor/requirements.txt
+    startCommand: python -m ai_tutor.main
     envVars:
       - key: GROQ_API_KEY
         sync: false

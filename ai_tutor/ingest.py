@@ -19,6 +19,11 @@ def get_embedding_model() -> SentenceTransformer:
     global _embedding_model
     if _embedding_model is None:
         logger.info(f"Loading SentenceTransformer model '{config.embedding_model_name}'...")
+        try:
+            import torch
+            torch.set_num_threads(1)
+        except Exception:
+            pass
         _embedding_model = SentenceTransformer(config.embedding_model_name)
     return _embedding_model
 

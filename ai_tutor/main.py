@@ -35,8 +35,11 @@ async def lifespan(app: FastAPI):
         if count == 0:
             logger.info("Collection is empty. Running initial ingestion...")
             ingest_questions()
+        # Pre-warm SentenceTransformer in RAM so first query does not hit cold-load lag
+        get_embedding_model()
+        logger.info("SentenceTransformer model pre-warmed successfully.")
     except Exception as e:
-        logger.error(f"Error initializing ChromaDB on startup: {e}")
+        logger.error(f"Error initializing ChromaDB / model on startup: {e}")
     yield
     logger.info("Shutting down GateForge AI Tutor Service.")
 

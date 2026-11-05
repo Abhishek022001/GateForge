@@ -26,13 +26,13 @@ backend/src/data/sessions/
 backend/data/raw_user_qps/
 backend/data/gate_downloads/
 backend/data/analytics_snapshot.json
-# Python Virtual Environments & Chroma DB
+# Python Virtual Environments
 venv/
 */venv/
 .venv/
 ai_tutor/venv/
-ai_tutor/chroma_db/
-*.sqlite3
+!ai_tutor/chroma_db/
+!ai_tutor/chroma_db/**
 __pycache__/
 *.pyc
 *.tmp
@@ -46,6 +46,7 @@ lerna-debug.log*
 *.log
 **/*.log
 
+frontend/vite.config.mjs
 # Editor and OS files
 .DS_Store
 Thumbs.db

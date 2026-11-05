@@ -61,8 +61,13 @@ class RAGService:
             logger.warning("ChromaDB collection is empty. Ingest questions first.")
             return []
 
-        # Generate query embedding
-        query_emb = self.embedding_model.encode([query], show_progress_bar=False)[0].tolist()
+        # Generate query embedding with inference_mode for low RAM and high speed
+        try:
+            import torch
+            with torch.inference_mode():
+                query_emb = self.embedding_model.encode([query], show_progress_bar=False)[0].tolist()
+        except Exception:
+            query_emb = self.embedding_model.encode([query], show_progress_bar=False)[0].tolist()
 
         # Build filter if subject is provided
         where_filter = None

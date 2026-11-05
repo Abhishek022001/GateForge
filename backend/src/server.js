@@ -385,6 +385,16 @@ function proxyToTutorService(req, res, urlObj) {
 
   const proxyReq = transport.request(options, (proxyRes) => {
     setCorsHeaders(res);
+    if (proxyRes.statusCode === 502 || proxyRes.statusCode === 503) {
+      res.writeHead(503, { 'Content-Type': 'application/json' });
+      return res.end(
+        JSON.stringify({
+          success: false,
+          error: 'The AI Tutor cloud service is currently waking up or initializing on Render. Please wait 15-30 seconds and try your question again.',
+          code: 'TUTOR_SERVICE_WARMING_UP',
+        })
+      );
+    }
     res.writeHead(proxyRes.statusCode, proxyRes.headers);
     proxyRes.pipe(res);
   });

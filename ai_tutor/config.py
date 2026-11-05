@@ -47,7 +47,7 @@ class TutorConfig(BaseModel):
 
     # Server Configuration
     host: str = os.getenv("TUTOR_HOST", "0.0.0.0")
-    port: int = int(os.getenv("TUTOR_PORT", "8000"))
+    port: int = int(os.getenv("PORT", os.getenv("TUTOR_PORT", "8000")))
 
     @property
     def active_api_key(self) -> str:

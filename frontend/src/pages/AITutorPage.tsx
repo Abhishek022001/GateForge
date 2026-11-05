@@ -111,12 +111,18 @@ export const AITutorPage: React.FC<{ onBackToHome?: () => void }> = ({ onBackToH
 
       setMessages((prev) => [...prev, tutorMsg]);
     } catch (err: any) {
+      const errorText =
+        typeof err === 'string'
+          ? err
+          : typeof err?.message === 'string'
+          ? err.message
+          : typeof err?.error === 'string'
+          ? err.error
+          : 'Failed to retrieve answer from AI Tutor. Please wait a moment and try again.';
       const errorMsg: ChatMessage = {
         id: 'err-' + Date.now(),
         sender: 'tutor',
-        text:
-          err.message ||
-          'Failed to retrieve answer from AI Tutor. Please ensure the Python FastAPI service is running.',
+        text: errorText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         error: true,
       };

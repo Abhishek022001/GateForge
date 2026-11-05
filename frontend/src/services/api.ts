@@ -350,8 +350,21 @@ class ApiService {
       body: JSON.stringify(payload),
     });
     if (!res.ok) {
+      if (res.status === 502 || res.status === 503 || res.status === 504) {
+        throw new Error('The AI Tutor cloud service is currently waking up or busy on Render. Please wait 15–20 seconds and ask again.');
+      }
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.detail || err.error || `AI Tutor request failed with HTTP ${res.status}`);
+      let msg = 'AI Tutor request failed';
+      if (typeof err.error === 'string') msg = err.error;
+      else if (typeof err.message === 'string') msg = err.message;
+      else if (typeof err.detail === 'string') msg = err.detail;
+      else if (Array.isArray(err.detail) && err.detail.length > 0) {
+        const item = err.detail[0];
+        msg = typeof item === 'string' ? item : (item.msg || JSON.stringify(item));
+      } else {
+        msg = `AI Tutor request failed with HTTP ${res.status}`;
+      }
+      throw new Error(msg);
     }
     return await res.json();
   }

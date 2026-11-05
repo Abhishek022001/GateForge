@@ -5107,8 +5107,21 @@
           });
 
           if (!res.ok) {
+            if (res.status === 502 || res.status === 503 || res.status === 504) {
+              throw new Error('The AI Tutor cloud service is currently waking up or busy on Render. Please wait 15–20 seconds and ask again.');
+            }
             const errData = await res.json().catch(() => ({}));
-            throw new Error(errData.detail || errData.error || `Server responded with ${res.status}`);
+            let msg = 'AI Tutor request failed';
+            if (typeof errData.error === 'string') msg = errData.error;
+            else if (typeof errData.message === 'string') msg = errData.message;
+            else if (typeof errData.detail === 'string') msg = errData.detail;
+            else if (Array.isArray(errData.detail) && errData.detail.length > 0) {
+              const item = errData.detail[0];
+              msg = typeof item === 'string' ? item : (item.msg || JSON.stringify(item));
+            } else {
+              msg = `Server responded with ${res.status}`;
+            }
+            throw new Error(msg);
           }
 
           const data = await res.json();
@@ -5124,10 +5137,18 @@
           };
           setMessages(prev => [...prev, tutorMsg]);
         } catch (err) {
+          const errorText =
+            typeof err === 'string'
+              ? err
+              : typeof err?.message === 'string'
+              ? err.message
+              : typeof err?.error === 'string'
+              ? err.error
+              : 'Failed to reach AI Tutor. Please wait a moment and try again.';
           const errorMsg = {
             id: 'err-' + Date.now(),
             sender: 'tutor',
-            text: err.message || 'Failed to reach AI Tutor. Please ensure the service is running.',
+            text: errorText,
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             error: true,
           };
