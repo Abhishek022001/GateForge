@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Brain,
-  User,
   Send,
   BookOpen,
   CheckCircle2,
@@ -9,12 +8,11 @@ import {
   AlertTriangle,
   RotateCcw,
   RefreshCw,
-  Cpu,
-  Database,
-  Search,
   ChevronDown,
   ChevronUp,
-  Network,
+  ArrowLeft,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { api, IAskResponse, IRetrievedQuestionRef, ITutorHealth } from '../services/api';
 
@@ -49,8 +47,17 @@ export const AITutorPage: React.FC<{ onBackToHome?: () => void }> = ({ onBackToH
   const [isLoading, setIsLoading] = useState(false);
   const [health, setHealth] = useState<ITutorHealth | null>(null);
   const [expandedRef, setExpandedRef] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const chatBottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleCopy = (text: string, id: string) => {
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(text);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    }
+  };
 
   // Load health & subjects on mount
   useEffect(() => {
@@ -91,6 +98,9 @@ export const AITutorPage: React.FC<{ onBackToHome?: () => void }> = ({ onBackToH
 
     setMessages((prev) => [...prev, userMsg]);
     setInputQuery('');
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
     setIsLoading(true);
 
     try {
@@ -504,266 +514,254 @@ export const AITutorPage: React.FC<{ onBackToHome?: () => void }> = ({ onBackToH
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-      {/* Header Banner */}
-      <header className="border-b border-slate-800 bg-slate-900/40 backdrop-blur-md sticky top-16 z-30 px-4 py-3">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
-              <Brain className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <h1 className="text-lg font-bold text-white tracking-tight">RAG-Powered AI Tutor</h1>
-                <span className="px-2 py-0.5 text-[10px] font-mono font-semibold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-full flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Semantic ChromaDB
-                </span>
-              </div>
-              <p className="text-xs text-slate-400">
-                Contextually grounded in authentic GATE CS previous year questions and official solutions.
-              </p>
-            </div>
-          </div>
-
-          {/* Status & Subject Controls */}
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center gap-2 text-xs font-mono px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800">
-              <Database className="w-3.5 h-3.5 text-indigo-400" />
-              <span className="text-slate-400">Corpus:</span>
-              <span className="font-semibold text-slate-200">
-                {health?.questions_indexed ?? 386} PYQs
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-violet-500/30 selection:text-white">
+      {/* 1. Slim Modern Top Utility Bar (~44px) - Replaces the bulky 140px Double Header */}
+      <header className="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-16 z-30 px-4 py-2.5">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            {onBackToHome && (
+              <button
+                type="button"
+                onClick={onBackToHome}
+                className="p-1.5 -ml-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition cursor-pointer"
+                title="Back to Home"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+            )}
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-sm text-slate-200 tracking-tight">AI Tutor</span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 text-[11px] font-mono">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                {health?.questions_indexed ?? 386} PYQs Grounded
               </span>
             </div>
-
-            <select
-              value={selectedSubject}
-              onChange={(e) => setSelectedSubject(e.target.value)}
-              className="bg-slate-900 border border-slate-800 text-xs text-slate-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-brand-500 font-mono"
-            >
-              <option value="All Subjects">All Subjects</option>
-              {subjects.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
           </div>
+
+          {messages.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setMessages([])}
+              className="text-xs font-mono text-slate-400 hover:text-rose-400 px-2.5 py-1 rounded-lg hover:bg-slate-900 border border-slate-800/80 transition cursor-pointer flex items-center gap-1.5"
+              title="Start fresh conversation"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">New Chat</span>
+            </button>
+          )}
         </div>
       </header>
 
-      {/* Main Chat Container */}
-      <main className="flex-1 max-w-5xl w-full mx-auto p-4 flex flex-col">
+      {/* 2. Main Canvas Area */}
+      <main className="flex-1 max-w-3xl w-full mx-auto px-4 pt-6 pb-40 flex flex-col">
         {messages.length === 0 ? (
-          /* Empty State / Welcome & Starter Queries */
-          <div className="my-auto py-8 text-center max-w-2xl mx-auto flex flex-col items-center">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-violet-500/20 to-indigo-500/20 border border-violet-500/30 flex items-center justify-center mb-4 text-violet-400 shadow-lg shadow-violet-500/10">
-              <Brain className="w-7 h-7" />
+          /* Empty / Welcome State (Clean & Centered like Claude / ChatGPT) */
+          <div className="my-auto py-12 text-center max-w-xl mx-auto flex flex-col items-center">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-600/20 to-indigo-600/20 border border-violet-500/30 flex items-center justify-center mb-4 text-violet-400 shadow-lg shadow-violet-500/10">
+              <Brain className="w-6 h-6" />
             </div>
             <h2 className="text-xl sm:text-2xl font-bold text-white mb-2 tracking-tight">
-              Ask Any GATE CS Technical Question
+              What GATE concept would you like to master today?
             </h2>
-            <p className="text-xs sm:text-sm text-slate-400 mb-6 leading-relaxed max-w-xl">
-              Our AI Tutor searches the authentic GATE question bank using vector embeddings, retrieves the top 3
-              most relevant exam questions, and grounds the explanation strictly in verified reference solutions.
+            <p className="text-xs sm:text-sm text-slate-400 mb-8 leading-relaxed">
+              Every explanation is contextually anchored in authentic GATE questions with rigorous mathematical derivations and zero answer leakage.
             </p>
 
             <div className="w-full text-left">
-              <span className="text-xs font-mono uppercase text-slate-500 font-semibold mb-3 block text-center">
-                Recommended Study Inquiries:
-              </span>
-              <div className="grid grid-cols-1 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {SUGGESTIONS.map((item, idx) => (
                   <button
                     key={idx}
+                    type="button"
                     onClick={() => handleSend(item.q)}
-                    className="p-3.5 text-left rounded-xl bg-slate-900/70 border border-slate-800/90 hover:border-violet-500/50 hover:bg-slate-900 transition flex items-center justify-between text-xs text-slate-300 group shadow-sm cursor-pointer"
+                    className="p-3.5 text-left rounded-2xl bg-slate-900/60 border border-slate-800/90 hover:border-violet-500/50 hover:bg-slate-900 transition flex flex-col justify-between text-xs text-slate-300 group shadow-sm cursor-pointer"
                   >
-                    <div className="flex items-center gap-2.5 flex-1 min-w-0 pr-2">
-                      <span className="px-2 py-0.5 rounded bg-violet-500/15 text-violet-300 border border-violet-500/30 text-[10px] font-mono font-medium flex-shrink-0">
-                        {item.topic}
-                      </span>
-                      <span className="truncate group-hover:text-white transition-colors">{item.q}</span>
-                    </div>
-                    <Send className="w-3.5 h-3.5 text-slate-500 group-hover:text-violet-400 transition-transform group-hover:translate-x-0.5 flex-shrink-0" />
+                    <span className="text-[10px] font-mono font-medium text-violet-400 mb-1.5">
+                      {item.topic}
+                    </span>
+                    <span className="line-clamp-2 text-slate-300 group-hover:text-white transition-colors leading-relaxed">
+                      {item.q}
+                    </span>
                   </button>
                 ))}
               </div>
             </div>
           </div>
         ) : (
-          /* Chat Message Thread */
-          <div className="space-y-6 pb-24">
+          /* Conversation Thread (Open Canvas, Unboxed Responses) */
+          <div className="space-y-6">
             {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex gap-3 ${
-                  msg.sender === 'user' ? 'justify-end' : 'justify-start'
-                }`}
-              >
-                {msg.sender === 'tutor' && (
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center flex-shrink-0 mt-1 shadow-md shadow-violet-500/20 text-white">
-                    <Brain className="w-4 h-4" />
-                  </div>
-                )}
-
-                <div
-                  className={`max-w-3xl rounded-2xl p-4 sm:p-5 ${
-                    msg.sender === 'user'
-                      ? 'bg-gradient-to-r from-brand-600 to-blue-600 text-white rounded-tr-sm shadow-md shadow-brand-500/10'
-                      : 'bg-slate-900/90 border border-slate-800 text-slate-100 rounded-tl-sm shadow-lg'
-                  }`}
-                >
-                  {/* Tutor Header Badges */}
-                  {msg.sender === 'tutor' && !msg.error && (
-                    <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2.5 border-b border-slate-800/80 text-xs">
-                      {msg.isGrounded ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-semibold font-mono text-[11px]">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          Grounded in {msg.references?.length ?? 3} Authentic GATE PYQs
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 font-semibold font-mono text-[11px]">
-                          <AlertCircle className="w-3.5 h-3.5" />
-                          General Concept (No Direct PYQ Matches in Corpus)
-                        </span>
-                      )}
-
-                      {msg.latencyMs && (
-                        <span className="text-[11px] font-mono text-slate-500">
-                          {msg.latencyMs}ms • {msg.modelUsed || 'groq'}
-                        </span>
-                      )}
+              <div key={msg.id}>
+                {msg.sender === 'user' ? (
+                  /* User Prompt: Muted Dark-Glass Capsule on Right (No Avatars, No Loud Blue) */
+                  <div className="flex justify-end my-3">
+                    <div className="max-w-[85%] sm:max-w-[78%] rounded-3xl bg-slate-800/90 border border-slate-700/60 px-5 py-3 text-slate-100 text-sm sm:text-base leading-relaxed shadow-sm">
+                      <div className="whitespace-pre-wrap break-words">{msg.text}</div>
                     </div>
-                  )}
+                  </div>
+                ) : (
+                  /* Assistant Response: Pure Unboxed Canvas (Like ChatGPT / Claude) */
+                  <div className="my-6">
+                    {/* Subtle Diagnostic / Grounding Status Line */}
+                    {!msg.error && (
+                      <div className="flex flex-wrap items-center gap-2 mb-3 text-xs text-slate-400 font-mono">
+                        {msg.isGrounded ? (
+                          <span className="inline-flex items-center gap-1 text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-full text-[11px] font-medium">
+                            <CheckCircle2 className="w-3 h-3" />
+                            Grounded in {msg.references?.length ?? 2} GATE PYQs
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-amber-400 bg-amber-500/10 border border-amber-500/25 px-2 py-0.5 rounded-full text-[11px] font-medium">
+                            <AlertCircle className="w-3 h-3" />
+                            Core Concept (No direct PYQ matches)
+                          </span>
+                        )}
+                        {msg.latencyMs && (
+                          <span className="text-slate-500 text-[11px]">
+                            • {msg.latencyMs}ms • {msg.modelUsed || 'groq'}
+                          </span>
+                        )}
+                      </div>
+                    )}
 
-                  {/* Message Body */}
-                  {msg.error ? (
-                    <div className="space-y-3">
-                      <div className="flex items-start gap-2.5 text-rose-300 text-xs sm:text-sm bg-rose-950/40 border border-rose-500/30 rounded-xl p-3.5 leading-relaxed">
-                        <AlertTriangle className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 min-w-0">
-                          <span className="font-semibold text-rose-200 block mb-0.5">Tutor Service Notice</span>
-                          <span className="break-words">{typeof msg.text === 'string' ? msg.text : JSON.stringify(msg.text)}</span>
+                    {/* Response Body or Error Card */}
+                    {msg.error ? (
+                      <div className="space-y-3">
+                        <div className="flex items-start gap-2.5 text-rose-300 text-xs sm:text-sm bg-rose-950/40 border border-rose-500/30 rounded-2xl p-4 leading-relaxed">
+                          <AlertTriangle className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1 min-w-0">
+                            <span className="font-semibold text-rose-200 block mb-0.5">Tutor Service Notice</span>
+                            <span className="break-words">{typeof msg.text === 'string' ? msg.text : JSON.stringify(msg.text)}</span>
+                          </div>
+                        </div>
+                        {msg.queryToRetry && (
+                          <button
+                            type="button"
+                            onClick={() => handleSend(msg.queryToRetry)}
+                            disabled={isLoading}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-mono font-medium text-slate-200 transition-colors cursor-pointer"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5 text-indigo-400" />
+                            <span>Retry Question</span>
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-slate-100 leading-relaxed text-sm sm:text-base prose-invert max-w-none">
+                        {renderFormattedText(msg.text)}
+                      </div>
+                    )}
+
+                    {/* Collapsible Retrieved PYQ Drawer */}
+                    {msg.references && msg.references.length > 0 && (
+                      <div className="mt-5 pt-3 border-t border-slate-800/60">
+                        <div className="text-xs font-mono font-semibold text-indigo-300 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                          <BookOpen className="w-3.5 h-3.5" />
+                          Retrieved Context References ({msg.references.length}):
+                        </div>
+                        <div className="space-y-2">
+                          {msg.references.map((ref) => {
+                            const isExpanded = expandedRef === ref.id;
+                            return (
+                              <div
+                                key={ref.id}
+                                className="rounded-xl bg-slate-900/60 border border-slate-800/90 p-3 text-xs"
+                              >
+                                <div className="flex items-center justify-between gap-2">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <span className="font-mono font-bold text-violet-400">
+                                      [{ref.id}]
+                                    </span>
+                                    {ref.subject && (
+                                      <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px]">
+                                        {ref.subject}
+                                      </span>
+                                    )}
+                                    {ref.year && (
+                                      <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px]">
+                                        GATE {ref.year}
+                                      </span>
+                                    )}
+                                    <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-mono">
+                                      {(ref.similarity_score * 100).toFixed(0)}% Match
+                                    </span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => setExpandedRef(isExpanded ? null : ref.id)}
+                                    className="text-slate-400 hover:text-slate-200 transition p-1 cursor-pointer"
+                                    title={isExpanded ? 'Collapse' : 'Expand full question'}
+                                  >
+                                    {isExpanded ? (
+                                      <ChevronUp className="w-3.5 h-3.5" />
+                                    ) : (
+                                      <ChevronDown className="w-3.5 h-3.5" />
+                                    )}
+                                  </button>
+                                </div>
+
+                                <p className="mt-2 text-slate-300 line-clamp-2">
+                                  {ref.question}
+                                </p>
+
+                                {isExpanded && (
+                                  <div className="mt-3 pt-3 border-t border-slate-800/80 space-y-2 text-slate-300">
+                                    {ref.correct_answer && (
+                                      <p>
+                                        <strong className="text-emerald-400">Official Answer:</strong>{' '}
+                                        {String(ref.correct_answer)}
+                                      </p>
+                                    )}
+                                    {ref.explanation && (
+                                      <div>
+                                        <strong className="text-indigo-400">Verified Explanation:</strong>
+                                        <p className="mt-1 text-slate-400 whitespace-pre-wrap">
+                                          {ref.explanation}
+                                        </p>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
-                      {msg.queryToRetry && (
+                    )}
+
+                    {/* Post-Response Minimal Action Row (Copy, Retry) */}
+                    {!msg.error && (
+                      <div className="mt-3.5 flex items-center gap-3 text-xs text-slate-400">
                         <button
                           type="button"
-                          onClick={() => handleSend(msg.queryToRetry)}
-                          disabled={isLoading}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-mono font-medium text-slate-200 transition-colors cursor-pointer"
+                          onClick={() => handleCopy(msg.text, msg.id)}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-slate-900 hover:text-slate-200 transition text-slate-400 text-xs font-mono cursor-pointer"
+                          title="Copy response markdown"
                         >
-                          <RotateCcw className="w-3.5 h-3.5" />
-                          <span>Retry Question</span>
+                          {copiedId === msg.id ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-emerald-400" />
+                              <span className="text-emerald-400">Copied</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>Copy</span>
+                            </>
+                          )}
                         </button>
-                      )}
-                    </div>
-                  ) : (
-                    renderFormattedText(msg.text)
-                  )}
-
-                  {/* Retrieved Question References Drawer */}
-                  {msg.references && msg.references.length > 0 && (
-                    <div className="mt-5 pt-4 border-t border-slate-800/80">
-                      <div className="text-xs font-mono font-semibold text-indigo-300 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                        <BookOpen className="w-3.5 h-3.5" />
-                        Retrieved Context References ({msg.references.length}):
                       </div>
-                      <div className="space-y-2">
-                        {msg.references.map((ref) => {
-                          const isExpanded = expandedRef === ref.id;
-                          return (
-                            <div
-                              key={ref.id}
-                              className="rounded-xl bg-slate-950/70 border border-slate-800 p-3 text-xs"
-                            >
-                              <div className="flex items-center justify-between gap-2">
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <span className="font-mono font-bold text-violet-400">
-                                    [{ref.id}]
-                                  </span>
-                                  {ref.subject && (
-                                    <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px]">
-                                      {ref.subject}
-                                    </span>
-                                  )}
-                                  {ref.year && (
-                                    <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px]">
-                                      GATE {ref.year}
-                                    </span>
-                                  )}
-                                  <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-mono">
-                                    {(ref.similarity_score * 100).toFixed(0)}% Match
-                                  </span>
-                                </div>
-                                <button
-                                  onClick={() => setExpandedRef(isExpanded ? null : ref.id)}
-                                  className="text-slate-400 hover:text-slate-200 transition p-1"
-                                  title={isExpanded ? 'Collapse' : 'Expand full question'}
-                                >
-                                  {isExpanded ? (
-                                    <ChevronUp className="w-3.5 h-3.5" />
-                                  ) : (
-                                    <ChevronDown className="w-3.5 h-3.5" />
-                                  )}
-                                </button>
-                              </div>
-
-                              <p className="mt-2 text-slate-300 line-clamp-2">
-                                {ref.question}
-                              </p>
-
-                              {isExpanded && (
-                                <div className="mt-3 pt-3 border-t border-slate-800/80 space-y-2 text-slate-300">
-                                  {ref.correct_answer && (
-                                    <p>
-                                      <strong className="text-emerald-400">Official Answer:</strong>{' '}
-                                      {String(ref.correct_answer)}
-                                    </p>
-                                  )}
-                                  {ref.explanation && (
-                                    <div>
-                                      <strong className="text-indigo-400">Verified Explanation:</strong>
-                                      <p className="mt-1 text-slate-400 whitespace-pre-wrap">
-                                        {ref.explanation}
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="mt-2 text-[10px] text-right font-mono">
-                    <span className={msg.sender === 'user' ? 'text-blue-100/75' : 'text-slate-500'}>
-                      {msg.timestamp}
-                    </span>
-                  </div>
-                </div>
-
-                {msg.sender === 'user' && (
-                  <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700/80 flex items-center justify-center flex-shrink-0 mt-1 text-slate-300 shadow-sm">
-                    <User className="w-4 h-4" />
+                    )}
                   </div>
                 )}
               </div>
             ))}
 
-            {/* Loading Indicator */}
+            {/* Subtle Loading Animation */}
             {isLoading && (
-              <div className="flex gap-3 justify-start">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center flex-shrink-0 mt-1 animate-pulse text-white">
-                  <Brain className="w-4 h-4" />
-                </div>
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-sm p-4 text-xs font-mono text-slate-400 flex items-center gap-3 shadow-md">
-                  <RefreshCw className="w-4 h-4 animate-spin text-violet-400" />
-                  <span>Searching ChromaDB vector store & synthesizing grounded explanation...</span>
-                </div>
+              <div className="flex items-center gap-3 my-4 text-xs font-mono text-slate-400 py-2">
+                <RefreshCw className="w-4 h-4 animate-spin text-violet-400" />
+                <span>Searching ChromaDB vector store & synthesizing grounded explanation...</span>
               </div>
             )}
 
@@ -772,42 +770,66 @@ export const AITutorPage: React.FC<{ onBackToHome?: () => void }> = ({ onBackToH
         )}
       </main>
 
-      {/* Floating Chat Input Bar */}
-      <footer className="sticky bottom-0 bg-slate-950/90 backdrop-blur-md border-t border-slate-800/80 p-3 sm:p-4 z-40">
-        <div className="max-w-4xl mx-auto flex items-end gap-2 sm:gap-3">
-          <div className="flex-1 relative bg-slate-900 border border-slate-800 rounded-xl focus-within:border-violet-500 transition-colors shadow-inner">
+      {/* 3. Floating Command Island (Option A: Integrated Subject Dropdown + Auto-Resize Input + Circular Send) */}
+      <footer className="fixed bottom-0 left-0 right-0 z-40 px-4 pb-4 pt-6 bg-gradient-to-t from-slate-950 via-slate-950/90 to-transparent pointer-events-none">
+        <div className="max-w-3xl mx-auto pointer-events-auto">
+          <div className="rounded-3xl bg-slate-900/95 border border-slate-700/80 shadow-2xl shadow-black/60 backdrop-blur-xl p-2.5 sm:p-3 transition-all focus-within:border-slate-500/80 focus-within:ring-2 focus-within:ring-violet-500/20">
+            {/* Auto-growing Textarea */}
             <textarea
               ref={textareaRef}
-              rows={2}
+              rows={1}
               value={inputQuery}
-              onChange={(e) => setInputQuery(e.target.value)}
+              onChange={(e) => {
+                setInputQuery(e.target.value);
+                e.target.style.height = 'auto';
+                e.target.style.height = Math.min(e.target.scrollHeight, 180) + 'px';
+              }}
               onKeyDown={handleKeyDown}
-              placeholder="Ask a GATE CS question (e.g. 'Minimum nodes in an AVL tree', 'LRU cache simulation')..."
-              className="w-full bg-transparent px-3.5 py-2.5 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none resize-none font-sans"
+              placeholder="Ask a GATE CS question or concept (e.g. 'Dijkstra algorithm complexity', 'LRU cache simulation')..."
+              className="w-full bg-transparent px-3 py-1.5 text-sm sm:text-base text-slate-100 placeholder-slate-400 focus:outline-none resize-none font-sans max-h-44 leading-relaxed"
             />
+
+            {/* Bottom Controls inside the Pill */}
+            <div className="flex items-center justify-between pt-1 px-1">
+              {/* Option A: Sleek Subject Dropdown Pill */}
+              <div className="relative inline-flex items-center">
+                <select
+                  value={selectedSubject}
+                  onChange={(e) => setSelectedSubject(e.target.value)}
+                  className="appearance-none bg-slate-800/80 hover:bg-slate-800 border border-slate-700/70 hover:border-slate-600 text-xs font-mono text-slate-300 rounded-full pl-3 pr-7 py-1 focus:outline-none cursor-pointer transition-colors shadow-sm"
+                  title="Filter grounding search by subject"
+                >
+                  <option value="All Subjects">All Subjects</option>
+                  {subjects.map((s) => (
+                    <option key={s} value={s} className="bg-slate-900 text-slate-200">
+                      {s}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-3 h-3 text-slate-400 pointer-events-none absolute right-2.5" />
+              </div>
+
+              {/* Circular Send Button */}
+              <button
+                type="button"
+                onClick={() => handleSend()}
+                disabled={!inputQuery.trim() || isLoading}
+                className="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-600 to-violet-600 hover:from-brand-500 hover:to-violet-500 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center transition-all shadow-md shadow-violet-500/25 cursor-pointer flex-shrink-0"
+                title="Send inquiry (Enter)"
+              >
+                {isLoading ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Send className="w-3.5 h-3.5 ml-0.5" />
+                )}
+              </button>
+            </div>
           </div>
 
-          <button
-            onClick={() => handleSend()}
-            disabled={!inputQuery.trim() || isLoading}
-            className="h-11 px-4 sm:px-5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-lg shadow-violet-500/20 transition-all flex-shrink-0 cursor-pointer"
-          >
-            {isLoading ? (
-              <RefreshCw className="w-4 h-4 animate-spin" />
-            ) : (
-              <>
-                <Send className="w-4 h-4" />
-                <span className="hidden sm:inline">Ask Tutor</span>
-              </>
-            )}
-          </button>
-        </div>
-        <div className="max-w-4xl mx-auto mt-2 text-center text-[11px] text-slate-500 font-mono flex items-center justify-center gap-3">
-          <span>Shift+Enter for newline</span>
-          <span>•</span>
-          <span>Never fabricates unverified context</span>
-          <span>•</span>
-          <span>Press Enter to ask</span>
+          {/* Minimal Disclaimer */}
+          <p className="text-center text-[11px] text-slate-500 font-sans mt-2 tracking-tight">
+            GateForge AI Tutor is grounded in official GATE PYQs. Verify critical derivations.
+          </p>
         </div>
       </footer>
     </div>
