@@ -27,9 +27,8 @@ def normalize_latex_delimiters(text: str) -> str:
 
 FALLBACK_MODELS = [
     "openai/gpt-oss-120b",
-    "openai/gpt-oss-20b",
-    "qwen/qwen3.8-27b",
     "llama-3.3-70b-versatile",
+    "openai/gpt-oss-20b",
 ]
 
 class RAGService:
@@ -237,7 +236,8 @@ class RAGService:
             if m and m not in candidate_models:
                 candidate_models.append(m)
 
-        async with httpx.AsyncClient(timeout=config.ai_timeout_seconds) as client:
+        llm_call_timeout = min(config.ai_timeout_seconds, 12.0)
+        async with httpx.AsyncClient(timeout=llm_call_timeout) as client:
             for model_name in candidate_models:
                 try:
                     payload = {
@@ -247,7 +247,7 @@ class RAGService:
                             {"role": "user", "content": user_content}
                         ],
                         "temperature": 0.2,
-                        "max_tokens": 2500,
+                        "max_tokens": 1200,
                     }
                     headers = {
                         "Authorization": f"Bearer {config.active_api_key}",
@@ -271,6 +271,8 @@ class RAGService:
                             if content.strip():
                                 clean_text = normalize_latex_delimiters(content)
                                 return clean_text, is_grounded, model_name
+                        logger.warning(f"Empty content returned from '{model_name}'. Trying fallback...")
+                        last_error = f"Empty response from {model_name}"
                     elif response.status_code == 429:
                         logger.warning(f"Rate limited on model '{model_name}'. Trying fallback...")
                         last_error = f"Rate limited on {model_name} (HTTP 429)"

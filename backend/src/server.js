@@ -403,10 +403,14 @@ function proxyToTutorService(req, res, urlObj) {
     if (res.headersSent) return;
     setCorsHeaders(res);
     res.writeHead(503, { 'Content-Type': 'application/json' });
+    const isLocal = ['localhost', '127.0.0.1', '0.0.0.0'].includes(targetBase.hostname);
+    const errorMsg = isLocal
+      ? 'AI Tutor service is not connected. In Render, please set the TUTOR_SERVICE_URL environment variable in your gateforge Node service to point to your gateforge-tutor service (e.g. https://gateforge-tutor.onrender.com).'
+      : 'AI Tutor service is currently offline or unreachable. Please verify gateforge-tutor is live on Render.';
     res.end(
       JSON.stringify({
         success: false,
-        error: 'AI Tutor service is currently offline or unreachable. Please ensure the Python service is running and accessible.',
+        error: errorMsg,
         code: 'TUTOR_SERVICE_OFFLINE',
         detail: err.message,
       })

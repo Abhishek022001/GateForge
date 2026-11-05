@@ -344,29 +344,68 @@ class ApiService {
     if (subject && subject !== 'All Subjects') {
       payload.subject = subject;
     }
-    const res = await fetch(`${this.getBaseUrl()}/api/tutor/ask`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-      if (res.status === 502 || res.status === 503 || res.status === 504) {
-        throw new Error('The AI Tutor cloud service is currently waking up or busy on Render. Please wait 15–20 seconds and ask again.');
+
+    const maxRetries = 2;
+    let lastError: any = null;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const res = await fetch(`${this.getBaseUrl()}/api/tutor/ask`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+
+          // If the service is warming up or experiencing cold start, wait and auto-retry
+          const isWarmingUp =
+            errData.code === 'TUTOR_SERVICE_WARMING_UP' ||
+            ((res.status === 502 || res.status === 503 || res.status === 504) && !errData.error);
+
+          if (isWarmingUp && attempt < maxRetries) {
+            await new Promise((r) => setTimeout(r, (attempt + 1) * 3500));
+            continue;
+          }
+
+          let msg = '';
+          if (typeof errData.error === 'string') {
+            msg = errData.error;
+            if (errData.detail && typeof errData.detail === 'string' && !msg.includes(errData.detail)) {
+              msg += ` (${errData.detail})`;
+            }
+          } else if (typeof errData.message === 'string') {
+            msg = errData.message;
+          } else if (typeof errData.detail === 'string') {
+            msg = errData.detail;
+          } else if (Array.isArray(errData.detail) && errData.detail.length > 0) {
+            const item = errData.detail[0];
+            msg = typeof item === 'string' ? item : (item.msg || JSON.stringify(item));
+          } else if (res.status === 502 || res.status === 503 || res.status === 504) {
+            msg = 'The AI Tutor cloud service is currently waking up or busy on Render. Please wait 15–20 seconds and ask again.';
+          } else {
+            msg = `AI Tutor request failed with HTTP ${res.status}`;
+          }
+          throw new Error(msg);
+        }
+
+        return await res.json();
+      } catch (err: any) {
+        lastError = err;
+        const errMsg = (err?.message || '').toLowerCase();
+        const canRetry =
+          attempt < maxRetries &&
+          (errMsg.includes('waking up') || errMsg.includes('failed to fetch') || errMsg.includes('networkerror'));
+        if (canRetry) {
+          await new Promise((r) => setTimeout(r, (attempt + 1) * 3500));
+          continue;
+        }
+        throw err;
       }
-      const err = await res.json().catch(() => ({}));
-      let msg = 'AI Tutor request failed';
-      if (typeof err.error === 'string') msg = err.error;
-      else if (typeof err.message === 'string') msg = err.message;
-      else if (typeof err.detail === 'string') msg = err.detail;
-      else if (Array.isArray(err.detail) && err.detail.length > 0) {
-        const item = err.detail[0];
-        msg = typeof item === 'string' ? item : (item.msg || JSON.stringify(item));
-      } else {
-        msg = `AI Tutor request failed with HTTP ${res.status}`;
-      }
-      throw new Error(msg);
     }
-    return await res.json();
+
+    throw lastError || new Error('AI Tutor request failed');
   }
 
   async getTutorHealth(): Promise<ITutorHealth> {

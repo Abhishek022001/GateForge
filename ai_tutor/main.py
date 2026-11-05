@@ -19,7 +19,7 @@ from ai_tutor.models import (
     RetrievedQuestionRef,
 )
 from ai_tutor.rag_service import rag_service
-from ai_tutor.ingest import ingest_questions
+from ai_tutor.ingest import ingest_questions, get_embedding_model
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("ai_tutor.main")
@@ -28,6 +28,12 @@ logger = logging.getLogger("ai_tutor.main")
 async def lifespan(app: FastAPI):
     logger.info("Initializing GateForge AI Tutor Service...")
     logger.info(f"Target ChromaDB directory: {config.chroma_persist_dir}")
+    try:
+        import torch
+        torch.set_num_threads(1)
+    except Exception:
+        pass
+
     # Warm up embedding model and collection
     try:
         count = rag_service.collection.count()
@@ -36,7 +42,7 @@ async def lifespan(app: FastAPI):
             logger.info("Collection is empty. Running initial ingestion...")
             ingest_questions()
         # Pre-warm SentenceTransformer in RAM so first query does not hit cold-load lag
-        get_embedding_model()
+        _ = rag_service.model
         logger.info("SentenceTransformer model pre-warmed successfully.")
     except Exception as e:
         logger.error(f"Error initializing ChromaDB / model on startup: {e}")
