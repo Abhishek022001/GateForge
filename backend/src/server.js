@@ -29,6 +29,7 @@ import { analyticsService } from './services/analytics.service.js';
 import { connectToDatabase } from './config/db.js';
 import { AIError } from './services/ai/ai.interface.js';
 import { classifyGateQuestion } from './utils/syllabusClassifier.js';
+import { authService } from './services/auth.service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -553,6 +554,174 @@ const server = http.createServer(async (req, res) => {
         aiConfigured: aiService.isConfigured(),
       })
     );
+    return;
+  }
+
+  // GET /api/auth/config - Public OAuth Configuration (Client ID)
+  if (req.method === 'GET' && pathname === '/api/auth/config') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(
+      JSON.stringify({
+        success: true,
+        data: authService.getConfig(),
+      })
+    );
+    return;
+  }
+
+  // POST /api/auth/google - Verify Google ID Token & Establish Session
+  if (req.method === 'POST' && pathname === '/api/auth/google') {
+    try {
+      const body = await parseJsonBody(req, res);
+      const customUsername = (body?.customUsername || body?.username || '').trim();
+
+      if (body?.isDemo) {
+        const demoUser = { ...(body?.demoUser || {}) };
+        if (customUsername) {
+          demoUser.name = customUsername;
+        }
+        const result = await authService.loginWithDemo(demoUser);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(result));
+        return;
+      }
+
+      if (!body?.credential || typeof body.credential !== 'string') {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(
+          JSON.stringify({
+            success: false,
+            error: 'Google credential token is required.',
+            code: 'MISSING_CREDENTIAL',
+          })
+        );
+        return;
+      }
+
+      const result = await authService.loginWithGoogle(body.credential, customUsername);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(result));
+    } catch (err) {
+      if (res.headersSent) return;
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(
+        JSON.stringify({
+          success: false,
+          error: err.message || 'Google authentication failed.',
+          code: 'AUTH_FAILED',
+        })
+      );
+    }
+    return;
+  }
+
+  // PATCH /api/auth/profile - Update Custom Display Name / Username
+  if (req.method === 'PATCH' && pathname === '/api/auth/profile') {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: 'Authorization header required', code: 'UNAUTHORIZED' }));
+      return;
+    }
+
+    try {
+      const user = await authService.getUserByToken(authHeader);
+      if (!user) {
+        res.writeHead(401, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: 'Invalid or expired session', code: 'INVALID_SESSION' }));
+        return;
+      }
+
+      const body = await parseJsonBody(req, res);
+      const newName = (body?.name || body?.username || '').trim();
+      if (!newName || newName.length < 2 || newName.length > 50) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: 'Username must be between 2 and 50 characters.', code: 'INVALID_USERNAME' }));
+        return;
+      }
+
+      const updated = await authService.updateUserProfile(user.id || user.googleId, { name: newName });
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, user: updated }));
+    } catch (err) {
+      if (res.headersSent) return;
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: err.message, code: 'UPDATE_FAILED' }));
+    }
+    return;
+  }
+
+  // GET /api/auth/me - Retrieve Current Authenticated User
+  if (req.method === 'GET' && pathname === '/api/auth/me') {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(
+        JSON.stringify({
+          success: false,
+          error: 'Authorization header is required.',
+          code: 'UNAUTHORIZED',
+        })
+      );
+      return;
+    }
+
+    try {
+      const user = await authService.getUserByToken(authHeader);
+      if (!user) {
+        res.writeHead(401, { 'Content-Type': 'application/json' });
+        res.end(
+          JSON.stringify({
+            success: false,
+            error: 'Invalid or expired session token.',
+            code: 'INVALID_SESSION',
+          })
+        );
+        return;
+      }
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(
+        JSON.stringify({
+          success: true,
+          user,
+        })
+      );
+    } catch (err) {
+      if (res.headersSent) return;
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(
+        JSON.stringify({
+          success: false,
+          error: err.message || 'Failed to retrieve user profile.',
+          code: 'AUTH_ERROR',
+        })
+      );
+    }
+    return;
+  }
+
+  // POST /api/auth/logout - Invalidate Session Token
+  if (req.method === 'POST' && pathname === '/api/auth/logout') {
+    try {
+      let token = req.headers['authorization'] || '';
+      if (!token) {
+        const body = await parseJsonBody(req, res).catch(() => ({}));
+        token = body?.token || '';
+      }
+      authService.logout(token);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(
+        JSON.stringify({
+          success: true,
+          message: 'Session terminated successfully.',
+        })
+      );
+    } catch (err) {
+      if (res.headersSent) return;
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true }));
+    }
     return;
   }
 
@@ -2265,6 +2434,10 @@ const server = http.createServer(async (req, res) => {
           createQuestion: 'POST /api/questions',
           importBulk: 'POST /api/questions/import',
           evaluateAnswer: 'POST /api/questions/:id/answer',
+          authConfig: 'GET /api/auth/config',
+          authGoogle: 'POST /api/auth/google',
+          authMe: 'GET /api/auth/me',
+          authLogout: 'POST /api/auth/logout',
         },
       })
     );
@@ -2295,6 +2468,6 @@ server.listen(PORT, async () => {
   initTutorHeartbeat();
 });
 
-export { server, db };
+export { server, db, authService };
 export default server;
 

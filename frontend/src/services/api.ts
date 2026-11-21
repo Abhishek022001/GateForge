@@ -425,6 +425,120 @@ class ApiService {
       return [];
     }
   }
+
+  // Authentication & Google Sign-In methods
+  async getAuthConfig(): Promise<IAuthConfig> {
+    const res = await this.request<{ success: boolean; data: IAuthConfig }>('/api/auth/config');
+    return res.data;
+  }
+
+  async loginWithGoogle(credential: string, customUsername?: string): Promise<IAuthResult> {
+    return await this.request<IAuthResult>('/api/auth/google', {
+      method: 'POST',
+      body: JSON.stringify({ credential, customUsername }),
+    });
+  }
+
+  async loginWithDemo(demoUser?: Partial<IUserProfile>, customUsername?: string): Promise<IAuthResult> {
+    return await this.request<IAuthResult>('/api/auth/google', {
+      method: 'POST',
+      body: JSON.stringify({ isDemo: true, demoUser, customUsername }),
+    });
+  }
+
+  async updateProfile(token: string, updates: { name: string }): Promise<{ success: boolean; user: IUserProfile }> {
+    return await this.request<{ success: boolean; user: IUserProfile }>('/api/auth/profile', {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(updates),
+    });
+  }
+
+  async getAuthMe(token: string): Promise<{ success: boolean; user: IUserProfile }> {
+    return await this.request<{ success: boolean; user: IUserProfile }>('/api/auth/me', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  async logout(token: string): Promise<{ success: boolean }> {
+    try {
+      return await this.request<{ success: boolean }>('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (_) {
+      return { success: true };
+    }
+  }
+
+  getStoredAuthToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    try {
+      return localStorage.getItem('gateforge_auth_token');
+    } catch (_) {
+      return null;
+    }
+  }
+
+  getStoredUser(): IUserProfile | null {
+    if (typeof window === 'undefined') return null;
+    try {
+      const raw = localStorage.getItem('gateforge_auth_user');
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  setStoredAuth(token: string, user: IUserProfile): void {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem('gateforge_auth_token', token);
+      localStorage.setItem('gateforge_auth_user', JSON.stringify(user));
+    } catch (_) {}
+  }
+
+  clearStoredAuth(): void {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.removeItem('gateforge_auth_token');
+      localStorage.removeItem('gateforge_auth_user');
+    } catch (_) {}
+  }
+}
+
+export interface IUserProfile {
+  id: string;
+  googleId: string;
+  email: string;
+  name: string;
+  picture?: string;
+  createdAt?: string;
+  lastLoginAt?: string;
+  stats?: {
+    sessionsCompleted: number;
+    questionsAttempted: number;
+    correctAnswers: number;
+  };
+}
+
+export interface IAuthResult {
+  success: boolean;
+  user: IUserProfile;
+  token: string;
+  isDemo?: boolean;
+}
+
+export interface IAuthConfig {
+  googleClientId: string;
+  configured: boolean;
 }
 
 export interface IRetrievedQuestionRef {
